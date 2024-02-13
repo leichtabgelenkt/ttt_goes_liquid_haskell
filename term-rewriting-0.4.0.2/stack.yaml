@@ -1,0 +1,7 @@
+resolver: lts-17.2
+
+packages:
+  - .
+
+extra-deps:
+  - union-find-array-0.1.0.3
