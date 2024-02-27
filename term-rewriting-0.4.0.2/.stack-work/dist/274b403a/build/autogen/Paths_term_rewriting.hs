@@ -29,12 +29,12 @@ version :: Version
 version = Version [0,4,0,2] []
 bindir, libdir, dynlibdir, datadir, libexecdir, sysconfdir :: FilePath
 
-bindir     = "C:\\Users\\pdabl\\OneDrive\\Dokumente\\Studium Informatik\\Bachelorarbeit\\myproject\\term-rewriting-0.4.0.2\\.stack-work\\install\\50918f85\\bin"
-libdir     = "C:\\Users\\pdabl\\OneDrive\\Dokumente\\Studium Informatik\\Bachelorarbeit\\myproject\\term-rewriting-0.4.0.2\\.stack-work\\install\\50918f85\\lib\\x86_64-windows-ghc-8.10.3\\term-rewriting-0.4.0.2-CWOCtxd26jXCUqEsqAs3Xb"
-dynlibdir  = "C:\\Users\\pdabl\\OneDrive\\Dokumente\\Studium Informatik\\Bachelorarbeit\\myproject\\term-rewriting-0.4.0.2\\.stack-work\\install\\50918f85\\lib\\x86_64-windows-ghc-8.10.3"
-datadir    = "C:\\Users\\pdabl\\OneDrive\\Dokumente\\Studium Informatik\\Bachelorarbeit\\myproject\\term-rewriting-0.4.0.2\\.stack-work\\install\\50918f85\\share\\x86_64-windows-ghc-8.10.3\\term-rewriting-0.4.0.2"
-libexecdir = "C:\\Users\\pdabl\\OneDrive\\Dokumente\\Studium Informatik\\Bachelorarbeit\\myproject\\term-rewriting-0.4.0.2\\.stack-work\\install\\50918f85\\libexec\\x86_64-windows-ghc-8.10.3\\term-rewriting-0.4.0.2"
-sysconfdir = "C:\\Users\\pdabl\\OneDrive\\Dokumente\\Studium Informatik\\Bachelorarbeit\\myproject\\term-rewriting-0.4.0.2\\.stack-work\\install\\50918f85\\etc"
+bindir     = "C:\\Users\\pdabl\\OneDrive\\Dokumente\\Studium Informatik\\Bachelorarbeit\\ttt_goes_liquid_haskell\\term-rewriting-0.4.0.2\\.stack-work\\install\\50918f85\\bin"
+libdir     = "C:\\Users\\pdabl\\OneDrive\\Dokumente\\Studium Informatik\\Bachelorarbeit\\ttt_goes_liquid_haskell\\term-rewriting-0.4.0.2\\.stack-work\\install\\50918f85\\lib\\x86_64-windows-ghc-8.10.3\\term-rewriting-0.4.0.2-CWOCtxd26jXCUqEsqAs3Xb"
+dynlibdir  = "C:\\Users\\pdabl\\OneDrive\\Dokumente\\Studium Informatik\\Bachelorarbeit\\ttt_goes_liquid_haskell\\term-rewriting-0.4.0.2\\.stack-work\\install\\50918f85\\lib\\x86_64-windows-ghc-8.10.3"
+datadir    = "C:\\Users\\pdabl\\OneDrive\\Dokumente\\Studium Informatik\\Bachelorarbeit\\ttt_goes_liquid_haskell\\term-rewriting-0.4.0.2\\.stack-work\\install\\50918f85\\share\\x86_64-windows-ghc-8.10.3\\term-rewriting-0.4.0.2"
+libexecdir = "C:\\Users\\pdabl\\OneDrive\\Dokumente\\Studium Informatik\\Bachelorarbeit\\ttt_goes_liquid_haskell\\term-rewriting-0.4.0.2\\.stack-work\\install\\50918f85\\libexec\\x86_64-windows-ghc-8.10.3\\term-rewriting-0.4.0.2"
+sysconfdir = "C:\\Users\\pdabl\\OneDrive\\Dokumente\\Studium Informatik\\Bachelorarbeit\\ttt_goes_liquid_haskell\\term-rewriting-0.4.0.2\\.stack-work\\install\\50918f85\\etc"
 
 getBinDir, getLibDir, getDynLibDir, getDataDir, getLibexecDir, getSysconfDir :: IO FilePath
 getBinDir = catchIO (getEnv "term_rewriting_bindir") (\_ -> return bindir)
