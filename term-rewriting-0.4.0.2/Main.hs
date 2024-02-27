@@ -22,27 +22,29 @@ instance (Show f, Show v, Show v') => Show (Reduct f v v') where
     ++ ", subst = " ++ show subst
     ++ " }"
 
+-- Splits a String
 splitString :: String -> [String]
 splitString []     = []
 splitString (x:xs) = [x] : splitString xs
 
-collectFunctionsInRule :: Rule Char Char -> [String]
-collectFunctionsInRule rule = splitString (TermOps.funs (lhs rule) ++ TermOps.funs (rhs rule))
-
-
+-- Gets all function symbols in a set of rules
 collectFunctionsInRuleList :: [Rule Char Char] -> [String]
 collectFunctionsInRuleList rules = nub (splitString (concatMap (\rule -> TermOps.funs (lhs rule) ++ TermOps.funs (rhs rule)) rules))
 
+-- Gets all possible hirachies of function symbols in a set of rules
 getAllFamilies :: [Rule Char Char] -> [[String]]
-getAllFamilies rules = permutations(collectFunctionsInRuleList rules)
+getAllFamilies rules = permutations (collectFunctionsInRuleList rules)
 
+-- Finds the outermost function symbol in a term 
 outermostSymbol :: Term Char Char -> [Char]
 outermostSymbol (Var _) = error "Variable has no outermost symbol"
 outermostSymbol (Fun f _) = [f]
 
+-- Returns a list of the combined outermost symbols of two terms
 compareOutermostSymbols :: Term Char Char -> Term Char Char -> [String]
 compareOutermostSymbols term1 term2 = splitString (outermostSymbol term1 ++ outermostSymbol term2)
 
+-- Removes all orderings of a family where the ordering is not the same as in the first argument, which is a sub family
 findOrderings :: [String] -> [[String]] -> [[String]]
 findOrderings _ [] = []
 findOrderings [x, y] allOrderings =
@@ -54,26 +56,35 @@ findOrderings [x, y] allOrderings =
         (Just indexA, Just indexB) -> indexA < indexB
         _ -> False
 
+-- Makes a sub function order out of two terms and then refines the family of orderings 
 refine :: [[String]] -> Term Char Char -> [Term Char Char] -> [[String]]
 refine rules t1 [] = []
-refine rules t1 t2 = findOrderings(compareOutermostSymbols t1 (head t2)) (rules)
+refine rules t1 t2 = findOrderings (compareOutermostSymbols t1 (head t2)) rules
 
+-- Just checks if a list is empty or not
 sat :: [[a]] -> Bool
 sat [] = False
 sat _ = True
 
+-- Start of the REST algorithm
 rest :: [Rule Char Char] -> Term Char Char -> [Term Char Char]
 rest rules term = p ([term], (getAllFamilies rules)) rules 
 
+-- Adds the head element to the result and then hands the work down
 p :: ([Term Char Char], [[String]]) -> [Rule Char Char] -> [Term Char Char]
 p (terms, families) rules = [head terms] ++ (help2 (head terms) families rules rules)
 
+-- Checks if a rules is applicable on a certain term. If so, then it returns the reduct, otherwise it returns an empty list
 getNewReduct :: Term Char Char -> Rule Char Char -> [Term Char Char]
 getNewReduct term rule =
   case fullRewrite [rule] term of
     [] -> [] -- Rule doesn't apply, return Nothing
     (reduct:_) -> [result reduct]
 
+-- Here is where most of the work for the REST algorithm happens. This function takes a term, a family of function orderings, the whole list of rewrite rules and the list of rewrite rules which have not been tested yet.
+-- If all rules have been tested then it returns an empty list. If the next rules isn't applicable on the term, then a recursive call happens with the tail of the rule list. If the rule is applicable, but the arising subordering
+-- of functions isn't satisfiable for the given family, then the result will be ignored and process will be continued with the next rule. However, if everything works out, then the reduct gets into the result list and we get two new
+-- function calls: The first one on the old term with the tail of the rules and the second one on the new term with all rules
 help2 :: Term Char Char -> [[String]] -> [Rule Char Char] ->  [Rule Char Char] -> [Term Char Char]
 help2 term families rules rSet
  | rSet == [] = []
