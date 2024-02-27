@@ -94,6 +94,13 @@ help2 term families rules rSet
  where newReduct = getNewReduct term (head rSet)
        newFamilies = refine families term newReduct
 
+-- Finds the outermost function symbol in the left-hand side of a rule
+outermostSymbolRule :: Rule Char Char -> [Char]
+outermostSymbolRule (Rule lhs _) = outermostSymbol lhs
+
+-- Returns list of all defined symbols in a set of rules
+definedSymbols :: [Rule Char Char] -> [[Char]]
+definedSymbols rules = nub (Prelude.map outermostSymbolRule rules)
 
 -- Define a rule
 rule1 :: Rule Char Char
