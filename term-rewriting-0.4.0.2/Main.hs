@@ -1,3 +1,5 @@
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+{-# HLINT ignore "Redundant bracket" #-}
 import Data.Rewriting.Term
 import Data.Rewriting.Term.Type
 import Data.Rewriting.Term.Ops as TermOps
@@ -108,19 +110,37 @@ outermostSymbolRule :: Rule Char Char -> [Char]
 outermostSymbolRule (Rule lhs _) = outermostSymbol lhs
 
 -- Returns list of all defined symbols in a set of rules
-definedSymbols :: [Rule Char Char] -> [[Char]]
-definedSymbols rules = nub (Prelude.map outermostSymbolRule rules)
+definedSymbols :: [Rule Char Char] -> [(Char, Char)]
+definedSymbols rules = temp 1 (Prelude.map head (nub (Prelude.map outermostSymbolRule rules)))
+ where temp x [] = []
+       temp x y = (head y, head (show x)) : temp (x + 1) (tail y) 
 
-dependencyPairs :: [Rule Char Char] -> [Rule Char Char]
-dependencyPairs [] = []
-dependencyPairs ((Rule lhs rhs) : xs) = undefined
+dependencyPairs :: [Rule Char Char] ->[Rule Char Char] -> [Rule Char Char]
+dependencyPairs [] _ = []
+dependencyPairs ((Rule lhs rhs) : xs) rules = case drhs of
+  [Nothing] -> dependencyPairs xs rules
+  x ->  composeRules dlhs x ++ dependencyPairs xs rules
+  where dSymbols = definedSymbols rules
+        dlhs = changeSymbol lhs dSymbols
+        drhs = changeSymbolRHS rhs dSymbols
 
-changeSymbol :: Rule Char Char -> [Char] -> Rule Char Char
-changeSymbol (Rule (Fun a b) rhs@(Fun c d)) ys = if a `elem` ys then (Rule (Fun '1' b) rhs) else (Rule (Fun a b) rhs)
+composeRules :: Term Char Char -> [Maybe (Term Char Char)] -> [Rule Char Char]
+composeRules x [] = []
+composeRules x (y:ys) = case y of
+  Just z -> (Rule x z) : composeRules x ys
+  Nothing -> composeRules x ys
 
-changeSymbolRHS ::  Term Char Char -> [Char] -> Maybe (Term Char Char)
-changeSymbolRHS (Var _) ys = Nothing
-changeSymbolRHS (Fun c d) ys = if c `elem` ys then Just (Fun '2' d) else changeSymbolRHS (head d) ys
+changeSymbol :: Term Char Char -> [(Char, Char)] -> Term Char Char
+changeSymbol (Fun a b) ys = case lookup a ys of
+  Just x -> Fun x b
+  _ -> Fun a b
+
+changeSymbolRHS ::  Term Char Char -> [(Char, Char)] -> [Maybe (Term Char Char)]
+changeSymbolRHS (Var _) ys = [Nothing]
+changeSymbolRHS (Fun c d) ys = case lookup c ys of
+  Just x -> Just (Fun x d) : nub (concat [changeSymbolRHS t ys | t <- d])
+  Nothing -> nub (concat [changeSymbolRHS t ys | t <- d])
+
 -- Define a rule
 rule1 :: Rule Char Char
 rule1 = Rule
@@ -152,9 +172,15 @@ rule5 = Rule
   , rhs = Fun 'e' []
   }
 
+rule6 :: Rule Char Char
+rule6 = Rule
+  { lhs = Fun 'f' [Var 'a', Var 'y']
+  , rhs = Fun 'h' [Fun 'z' []]
+  }
+
 -- List of rules
 rSet :: [Rule Char Char]
-rSet = [rule1, rule2, rule3, rule4, rule5]
+rSet = [rule1, rule2, rule3, rule4, rule5, rule6]
 
 -- Corrected sample term
 sampleTerm :: Term Char Char
@@ -167,7 +193,7 @@ sampleTerm3 :: Term Char Char
 sampleTerm3 = Fun 'h' [Var 'x', Var 'y']
 
 sampleTerm4 :: Term Char Char
-sampleTerm4 = Fun 'f' [Fun 'g' [Var 'x', Var 'y'], Var 'y']
+sampleTerm4 = Fun 'f' [Fun 'g' [Var 'x', Fun 'h' [Fun 'f' [Var 'x', Var 'y'], Var 'b']], Fun 'h' [Var 'x', Var 'y']]
 
 -- Apply full rewrite
 resultTerms :: [Reduct Char Char Char]
