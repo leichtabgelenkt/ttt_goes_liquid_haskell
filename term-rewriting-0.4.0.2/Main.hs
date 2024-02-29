@@ -14,6 +14,7 @@ import Data.Rewriting.Problem
 import Data.List
 
 
+
 instance (Show f, Show v, Show v') => Show (Reduct f v v') where
   show (Reduct result pos rule subst) =
     "Reduct { result = " ++ show result
@@ -91,22 +92,65 @@ help2 term families rules rSet
  | null newReduct = help2 term families rules (tail rSet)
  | not (sat newFamilies) = help2 term families rules (tail rSet)
  | otherwise = newReduct ++ (help2 term newFamilies rules (tail rSet)) ++ (help2 (head newReduct) newFamilies rules rules)
- where newReduct = getNewReduct term (head rSet)
-       newFamilies = refine families term newReduct
+ where lhs = getLHS (head rSet)
+       rhs = getRHS (head rSet)
+       newReduct = getNewReduct term (head rSet)
+       newFamilies = refine families lhs [rhs]
+
+getLHS :: Rule Char Char -> Term Char Char
+getLHS (Rule lhs _) = lhs
+
+getRHS :: Rule Char Char -> Term Char Char
+getRHS (Rule _ rhs) = rhs
 
 -- Finds the outermost function symbol in the left-hand side of a rule
 outermostSymbolRule :: Rule Char Char -> [Char]
 outermostSymbolRule (Rule lhs _) = outermostSymbol lhs
 
 -- Returns list of all defined symbols in a set of rules
-definedSymbols :: [Rule Char Char] -> [[Char]]
-definedSymbols rules = nub (Prelude.map outermostSymbolRule rules)
+definedSymbols :: [Rule Char Char] -> [(Char, Char)]
+definedSymbols rules = temp 1 (Prelude.map head (nub (Prelude.map outermostSymbolRule rules)))
+ where temp x [] = []
+       temp x y = (head y, head (show x)) : temp (x + 1) (tail y) 
+
+
+-- This function takes the same list of rules twice as input and returns the list of dependency pairs
+dependencyPairs :: [Rule Char Char] ->[Rule Char Char] -> [Rule Char Char]
+dependencyPairs [] _ = []
+dependencyPairs ((Rule lhs rhs) : xs) rules = case drhs of
+  [Nothing] -> dependencyPairs xs rules
+  x ->  composeRules dlhs x ++ dependencyPairs xs rules
+  where dSymbols = definedSymbols rules
+        dlhs = changeSymbol lhs dSymbols
+        drhs = changeSymbolRHS rhs dSymbols
+
+-- Takes a term as a lhs of a rule and a list of Maybe terms as input and constructs a list of rules out of the lhs and all rhs terms which are not Nothing in the list
+composeRules :: Term Char Char -> [Maybe (Term Char Char)] -> [Rule Char Char]
+composeRules x [] = []
+composeRules x (y:ys) = case y of
+  Just z -> (Rule x z) : composeRules x ys
+  Nothing -> composeRules x ys
+
+-- Takes a term and the list of defined functions and returns a term where the function symbol of the term is changed with the corresponding dependency symbol.
+-- This function is only used for lhs of a dependecy pair, so the function symbol of the term will always be inside the list of defined symbols
+changeSymbol :: Term Char Char -> [(Char, Char)] -> Term Char Char
+changeSymbol (Fun a b) ys = case lookup a ys of
+  Just x -> Fun x b
+  _ -> Fun a b
+
+-- This function takes a term (which represents a rhs of a dependency pair) and a list of defined symbols. It checks if the outermost function symbol matches one of the defined symbols.
+-- If it does, it gets changed with the corresponding dependency symbol, if it doesn't we do nothing. In both cases we continue with the sub functions.
+changeSymbolRHS ::  Term Char Char -> [(Char, Char)] -> [Maybe (Term Char Char)]
+changeSymbolRHS (Var _) ys = [Nothing]
+changeSymbolRHS (Fun c d) ys = case lookup c ys of
+  Just x -> Just (Fun x d) : nub (concat [changeSymbolRHS t ys | t <- d])
+  Nothing -> nub (concat [changeSymbolRHS t ys | t <- d])
 
 -- Define a rule
 rule1 :: Rule Char Char
 rule1 = Rule
   { lhs = Fun 'f' [Var 'x', Var 'y']
-  , rhs = Fun 'g' []
+  , rhs = Fun 'g' [Var 'x', Var 'y']
   }
 
 rule2 :: Rule Char Char
@@ -124,7 +168,7 @@ rule3 = Rule
 rule4 :: Rule Char Char
 rule4 = Rule
   { lhs = Fun 'z' []
-  , rhs = Fun 'f' []
+  , rhs = Fun 'f' [Var 'x', Var 'y']
   }
 
 rule5 :: Rule Char Char
@@ -133,9 +177,15 @@ rule5 = Rule
   , rhs = Fun 'e' []
   }
 
+rule6 :: Rule Char Char
+rule6 = Rule
+  { lhs = Fun 'f' [Var 'a', Var 'y']
+  , rhs = Fun 'h' [Fun 'z' []]
+  }
+
 -- List of rules
 rSet :: [Rule Char Char]
-rSet = [rule1, rule2, rule3, rule4, rule5]
+rSet = [rule1, rule2, rule3, rule4, rule5, rule6]
 
 -- Corrected sample term
 sampleTerm :: Term Char Char
@@ -147,8 +197,11 @@ sampleTerm2 = Fun 'g' [Var 'x', Var 'y']
 sampleTerm3 :: Term Char Char
 sampleTerm3 = Fun 'h' [Var 'x', Var 'y']
 
+sampleTerm4 :: Term Char Char
+sampleTerm4 = Fun 'f' [Fun 'g' [Var 'x', Fun 'h' [Fun 'f' [Var 'x', Var 'y'], Var 'b']], Fun 'h' [Var 'x', Var 'y']]
+
 -- Apply full rewrite
 resultTerms :: [Reduct Char Char Char]
-resultTerms = fullRewrite rSet sampleTerm
+resultTerms = fullRewrite rSet sampleTerm4
 
 
