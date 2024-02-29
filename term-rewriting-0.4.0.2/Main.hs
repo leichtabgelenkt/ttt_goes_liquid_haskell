@@ -1,5 +1,3 @@
-{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
-{-# HLINT ignore "Redundant bracket" #-}
 import Data.Rewriting.Term
 import Data.Rewriting.Term.Type
 import Data.Rewriting.Term.Ops as TermOps
