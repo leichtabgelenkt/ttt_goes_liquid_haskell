@@ -1,0 +1,231 @@
+... irrelevant information 
+
+(* subterm criterion encoding starts here *)
+(* caching variables *)
+let pos f i = get >>= fun c -> cache_m c.af_p (const fresh_bool) (f, i);;
+let weight f i = get >>= fun c -> cache_m c.weight_a (const (fresh_arith c.arith_w)) (f, i);;
+let arity f = get >>= fun c -> return (Sig.find_ari f c.state);;
+
+(* encoding of standard subterm criterion *)
+let encode_rule cmp rule = match Rule.to_terms rule with
+  | (Term.Var _), _ (* fallthrough *)
+  | _, (Term.Var _) -> failwith "encode_rule: variable left- or right-hand side"
+  | Term.Fun (f, ts), Term.Fun (g, ss) when f = g ->
+    mapi_or (fun i (ti, si) -> cmp ti si $&$ pos f i) (List.combine ts ss)
+  | Term.Fun (f, ts), Term.Fun (g, ss) ->
+    mapi_or (fun j sj ->
+      (mapi_or (fun i ti -> cmp ti sj $&$ pos f i) ts) $&$ pos g j)
+      ss
+;;
+
+let top = return Logic.top;;
+let zero = return Logic.zero;;
+let one = return Logic.one;;
+let plog = function true -> Logic.top | false -> Logic.bot;;
+let pst s t = return (plog (Term.is_proper_subterm t s));;
+let st s t  = return (plog (Term.is_subterm t s));;
+
+let collapsing f a i = gen_and (fun j -> if i = j then pos f i else neg (pos f j)) a;;
+
+let encode_sp = map_and (fun f -> arity f >>= fun n -> gen_or (collapsing f n) n);;
+
+let rewr_pst trs s t =
+  get >>= fun c ->
+  if c.num_steps <= 0 then pst s t
+  else
+    (Rewrite.reducts ~n:c.num_steps s trs
+    |> List.tl
+    |> map_or (fun u -> st u t)) $|$ pst s t
+;;
+
+let rewr_st trs s t =
+  get >>= fun c ->
+  if c.num_steps <= 0 then st s t
+  else
+    (Rewrite.reducts ~n:c.num_steps s trs
+    |> map_or (fun u -> st u t))
+;;
+
+let encode s w =
+  let rs = Trs.to_list s in
+  map_or (encode_rule (rewr_pst w)) rs $&$
+  map_and (encode_rule (rewr_st w)) rs $&$
+  encode_sp (Trs.roots s)
+;;
+
+(*try to use propositional variable "proj f" that is true
+whenever "f" is projected at all*)
+let encode_no_proj f = arity f >>= gen_and (neg @.@ pos f);;
+
+(* encoding of subterm criterion with recursive projections *)
+let encode_rule_rec cmp_subterms rule =
+  let cmp s t = cmp_subterms s t $&$
+    (List.map Term.root [s; t]
+    |> List.map_option id
+    |> map_and encode_no_proj)
+  in
+  let rec encr s t = match t with
+    | Term.Fun (g, ts) -> cmp s t $|$ mapi_or (fun j tj -> pos g j $&$ encr s tj) ts
+    | Term.Var _ -> cmp s t
+  in
+  let rec encl s t = match s with
+    | Term.Fun (f, ss) -> cmp s t $|$ mapi_or (fun i si -> pos f i $&$ encl si t) ss
+    | Term.Var _ -> cmp s t
+  in
+  let rec enc s t = match (s, t) with
+    | (Term.Fun (f, ss), Term.Fun (g, ts)) ->
+      if f = g then cmp s t $|$ mapi_or (fun i (si, ti) -> pos f i $&$ enc si ti) (List.combine ss ts)
+      else
+        cmp s t $|$
+          mapi_or (fun i si -> pos f i $&$ mapi_or (fun j tj -> pos g j $&$ enc si tj) ts) ss $|$
+          mapi_or (fun j tj -> pos g j $&$ encr s tj) ts $|$
+          mapi_or (fun i si -> pos f i $&$ encl si t) ss
+    | (Term.Fun (f, ss), Term.Var _) -> cmp s t $|$ mapi_or (fun i si -> pos f i $&$ enc si t) ss
+    | (Term.Var _, Term.Fun (g, ts)) -> mapi_or (fun j tj -> pos g j $&$ enc s tj) ts
+    | (Term.Var _, Term.Var _) -> cmp s t
+  in Rule.to_terms rule |> uncurry enc
+;;
+
+let encode_sp_at_most_one =
+  map_and (fun f ->
+    arity f >>= gen_and (fun j -> gen_and (fun i -> neg (pos f i $&$ pos f j)) j))
+;;
+
+(*rules for projected defined symbols have to be oriented weakly*)
+let encode_defined_ge enc rule =
+  let f = Rule.left_root rule in
+  arity f >>= fun n ->
+  gen_or (pos f) n $->$ enc rule
+;;
+
+let encode_rec defs s w =
+  let rs = Trs.to_list s in
+  let ss = Trs.to_list w in
+  let fs = Trs.funs s @ Trs.funs w in
+  map_or (encode_rule_rec pst) rs $&$
+  map_and (encode_rule_rec st) rs $&$
+  map_and (encode_defined_ge (encode_rule_rec st)) ss $&$
+  encode_sp_at_most_one fs $&$
+  (if defs then top else map_and encode_no_proj (Trs.left_roots w))
+;;
+
+(*given weight w, encode multiplicity of subterm 't' of 's'*)
+let rec encode_mult w s t =
+  if s = t then
+    option encode_no_proj top (Term.root s) $?$ w $:$ zero
+  else if Term.is_proper_subterm t s then
+    let f = Option.the (Term.root s) in
+    arity f >>= gen_sum (fun i ->
+      pos f i
+        $?$ encode_mult (w $*$ weight f i) (List.nth (Term.args s) i) t
+        $:$ zero)
+  else zero
+;;
+
+let rec filtered_subterms t =
+  let root_neq f t = Term.root t |> option (fun g -> g != f) true in
+  match t with
+  | Term.Fun (f, ts) ->
+    List.flat_map filtered_subterms ts
+    |> List.filter (root_neq f)
+    |> List.insert t
+  | Term.Var _ -> [t]
+;;
+
+let encode_rule_mulex_neq rule =
+  let (l, r) = Rule.to_terms rule in
+  (*let ts = List.union (Term.subterms l) (Term.subterms r) in*)
+  let ts = List.union (filtered_subterms l) (filtered_subterms r) in
+  let msetl = encode_mult one l in
+  let msetr = encode_mult one r in
+  neg (map_and (fun t -> msetl t $=$ msetr t) ts)
+;;
+
+let encode_rule_mulex_ge rule =
+  let (l, r) = Rule.to_terms rule in
+  (*the finite domain of subterms that have to be considered*)
+  (*let ts = List.union (Term.subterms l) (Term.subterms r) in*)
+  let ts = List.union (filtered_subterms l) (filtered_subterms r) in
+  let msetl = encode_mult one l in
+  let msetr = encode_mult one r in
+  let upper u =
+    List.filter (fun t -> Term.is_proper_subterm u t) ts
+    |> map_and (fun t -> msetl t $=$ msetr t)
+  in
+  map_and (fun t -> upper t $->$ (msetl t $>=$ msetr t)) ts
+;;
+
+let encode_mulex defs s w =
+  let rs = Trs.to_list s in
+  let ss = Trs.to_list w in
+  let fs = Trs.funs s @ Trs.funs w in
+  map_or encode_rule_mulex_neq rs $&$
+  map_and encode_rule_mulex_ge rs $&$
+  map_and (encode_defined_ge encode_rule_mulex_ge) ss $&$
+  map_and (fun f ->
+    arity f >>= gen_and (fun i -> pos f i $->$ (weight f i $>$ zero))) fs $&$
+  (if defs then top else map_and encode_no_proj (Trs.left_roots w))
+;;
+
+(* decode from assignment *)
+let decode_rule gt ass rule = liftM not (eval_p (gt rule) ass);;
+
+let decode_trs gt ass trs =
+  StateM.filter (decode_rule gt ass) (Trs.to_list trs) >>= (return @.@ Trs.of_list)
+;;
+
+let decode_sp_f mulex ass f =
+  arity f >>= fun n ->
+  sequence (List.gen (fun i ->
+    eval_p (pos f i) ass >>= fun b ->
+    if mulex && b then eval_a (weight f i) ass >>= fun w -> return (true, (i, Logic.Number.to_int w))
+    else if b then return (true, (i, 1))
+    else return (false, (i, 0))) n) >>= fun ps ->
+  List.filter fst ps
+  |> List.map snd
+  |> (function
+    | [] -> None (*no projection at all*)
+    | [(i, j)] -> Some (f, (if j = 1 then Proj.Collapsing i else Proj.List (List.replicate j i)))
+    | xs -> Some (f, Proj.List (List.flat_map (fun (i, j) -> List.replicate j i) xs)))
+  |> return
+;;
+
+let decode_sp mulex ass fs =
+  StateM.sequence (List.map (decode_sp_f mulex ass) fs) >>= fun sp ->
+  return (Proj.of_list (List.map_option id sp))
+;;
+
+let solve signature fs p =
+  let configurate s = F.printf "%s@\n%!" s; flags.help := true in
+  (try init (); Arg.parsex code spec fs with Arg.Bad s -> configurate s);
+  if !(flags.help) then (Arg.usage spec ("Options for "^code^":"); exit 0);
+  if P.is_dp p then (
+    let s = P.get_dps p in
+    let w = P.get_trs p in
+    let c = context (Logic.nat !(flags.mbits)) (Logic.nat !(flags.wbits)) !(flags.nsteps) signature in
+    let gen = !(flags.recursive) || !(flags.mulex) in
+    let fs = if gen then Trs.funs s @ Trs.funs w else Trs.roots s in
+    let enc =
+      if !(flags.recursive) then encode_rec !(flags.defs) s w
+      else if !(flags.mulex) then encode_mulex !(flags.defs) s w
+      else encode s w
+    in
+    let gt =
+      if !(flags.recursive) then encode_rule_rec pst
+      else if !(flags.mulex) then encode_rule_mulex_neq
+      else encode_rule (rewr_pst w)
+    in
+    Logic.run (
+      StateM.run c (enc >>= fun phi ->
+      StateM.lift (Logic.solve ~solver:!(flags.solver) phi) >>= function
+        | None -> return None
+        | Some ass ->
+          decode_trs gt ass s >>= fun s' ->
+          decode_sp !(flags.mulex) ass fs >>= fun sp ->
+          return (Some (make sp p (P.set_dps s' p) ~gen:gen))))
+  ) else None
+;;
+
+(* wrap into state monad *)
+let (>>=) = RewriteM.(>>=);;
+let solve fs p = RewriteM.get >>= fun s -> RewriteM.return (solve s fs p);;
