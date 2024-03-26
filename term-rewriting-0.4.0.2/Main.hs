@@ -183,6 +183,98 @@ rule6 = Rule
   , rhs = Fun 'h' [Fun 'z' []]
   }
 
+-- Example 1 of Rest
+
+-- n is intersection
+-- u is union
+-- s means s0
+-- t means s1
+
+distribUnion :: Rule Char Char
+distribUnion = Rule 
+  { 
+    lhs = Fun 'n' [ Fun 'u' [Var 's', Var 't'] , Var 's' ], 
+    rhs = Fun 'u' [ Fun 'n' [Var 's', Var 's'] , Fun 'n' [Var 't', Var 's']]
+  }
+
+idemInter :: Rule Char Char
+idemInter = Rule
+  {
+    lhs = Fun 'n' [ Var 's', Var 's'],
+    rhs = Var 's'
+  }
+
+-- only applicable when s and t are disjoint
+disjointnessAss :: Rule Char Char
+disjointnessAss = Rule
+  {
+    lhs = Fun 'n' [ Var 't', Var 's'],
+    rhs = Var 'e'
+  }
+
+emptyUnion :: Rule Char Char
+emptyUnion = Rule
+  {
+    lhs = Fun 'u' [Var 's', Var 'e'],
+    rhs = Var 's'
+  }
+
+example1RuleSet :: [Rule Char Char]
+example1RuleSet = [distribUnion, idemInter, disjointnessAss, emptyUnion]
+
+example1StartTerm :: Term Char Char
+example1StartTerm = Fun 'n' [Fun 'u' [Var 's', Var 't'], Var 's']
+
+example1ResultTerms :: [Reduct Char Char Char]
+example1ResultTerms = fullRewrite example1RuleSet example1StartTerm
+
+-- Example 2 of Rest
+
+distribInter :: Rule Char Char
+distribInter = Rule
+  { 
+    lhs = Fun 'u' [ Fun 'n' [Var 's', Var 't'] , Var 's' ], 
+    rhs = Fun 'n' [ Fun 'u' [Var 's', Var 's'] , Fun 'u' [Var 't', Var 's']]
+  }
+
+idemUnion :: Rule Char Char
+idemUnion = Rule
+  {
+    lhs = Fun 'u' [ Var 's', Var 's'],
+    rhs = Var 's'
+  }
+
+commutUnion :: Rule Char Char
+commutUnion = Rule
+  {
+    lhs = Fun 'u' [Var 's', Var 't'],
+    rhs = Fun 'u' [Var 't', Var 's']
+  }
+
+-- only applicable when t is a subset of s
+subsetAss :: Rule Char Char
+subsetAss = Rule
+  {
+    lhs = Fun 'u' [Var 's', Var 't'],
+    rhs = Var 's'
+  }
+
+-- indemInter allready in Example 1
+
+example2RuleSet :: [Rule Char Char]
+example2RuleSet = [distribInter, idemUnion, commutUnion, subsetAss, idemInter]
+
+example2StartTerm :: Term Char Char
+example2StartTerm = Fun 'u' [Fun 'n' [Var 's', Var 't'], Var 's']
+
+-- no solution so far because of the commutativity
+
+-- Example 3 of Rest
+-- currently not possible because of associativity and commutativity
+
+
+-- other examples -- 
+
 -- List of rules
 rSet :: [Rule Char Char]
 rSet = [rule1, rule2, rule3, rule4, rule5, rule6]
