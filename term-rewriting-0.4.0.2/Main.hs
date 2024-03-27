@@ -38,7 +38,8 @@ getAllFamilies rules = permutations (collectFunctionsInRuleList rules)
 
 -- Finds the outermost function symbol in a term 
 outermostSymbol :: Term Char Char -> [Char]
-outermostSymbol (Var _) = error "Variable has no outermost symbol"
+-- outermostSymbol (Var _) = error "Variable has no outermost symbol"
+outermostSymbol (Var v) = [v]
 outermostSymbol (Fun f _) = [f]
 
 -- Returns a list of the combined outermost symbols of two terms
@@ -225,8 +226,8 @@ example1RuleSet = [distribUnion, idemInter, disjointnessAss, emptyUnion]
 example1StartTerm :: Term Char Char
 example1StartTerm = Fun 'n' [Fun 'u' [Var 's', Var 't'], Var 's']
 
-example1ResultTerms :: [Reduct Char Char Char]
-example1ResultTerms = fullRewrite example1RuleSet example1StartTerm
+-- example1ResultTerms :: [Reduct Char Char Char]
+example1ResultTerms = rest example1RuleSet example1StartTerm
 
 -- Example 2 of Rest
 
