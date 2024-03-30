@@ -38,8 +38,8 @@ getAllFamilies rules = permutations (collectFunctionsInRuleList rules)
 
 -- Finds the outermost function symbol in a term 
 outermostSymbol :: Term Char Char -> [Char]
--- outermostSymbol (Var _) = error "Variable has no outermost symbol"
-outermostSymbol (Var v) = [v]
+outermostSymbol (Var _) = error "Variable has no outermost symbol"
+-- outermostSymbol (Var v) = [v]
 outermostSymbol (Fun f _) = [f]
 
 -- Returns a list of the combined outermost symbols of two terms
@@ -194,40 +194,42 @@ rule6 = Rule
 distribUnion :: Rule Char Char
 distribUnion = Rule 
   { 
-    lhs = Fun 'n' [ Fun 'u' [Var 's', Var 't'] , Var 's' ], 
-    rhs = Fun 'u' [ Fun 'n' [Var 's', Var 's'] , Fun 'n' [Var 't', Var 's']]
+    lhs = Fun 'n' [ Fun 'u' [Fun 's' [], Fun 't' []] , Fun 's' [] ], 
+    rhs = Fun 'u' [ Fun 'n' [Fun 's' [], Fun 's' []] , Fun 'n' [Fun 't' [], Fun 's' []]]
   }
 
 idemInter :: Rule Char Char
 idemInter = Rule
   {
-    lhs = Fun 'n' [ Var 's', Var 's'],
-    rhs = Var 's'
+    lhs = Fun 'n' [ Fun 's' [], Fun 's' []],
+    rhs = Fun 's' []
   }
 
 -- only applicable when s and t are disjoint
 disjointnessAss :: Rule Char Char
 disjointnessAss = Rule
   {
-    lhs = Fun 'n' [ Var 't', Var 's'],
-    rhs = Var 'e'
+    lhs = Fun 'n' [ Fun 't' [], Fun 's' []],
+    rhs = Fun 'e' []
   }
 
 emptyUnion :: Rule Char Char
 emptyUnion = Rule
   {
-    lhs = Fun 'u' [Var 's', Var 'e'],
-    rhs = Var 's'
+    lhs = Fun 'u' [Fun 's' [], Fun 'e' []],
+    rhs = Fun 's' []
   }
 
 example1RuleSet :: [Rule Char Char]
 example1RuleSet = [distribUnion, idemInter, disjointnessAss, emptyUnion]
 
 example1StartTerm :: Term Char Char
-example1StartTerm = Fun 'n' [Fun 'u' [Var 's', Var 't'], Var 's']
+example1StartTerm = Fun 'n' [Fun 'u' [Fun 's' [], Fun 't' []], Fun 's' []]
 
--- example1ResultTerms :: [Reduct Char Char Char]
+example1ResultTerms :: [Term Char Char]
 example1ResultTerms = rest example1RuleSet example1StartTerm
+-- =  [Fun 'n' [Fun 'u' [Var 's',Var 't'],Var 's'],Fun 'u' [Fun 'n' [Var 's',Var 's'],Fun 'n' [Var 't',Var 's']]]
+
 
 -- Example 2 of Rest
 
@@ -267,6 +269,9 @@ example2RuleSet = [distribInter, idemUnion, commutUnion, subsetAss, idemInter]
 
 example2StartTerm :: Term Char Char
 example2StartTerm = Fun 'u' [Fun 'n' [Var 's', Var 't'], Var 's']
+
+example2ResultTerms :: [Term Char Char]
+example2ResultTerms = rest example2RuleSet example2StartTerm
 
 -- no solution so far because of the commutativity
 
