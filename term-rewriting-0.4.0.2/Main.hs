@@ -12,7 +12,7 @@ import Data.Rewriting.Rule.Type
 import Data.Rewriting.Rules.Rewrite
 import Data.Rewriting.Problem
 import Data.List
-
+import Data.Function (on)
 
 
 instance (Show f, Show v, Show v') => Show (Reduct f v v') where
@@ -22,6 +22,54 @@ instance (Show f, Show v, Show v') => Show (Reduct f v v') where
     ++ ", rule = " ++ show rule
     ++ ", subst = " ++ show subst
     ++ " }"
+
+
+newtype RewriteSequence = RewriteSequence [(Term Char Char, Term Char Char)]
+
+instance Show RewriteSequence where
+  show s@(RewriteSequence a) = show $ Prelude.map listToStringWithArrows $ nub $ removeSublists $ removeEmptySublists $ Prelude.map nub $ showRewriteSequence s (fst (head a))
+
+listToStringWithArrows :: [Term Char Char] -> String
+listToStringWithArrows [] = ""
+listToStringWithArrows [x] = show x
+listToStringWithArrows (x:xs) = show x ++ " -> " ++ listToStringWithArrows xs
+
+
+showRewriteSequence :: RewriteSequence -> Term Char Char -> [[Term Char Char]]
+showRewriteSequence (RewriteSequence []) x = [[]]
+showRewriteSequence (RewriteSequence ((start, end):xs)) x = if start == x then [start : end : t | t <- splitAndRemove $ getL end xs] ++ showRewriteSequence (RewriteSequence xs) x else showRewriteSequence (RewriteSequence xs) x -- ++ showRewriteSequence (RewriteSequence xs)
+--[([start, end] ++ getL end xs)]
+
+getL :: Term Char Char -> [(Term Char Char, Term Char Char)] -> [Term Char Char]
+getL _ [] = [Fun '$' []]
+getL endTerm ((startTerm, nextEndTerm) : remainingPairs)
+  | endTerm == startTerm = [startTerm, nextEndTerm] ++ getL nextEndTerm remainingPairs ++ getL endTerm remainingPairs
+  | otherwise = getL endTerm remainingPairs
+
+splitAndRemove :: [Term Char Char] -> [[Term Char Char]]
+splitAndRemove [] = []
+splitAndRemove xs = filter (not . null) $ case break (== Fun '$' []) xs of
+  (before, []) -> [before]
+  (before, _ : after) -> before : splitAndRemove after
+
+isSublist :: Eq a => [a] -> [a] -> Bool
+isSublist sublist list = sublist `elem` (tail $ init $ subsequences list)
+
+removeEmptySublists :: [[Term a b]] -> [[Term a b]]
+removeEmptySublists = filter (not . null)
+
+removeSublists :: Eq a => [[a]] -> [[a]]
+removeSublists lists = filter (\x -> all (not . (`isSublist` x)) (delete x lists)) lists
+
+mysequence = RewriteSequence [(Fun 'n' [Fun 'u' [Fun 's' [],Fun 't' []],Fun 's' []],Fun 'u' [Fun 'n' [Fun 's' [],Fun 's' []],Fun 'n' [Fun 't' [],Fun 's' []]]),(Fun 'u' [Fun 'n' [Fun 's' [],Fun 's' []],Fun 'n' [Fun 't' [],Fun 's' []]],Fun 'u' [Fun 's' [],Fun 'n' [Fun 't' [],Fun 's' []]]),(Fun 'u' [Fun 'n' [Fun 's' [],Fun 's' []],Fun 'n' [Fun 't' [],Fun 's' []]],Fun 'u' [Fun 'n' [Fun 's' [],Fun 's' []],Fun 'e' []]),(Fun 'u' [Fun 'n' [Fun 's' [],Fun 's' []],Fun 'e' []],Fun 'u' [Fun 's' [],Fun 'e' []]),(Fun 'u' [Fun 's' [],Fun 'e' []],Fun 's' []),(Fun 'u' [Fun 's' [],Fun 'n' [Fun 't' [],Fun 's' []]],Fun 'u' [Fun 's' [],Fun 'e' []]),(Fun 'u' [Fun 's' [],Fun 'e' []],Fun 's' [])]
+
+startElement = fst $ head [(Fun 'n' [Fun 'u' [Fun 's' [],Fun 't' []],Fun 's' []],Fun 'u' [Fun 'n' [Fun 's' [],Fun 's' []],Fun 'n' [Fun 't' [],Fun 's' []]]),(Fun 'u' [Fun 'n' [Fun 's' [],Fun 's' []],Fun 'n' [Fun 't' [],Fun 's' []]],Fun 'u' [Fun 's' [],Fun 'n' [Fun 't' [],Fun 's' []]]),(Fun 'u' [Fun 'n' [Fun 's' [],Fun 's' []],Fun 'n' [Fun 't' [],Fun 's' []]],Fun 'u' [Fun 'n' [Fun 's' [],Fun 's' []],Fun 'e' []]),(Fun 'u' [Fun 'n' [Fun 's' [],Fun 's' []],Fun 'e' []],Fun 'u' [Fun 's' [],Fun 'e' []]),(Fun 'u' [Fun 's' [],Fun 'e' []],Fun 's' []),(Fun 'u' [Fun 's' [],Fun 'n' [Fun 't' [],Fun 's' []]],Fun 'u' [Fun 's' [],Fun 'e' []]),(Fun 'u' [Fun 's' [],Fun 'e' []],Fun 's' [])]
+
+test2 = getL (Fun 'n' [Fun 'u' [Fun 's' [],Fun 't' []],Fun 's' []]) [(Fun 'n' [Fun 'u' [Fun 's' [],Fun 't' []],Fun 's' []],Fun 'u' [Fun 'n' [Fun 's' [],Fun 's' []],Fun 'n' [Fun 't' [],Fun 's' []]]),(Fun 'u' [Fun 'n' [Fun 's' [],Fun 's' []],Fun 'n' [Fun 't' [],Fun 's' []]],Fun 'u' [Fun 's' [],Fun 'n' [Fun 't' [],Fun 's' []]]),(Fun 'u' [Fun 'n' [Fun 's' [],Fun 's' []],Fun 'n' [Fun 't' [],Fun 's' []]],Fun 'u' [Fun 'n' [Fun 's' [],Fun 's' []],Fun 'e' []]),(Fun 'u' [Fun 'n' [Fun 's' [],Fun 's' []],Fun 'e' []],Fun 'u' [Fun 's' [],Fun 'e' []]),(Fun 'u' [Fun 's' [],Fun 'e' []],Fun 's' []),(Fun 'u' [Fun 's' [],Fun 'n' [Fun 't' [],Fun 's' []]],Fun 'u' [Fun 's' [],Fun 'e' []]),(Fun 'u' [Fun 's' [],Fun 'e' []],Fun 's' [])]
+test = showRewriteSequence mysequence startElement
+test3 = splitAndRemove test2
+test4 = nub $ removeSublists $ removeEmptySublists $ Prelude.map nub test
+
 
 -- Splits a String
 splitString :: String -> [String]
@@ -39,6 +87,7 @@ getAllFamilies rules = permutations (collectFunctionsInRuleList rules)
 -- Finds the outermost function symbol in a term 
 outermostSymbol :: Term Char Char -> [Char]
 outermostSymbol (Var _) = error "Variable has no outermost symbol"
+-- outermostSymbol (Var v) = [v]
 outermostSymbol (Fun f _) = [f]
 
 -- Returns a list of the combined outermost symbols of two terms
@@ -68,12 +117,12 @@ sat [] = False
 sat _ = True
 
 -- Start of the REST algorithm
-rest :: [Rule Char Char] -> Term Char Char -> [Term Char Char]
+rest :: [Rule Char Char] -> Term Char Char -> RewriteSequence
 rest rules term = p ([term], (getAllFamilies rules)) rules 
 
 -- Adds the head element to the result and then hands the work down
-p :: ([Term Char Char], [[String]]) -> [Rule Char Char] -> [Term Char Char]
-p (terms, families) rules = [head terms] ++ (help2 (head terms) families rules rules)
+p :: ([Term Char Char], [[String]]) -> [Rule Char Char] -> RewriteSequence
+p (terms, families) rules = RewriteSequence (help2 (head terms) families rules rules)
 
 -- Checks if a rules is applicable on a certain term. If so, then it returns the reduct, otherwise it returns an empty list
 getNewReduct :: Term Char Char -> Rule Char Char -> [Term Char Char]
@@ -86,12 +135,12 @@ getNewReduct term rule =
 -- If all rules have been tested then it returns an empty list. If the next rules isn't applicable on the term, then a recursive call happens with the tail of the rule list. If the rule is applicable, but the arising subordering
 -- of functions isn't satisfiable for the given family, then the result will be ignored and process will be continued with the next rule. However, if everything works out, then the reduct gets into the result list and we get two new
 -- function calls: The first one on the old term with the tail of the rules and the second one on the new term with all rules
-help2 :: Term Char Char -> [[String]] -> [Rule Char Char] ->  [Rule Char Char] -> [Term Char Char]
+help2 :: Term Char Char -> [[String]] -> [Rule Char Char] ->  [Rule Char Char] -> [(Term Char Char, Term Char Char)]
 help2 term families rules rSet
  | rSet == [] = []
  | null newReduct = help2 term families rules (tail rSet)
  | not (sat newFamilies) = help2 term families rules (tail rSet)
- | otherwise = newReduct ++ (help2 term newFamilies rules (tail rSet)) ++ (help2 (head newReduct) newFamilies rules rules)
+ | otherwise = [(term, head newReduct)] ++ (help2 term newFamilies rules (tail rSet)) ++ (help2 (head newReduct) newFamilies rules rules)
  where lhs = getLHS (head rSet)
        rhs = getRHS (head rSet)
        newReduct = getNewReduct term (head rSet)
@@ -182,6 +231,103 @@ rule6 = Rule
   { lhs = Fun 'f' [Var 'a', Var 'y']
   , rhs = Fun 'h' [Fun 'z' []]
   }
+
+-- Example 1 of Rest
+
+-- n is intersection
+-- u is union
+-- s means s0
+-- t means s1
+
+distribUnion :: Rule Char Char
+distribUnion = Rule 
+  { 
+    lhs = Fun 'n' [ Fun 'u' [Fun 's' [], Fun 't' []] , Fun 's' [] ], 
+    rhs = Fun 'u' [ Fun 'n' [Fun 's' [], Fun 's' []] , Fun 'n' [Fun 't' [], Fun 's' []]]
+  }
+
+idemInter :: Rule Char Char
+idemInter = Rule
+  {
+    lhs = Fun 'n' [ Fun 's' [], Fun 's' []],
+    rhs = Fun 's' []
+  }
+
+-- only applicable when s and t are disjoint
+disjointnessAss :: Rule Char Char
+disjointnessAss = Rule
+  {
+    lhs = Fun 'n' [ Fun 't' [], Fun 's' []],
+    rhs = Fun 'e' []
+  }
+
+emptyUnion :: Rule Char Char
+emptyUnion = Rule
+  {
+    lhs = Fun 'u' [Fun 's' [], Fun 'e' []],
+    rhs = Fun 's' []
+  }
+
+example1RuleSet :: [Rule Char Char]
+example1RuleSet = [distribUnion, idemInter, disjointnessAss, emptyUnion]
+
+example1StartTerm :: Term Char Char
+example1StartTerm = Fun 'n' [Fun 'u' [Fun 's' [], Fun 't' []], Fun 's' []]
+
+example1ResultTerms :: RewriteSequence
+example1ResultTerms = rest example1RuleSet example1StartTerm
+-- =  [Fun 'n' [Fun 'u' [Var 's',Var 't'],Var 's'],Fun 'u' [Fun 'n' [Var 's',Var 's'],Fun 'n' [Var 't',Var 's']]]
+
+
+-- Example 2 of Rest
+
+distribInter :: Rule Char Char
+distribInter = Rule
+  { 
+    lhs = Fun 'u' [ Fun 'n' [Var 's', Var 't'] , Var 's' ], 
+    rhs = Fun 'n' [ Fun 'u' [Var 's', Var 's'] , Fun 'u' [Var 't', Var 's']]
+  }
+
+idemUnion :: Rule Char Char
+idemUnion = Rule
+  {
+    lhs = Fun 'u' [ Var 's', Var 's'],
+    rhs = Var 's'
+  }
+
+commutUnion :: Rule Char Char
+commutUnion = Rule
+  {
+    lhs = Fun 'u' [Var 's', Var 't'],
+    rhs = Fun 'u' [Var 't', Var 's']
+  }
+
+-- only applicable when t is a subset of s
+subsetAss :: Rule Char Char
+subsetAss = Rule
+  {
+    lhs = Fun 'u' [Var 's', Var 't'],
+    rhs = Var 's'
+  }
+
+-- indemInter allready in Example 1
+
+example2RuleSet :: [Rule Char Char]
+example2RuleSet = [distribInter, idemUnion, commutUnion, subsetAss, idemInter]
+
+example2StartTerm :: Term Char Char
+example2StartTerm = Fun 'u' [Fun 'n' [Var 's', Var 't'], Var 's']
+
+example2ResultTerms :: RewriteSequence
+example2ResultTerms = rest example2RuleSet example2StartTerm
+
+-- no solution so far because of the commutativity
+
+-- Example 3 of Rest
+-- currently not possible because of associativity and commutativity
+
+
+-- other examples -- 
 
 -- List of rules
 rSet :: [Rule Char Char]
