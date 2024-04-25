@@ -13,6 +13,8 @@ import Data.Rewriting.Rules.Rewrite
 import Data.Rewriting.Problem
 import Data.List
 import Data.Function (on)
+import Data.Graph
+import Data.Graph.SCC
 
 
 instance (Show f, Show v, Show v') => Show (Reduct f v v') where
@@ -156,6 +158,9 @@ getRHS (Rule _ rhs) = rhs
 outermostSymbolRule :: Rule Char Char -> [Char]
 outermostSymbolRule (Rule lhs _) = outermostSymbol lhs
 
+outermostSymbolRuleRight :: Rule Char Char -> [Char]
+outermostSymbolRuleRight (Rule _ rhs) = outermostSymbol rhs
+
 -- Returns list of all defined symbols in a set of rules
 definedSymbols :: [Rule Char Char] -> [(Char, Char)]
 definedSymbols rules = temp 1 (Prelude.map head (nub (Prelude.map outermostSymbolRule rules)))
@@ -195,6 +200,36 @@ changeSymbolRHS (Fun c d) ys = case lookup c ys of
   Just x -> Just (Fun x d) : nub (concat [changeSymbolRHS t ys | t <- d])
   Nothing -> nub (concat [changeSymbolRHS t ys | t <- d])
 
+-- Given rules, this function returns a list of triple like (Numeration of node, outermost symbol of left side, outermost symbol of right side)
+sccPrepare :: [Rule Char Char] -> Int -> [(Int, String, String)]
+sccPrepare [] _ = []
+sccPrepare (x:xs) y = (y, outermostSymbolRule x, outermostSymbolRuleRight x) : sccPrepare xs (y+1)
+
+-- Compute vertices of dependency graph
+getVertices :: [(Int, String, String)] -> [(Int, String, String)] -> [(Int, Int)]
+getVertices [] _ = []
+getVertices (x:xs) y = help x y ++ getVertices xs y
+ where help _ [] = []
+       help s@(i, _, r) ((i2, l, _):xs) = if r == l then (i, i2) : help s xs else help s xs
+
+-- Returns the min-node and max-node of the vertices 
+getMinMax :: [(Int, String, String)] -> (Int, Int) -> (Int, Int)
+getMinMax [] (x,y) = (x,y)
+getMinMax ((i, _, _):xs) (x,y)
+ | x == 0 && y == 0 = getMinMax xs (i,i)
+ | i < x = getMinMax xs (i,y)
+ | i > y = getMinMax xs (x,i)
+ | otherwise = getMinMax xs (x,y)
+
+-- Returns the SCCs from a set of Dependency Rules 
+getSccFromDependencyPairs :: [Rule Char Char] -> [SCC Vertex]
+getSccFromDependencyPairs x = sccList graph
+ where prepare = sccPrepare x 1
+       vertices = getVertices prepare prepare
+       graph = buildG (getMinMax prepare (0,0)) vertices
+
+sccTest = getSccFromDependencyPairs (dependencyPairs rulesTest rulesTest)
+
 -- Define a rule
 rule1 :: Rule Char Char
 rule1 = Rule
@@ -232,6 +267,33 @@ rule6 = Rule
   , rhs = Fun 'h' [Fun 'z' []]
   }
 
+
+rule7 :: Rule Char Char
+rule7 = Rule
+  { lhs = Fun '+' [Fun '0' [], Var 'y']
+  , rhs = Var 'y'
+  }
+
+rule8 :: Rule Char Char
+rule8 = Rule
+  { lhs = Fun '*' [Fun '0' [], Var 'y']
+  , rhs = Fun '0' []
+  }
+
+rule9 :: Rule Char Char
+rule9 = Rule
+  { lhs = Fun '+' [Fun 's' [Var 'x'], Var 'y']
+  , rhs = Fun 's' [Fun '+' [Var 'x', Var 'y']]
+  }
+
+rule10 :: Rule Char Char
+rule10 = Rule
+  { lhs = Fun '*' [Fun 's' [Var 'x'], Var 'y']
+  , rhs = Fun '+' [Fun '*' [Var 'x', Var 'y'], Var 'y']
+  }
+
+
+rulesTest = [rule7, rule8, rule9, rule10]
 -- Example 1 of Rest
 
 -- n is intersection

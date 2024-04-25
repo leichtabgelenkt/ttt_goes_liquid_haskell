@@ -60,6 +60,7 @@ library
         Data.Rewriting.CriticalPair
         Data.Rewriting.CriticalPair.Type
         Data.Rewriting.CriticalPair.Ops
+        Data.Graph.SCC
     other-modules:
         Data.Rewriting.Utils
         Data.Rewriting.Utils.Parse
