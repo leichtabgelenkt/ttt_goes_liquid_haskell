@@ -169,7 +169,7 @@ definedSymbols rules = temp 1 (Prelude.map head (nub (Prelude.map outermostSymbo
 
 
 -- This function takes the same list of rules twice as input and returns the list of dependency pairs
-dependencyPairs :: [Rule Char Char] ->[Rule Char Char] -> [Rule Char Char]
+dependencyPairs :: [Rule Char Char] -> [Rule Char Char] -> [Rule Char Char]
 dependencyPairs [] _ = []
 dependencyPairs ((Rule lhs rhs) : xs) rules = case drhs of
   [Nothing] -> dependencyPairs xs rules
@@ -228,7 +228,115 @@ getSccFromDependencyPairs x = sccList graph
        vertices = getVertices prepare prepare
        graph = buildG (getMinMax prepare (0,0)) vertices
 
+findRule :: [Rule Char Char] -> (Int, String, String) -> Rule Char Char
+findRule s p@(_, a, b) = if (outermostSymbolRule (head s) == a) && (outermostSymbolRuleRight (head s) == b) then (head s) else findRule (tail s) p
+
+findSccNode :: [Rule Char Char] -> [(Int, String, String)] -> [Int] -> [Rule Char Char]
+findSccNode _ _ [] = []
+findSccNode rules prepare (y:ys) = findRule rules (getIndex prepare y) : findSccNode (delete (findRule rules (getIndex prepare y)) rules) prepare ys
+ where getIndex ((i,a,b):zs) y = if i == y then (i,a,b) else getIndex zs y
+       
+
+
+-- Implement the example from the term rewriting lecture, slides 13x1, slide 37-39
+r1 :: Rule Char Char
+r1 = Rule
+  { lhs = Fun 'l' [Var 'n', Fun 'o' []]
+  , rhs = Fun 'o' []
+  }
+
+r2 :: Rule Char Char
+r2 = Rule
+  { lhs = Fun 'l' [Var 'n', Fun ':' [Var 'm', Var 'x']]
+  , rhs = Fun 'i' [Fun '<' [Var 'm', Var 'n'], Var 'n', Fun ':' [Var 'm', Var 'x']]
+  }
+
+r3 :: Rule Char Char
+r3 = Rule
+  { lhs = Fun 'h' [Var 'n', Fun 'o' []]
+  , rhs = Fun 'o' []
+  }
+
+r4 :: Rule Char Char
+r4 = Rule
+  { lhs = Fun 'h' [Var 'n', Fun ':' [Var 'm', Var 'x']]
+  , rhs = Fun 'j' [Fun '<' [Var 'm', Var 'n'], Var 'n', Fun ':' [Var 'm', Var 'x']]
+  }
+
+r5 :: Rule Char Char
+r5 = Rule
+  { lhs = Fun '+' [Fun 'o' [], Var 'y']
+  , rhs = Var 'y'
+  }
+
+r6 :: Rule Char Char
+r6 = Rule
+  { lhs = Fun '+' [Fun ':' [Var 'n', Var 'x'], Var 'y']
+  , rhs = Fun ':' [Var 'n', Fun '+' [Var 'x', Var 'y']]
+  }
+
+r7 :: Rule Char Char
+r7 = Rule
+  { lhs = Fun 'q' [Fun 'o' []]
+  , rhs = Fun 'o' []
+  }
+
+r8 :: Rule Char Char
+r8 = Rule
+  { lhs = Fun 'q' [Fun ':' [Var 'n', Var 'x']]
+  , rhs = Fun '+' [Fun 'q' [Fun 'l' [Var 'n', Var 'x']], Fun ':' [Var 'n', Fun 'q' [Fun 'h' [Var 'n', Var 'x']]]]
+  }
+
+r9 :: Rule Char Char
+r9 = Rule
+  { lhs = Fun 'i' [Fun 'F' [], Var 'n', Fun ':' [Var 'm', Var 'x']]
+  , rhs = Fun 'l' [Var 'n', Var 'x']
+  }
+
+r10 :: Rule Char Char
+r10 = Rule
+  { lhs = Fun 'i' [Fun 'T' [], Var 'n', Fun ':' [Var 'm', Var 'x']]
+  , rhs = Fun ':' [Var 'm', Fun 'l' [Var 'n', Var 'x']]
+  }
+
+r11 :: Rule Char Char
+r11 = Rule
+  { lhs = Fun 'j' [Fun 'F' [], Var 'n', Fun ':' [Var 'm', Var 'x']]
+  , rhs = Fun ':' [Var 'm', Fun 'h' [Var 'n', Var 'x']]
+  }
+
+r12 :: Rule Char Char
+r12 = Rule
+  { lhs = Fun 'j' [Fun 'T' [], Var 'n', Fun ':' [Var 'm', Var 'x']]
+  , rhs = Fun 'h' [Var 'n', Var 'x']
+  }
+
+r13 :: Rule Char Char
+r13 = Rule
+  { lhs = Fun '<' [Fun '0' [], Var 'y']
+  , rhs = Fun 'T' []
+  }
+
+r14 :: Rule Char Char
+r14 = Rule
+  { lhs = Fun '<' [Fun 's' [Var 'x'], Fun '0' []]
+  , rhs = Fun 'F' []
+  }
+
+r15 :: Rule Char Char
+r15 = Rule
+  { lhs = Fun '<' [Fun 's' [Var 'x'], Fun 's' [Var 'y']]
+  , rhs = Fun '<' [Var 'x', Var 'y']
+  }
+
+
+examplerules = [r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12, r13, r14, r15]
+drules = dependencyPairs examplerules examplerules
+resultExample = getSccFromDependencyPairs drules
+see = sccPrepare drules 1
+index = [drules !! 7, drules !! 9]
 sccTest = getSccFromDependencyPairs (dependencyPairs rulesTest rulesTest)
+findScc = findSccNode drules (sccPrepare drules 1) [7,9]
 
 -- Define a rule
 rule1 :: Rule Char Char
