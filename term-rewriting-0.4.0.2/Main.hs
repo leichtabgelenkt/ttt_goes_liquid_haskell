@@ -15,7 +15,10 @@ import Data.List
 import Data.Function (on)
 import Data.Graph
 import Data.Graph.SCC
+import Data.SBV
 
+aaa = sFalse
+bbb = sNot aaa
 
 instance (Show f, Show v, Show v') => Show (Reduct f v v') where
   show (Reduct result pos rule subst) =
@@ -114,9 +117,9 @@ refine rules t1 [] = []
 refine rules t1 t2 = findOrderings (compareOutermostSymbols t1 (head t2)) rules
 
 -- Just checks if a list is empty or not
-sat :: [[a]] -> Bool
-sat [] = False
-sat _ = True
+mySat :: [[a]] -> Bool
+mySat [] = False
+mySat _ = True
 
 -- Start of the REST algorithm
 rest :: [Rule Char Char] -> Term Char Char -> RewriteSequence
@@ -135,13 +138,13 @@ getNewReduct term rule =
 
 -- Here is where most of the work for the REST algorithm happens. This function takes a term, a family of function orderings, the whole list of rewrite rules and the list of rewrite rules which have not been tested yet.
 -- If all rules have been tested then it returns an empty list. If the next rules isn't applicable on the term, then a recursive call happens with the tail of the rule list. If the rule is applicable, but the arising subordering
--- of functions isn't satisfiable for the given family, then the result will be ignored and process will be continued with the next rule. However, if everything works out, then the reduct gets into the result list and we get two new
+-- of functions isn't mySatisfiable for the given family, then the result will be ignored and process will be continued with the next rule. However, if everything works out, then the reduct gets into the result list and we get two new
 -- function calls: The first one on the old term with the tail of the rules and the second one on the new term with all rules
 help2 :: Term Char Char -> [[String]] -> [Rule Char Char] ->  [Rule Char Char] -> [(Term Char Char, Term Char Char)]
 help2 term families rules rSet
  | rSet == [] = []
  | null newReduct = help2 term families rules (tail rSet)
- | not (sat newFamilies) = help2 term families rules (tail rSet)
+ | not (mySat newFamilies) = help2 term families rules (tail rSet)
  | otherwise = [(term, head newReduct)] ++ (help2 term newFamilies rules (tail rSet)) ++ (help2 (head newReduct) newFamilies rules rules)
  where lhs = getLHS (head rSet)
        rhs = getRHS (head rSet)
