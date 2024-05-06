@@ -12,3 +12,4 @@
 :set -package async
 :set -package template-haskell
 :set -package ghc
+:l Main.hs
