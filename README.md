@@ -10,6 +10,11 @@ $> stack ghci --ghci-options "-ghci-script=
 ./package_set.ghci"
 ```
 
+## For using the SMT-Solver
+
+[Z3](https://github.com/Z3Prover/z3/blob/master/README.md) needs to be installed.
+
+
 ## REST
 
 This is our Implementation of the Rest-Algorithm from the paper:

@@ -11,3 +11,4 @@
 :set -package process
 :set -package async
 :set -package template-haskell
+:set -package ghc
