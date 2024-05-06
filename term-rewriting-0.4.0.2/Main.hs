@@ -522,5 +522,3 @@ sampleTerm4 = Fun 'f' [Fun 'g' [Var 'x', Fun 'h' [Fun 'f' [Var 'x', Var 'y'], Va
 -- Apply full rewrite
 resultTerms :: [Reduct Char Char Char]
 resultTerms = fullRewrite rSet sampleTerm4
-
-
