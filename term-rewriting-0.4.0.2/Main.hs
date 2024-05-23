@@ -12,10 +12,13 @@ import Data.Rewriting.Rule.Type
 import Data.Rewriting.Rules.Rewrite
 import Data.Rewriting.Problem
 import Data.List
-import Data.Function (on)
+import Data.Function (on, const)
 import Data.Graph
 import Data.Graph.SCC
 import Data.SBV
+import GHC.Cmm (CmmNode(res))
+import Data.SBV (constrain)
+import GHC.Prelude (Show(show))
 
 aaa = sFalse
 bbb = sNot aaa
@@ -522,3 +525,19 @@ sampleTerm4 = Fun 'f' [Fun 'g' [Var 'x', Fun 'h' [Fun 'f' [Var 'x', Var 'y'], Va
 -- Apply full rewrite
 resultTerms :: [Reduct Char Char Char]
 resultTerms = fullRewrite rSet sampleTerm4
+
+-- try out the Sbv library with an easy example
+s = sat $ do
+  a <- sInteger "a"
+  b <- sInteger "b"
+  c <- sInteger "c"
+  constrain $ a*a + b*b .== c*c
+  constrain $ a .> 2 .&& b .> 2 .&& c .> 2
+
+
+main :: IO ()
+main = do
+  solution <- s
+  case (getModelValue "a" solution :: Maybe Integer, getModelValue "b" solution :: Maybe Integer, getModelValue "c" solution :: Maybe Integer) of
+    (Just a, Just b, Just c) -> print $ show a ++ "+" ++ show b ++ "=" ++ show c
+    _ -> putStrLn "No solution found"
