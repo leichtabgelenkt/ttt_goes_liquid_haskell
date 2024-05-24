@@ -241,8 +241,21 @@ findSccNode :: [Rule Char Char] -> [(Int, String, String)] -> [Int] -> [Rule Cha
 findSccNode _ _ [] = []
 findSccNode rules prepare (y:ys) = findRule rules (getIndex prepare y) : findSccNode (delete (findRule rules (getIndex prepare y)) rules) prepare ys
  where getIndex ((i,a,b):zs) y = if i == y then (i,a,b) else getIndex zs y
-       
 
+-- mulitset just as a list
+type Multiset a = [a]
+
+-- subgroup
+subgroup :: Term Char Char -> Term Char Char -> Bool
+subgroup x y = isSublist (TermOps.funs x) (TermOps.funs y)
+
+-- Multiplicity of a term in another term
+multiplicity :: Int -> Term Char Char -> Term Char Char -> Int
+multiplicity w s t 
+  | s == t && not (isVar s) = 1 -- for now later case1, thats the AND over the negated projections
+  | s == t && isVar s = w -- case2 finished
+  | subgroup t s && not (isVar s) = 2 -- for now later case3, thats the sum function with the recursive calling of multiplicity
+  | otherwise = 0 -- case4 finished
 
 -- Implement the example from the term rewriting lecture, slides 13x1, slide 37-39
 r1 :: Rule Char Char
