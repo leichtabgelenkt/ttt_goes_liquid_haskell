@@ -12,4 +12,6 @@
 :set -package async
 :set -package template-haskell
 :set -package ghc
+:set -package filepath
+:set -package pretty
 :l Main.hs

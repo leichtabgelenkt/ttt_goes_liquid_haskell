@@ -17,6 +17,8 @@ import Data.Graph
 import Data.Graph.SCC
 import Data.SBV
 import Data.SBV.List
+import Data.SBV.Internals
+import GHC.Exts (fromList)
 import GHC.Cmm (CmmNode(res))
 import Data.SBV (constrain, sInteger, allSat)
 import GHC.Prelude (Show(show))
@@ -579,17 +581,33 @@ projectionPhilipp (Fun _ xs) x = test `elemAt` x
         help [] = []
         test = literal (help xs)
 
+
+projectionPhilipp2 :: Term Char Char -> SInteger -> Char
+projectionPhilipp2 (Fun _ xs) x = case unliteral x of
+  Just c -> help xs Data.List.!! (fromInteger c)
+  Nothing -> 'z'
+  where help (Var b : zs) = b : help zs
+        help [] = []
+
 getNumChildren :: Term Char Char -> Integer
 getNumChildren (Fun _ xs) = toInteger $ Data.List.length xs
 
+charToNumber :: Char -> SInteger
+charToNumber x
+ | x == 'a' = 1
+ | x == 'b' = 2
+ | x == 'c' = 3
+ | otherwise = 0
+
+s = sat $ do
+        let sss = Fun 'f' [Var 'a', Var 'b', Var 'c']
+        let t = Fun 'f' [Var 'a', Var 'c', Var 'b']
+        a <- sInteger "a"
+        constrain $ charToNumber (projectionPhilipp2 sss a) .== literal 0
+        constrain $ a .>= 0
+        constrain $ a .< literal 4
+
 main :: IO ()
 main = do
-  let s = allSat $ do
-          let sss = Fun 'f' [Var '6', Var '2', Var '3']
-          let t = Fun 'f' [Var '3', Var '2', Var '1']
-          a <- sInteger "a"
-          constrain $ projectionPhilipp sss a .> projectionPhilipp t a
-          constrain $ a .>= 0
-          constrain $ a .< (literal $ getNumChildren sss)
   result <- s
   print result
