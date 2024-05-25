@@ -17,8 +17,9 @@ import Data.Graph
 import Data.Graph.SCC
 import Data.SBV
 import GHC.Cmm (CmmNode(res))
-import Data.SBV (constrain)
+import Data.SBV (constrain, sInteger, allSat)
 import GHC.Prelude (Show(show))
+import Data.Bool (Bool(True, False))
 
 aaa = sFalse
 bbb = sNot aaa
@@ -126,7 +127,7 @@ mySat _ = True
 
 -- Start of the REST algorithm
 rest :: [Rule Char Char] -> Term Char Char -> RewriteSequence
-rest rules term = p ([term], (getAllFamilies rules)) rules 
+rest rules term = p ([term], (getAllFamilies rules)) rules
 
 -- Adds the head element to the result and then hands the work down
 p :: ([Term Char Char], [[String]]) -> [Rule Char Char] -> RewriteSequence
@@ -171,7 +172,7 @@ outermostSymbolRuleRight (Rule _ rhs) = outermostSymbol rhs
 definedSymbols :: [Rule Char Char] -> [(Char, Char)]
 definedSymbols rules = temp 1 (Prelude.map head (nub (Prelude.map outermostSymbolRule rules)))
  where temp x [] = []
-       temp x y = (head y, head (show x)) : temp (x + 1) (tail y) 
+       temp x y = (head y, head (show x)) : temp (x + 1) (tail y)
 
 
 -- This function takes the same list of rules twice as input and returns the list of dependency pairs
@@ -245,16 +246,46 @@ findSccNode rules prepare (y:ys) = findRule rules (getIndex prepare y) : findScc
 -- mulitset just as a list
 type Multiset a = [a]
 
--- subgroup
-subgroup :: Term Char Char -> Term Char Char -> Bool
-subgroup x y = isSublist (TermOps.funs x) (TermOps.funs y)
+type Projection = [(Char, [Int])]
 
--- Multiplicity of a term in another term
-multiplicity :: Int -> Term Char Char -> Term Char Char -> Int
-multiplicity w s t 
-  | s == t && not (isVar s) = 1 -- for now later case1, thats the AND over the negated projections
-  | s == t && isVar s = w -- case2 finished
-  | subgroup t s && not (isVar s) = 2 -- for now later case3, thats the sum function with the recursive calling of multiplicity
+-- testterme
+term1 = Fun 'f' [Var 'x', Var 'y']
+term12 = Fun 'f' [Var 'x', Var 'z']
+term2 = Fun 'g' [Fun 'h' [Var 'x'], Fun 'f' [Var 'x', Var 'y']]
+term3 = Fun 'h' [Fun 'f' [Var 'z', Var 'x']]
+
+projection :: Projection
+projection = [('f',[1]),('g',[]),('h',[1])]
+
+subgroup :: Term Char Char -> Term Char Char -> Bool
+subgroup x y
+  | x == y = True
+  | isVar y = False
+  | otherwise = or [subgroup x v | v <- handBackArgumentsFromTerm y]
+
+isNotProjecting :: Term Char Char -> Projection -> Bool
+isNotProjecting (Fun c _) p = any (\(symbol, list) -> symbol == c && null list) p
+isNotProjecting (Var c) p = any (\(symbol, list) -> symbol == c && null list) p
+
+handBackArgumentsFromTerm :: Term Char Char -> [Term Char Char]
+handBackArgumentsFromTerm (Var _) = []
+handBackArgumentsFromTerm (Fun _ args) = args
+
+maybeToInt :: Maybe Int -> Int
+maybeToInt Nothing = -1
+maybeToInt (Just x) = x
+
+isProjectingToArgument :: Term Char Char -> Term Char Char -> Projection -> Bool
+isProjectingToArgument x ( Fun c vars ) p = maybeToInt (elemIndex x (handBackArgumentsFromTerm s)) + 1 `elem` snd (head (filter (\(symbol, list) -> symbol == c) p))
+  where s = Fun c vars
+ 
+
+-- Multiplicity of a term in another termisVar
+multiplicity :: Int -> Term Char Char -> Term Char Char -> Projection -> Int
+multiplicity w s t p
+  | s == t && not (isVar s) = if isNotProjecting t p then w else 0
+  | s == t && isVar s = w
+  | subgroup t s && not (isVar s) = sum [multiplicity w x t p | x <- handBackArgumentsFromTerm s, isProjectingToArgument x s p]
   | otherwise = 0 -- case4 finished
 
 -- Implement the example from the term rewriting lecture, slides 13x1, slide 37-39
@@ -429,9 +460,9 @@ rulesTest = [rule7, rule8, rule9, rule10]
 -- t means s1
 
 distribUnion :: Rule Char Char
-distribUnion = Rule 
-  { 
-    lhs = Fun 'n' [ Fun 'u' [Fun 's' [], Fun 't' []] , Fun 's' [] ], 
+distribUnion = Rule
+  {
+    lhs = Fun 'n' [ Fun 'u' [Fun 's' [], Fun 't' []] , Fun 's' [] ],
     rhs = Fun 'u' [ Fun 'n' [Fun 's' [], Fun 's' []] , Fun 'n' [Fun 't' [], Fun 's' []]]
   }
 
@@ -472,8 +503,8 @@ example1ResultTerms = rest example1RuleSet example1StartTerm
 
 distribInter :: Rule Char Char
 distribInter = Rule
-  { 
-    lhs = Fun 'u' [ Fun 'n' [Var 's', Var 't'] , Var 's' ], 
+  {
+    lhs = Fun 'u' [ Fun 'n' [Var 's', Var 't'] , Var 's' ],
     rhs = Fun 'n' [ Fun 'u' [Var 's', Var 's'] , Fun 'u' [Var 't', Var 's']]
   }
 
@@ -543,14 +574,11 @@ resultTerms = fullRewrite rSet sampleTerm4
 s = sat $ do
   a <- sInteger "a"
   b <- sInteger "b"
-  c <- sInteger "c"
-  constrain $ a*a + b*b .== c*c
-  constrain $ a .> 2 .&& b .> 2 .&& c .> 2
+  constrain $ a + b .== 3
+  constrain $ a .> 0 .&& b .> 0
 
 
 main :: IO ()
 main = do
   solution <- s
-  case (getModelValue "a" solution :: Maybe Integer, getModelValue "b" solution :: Maybe Integer, getModelValue "c" solution :: Maybe Integer) of
-    (Just a, Just b, Just c) -> print $ show a ++ "+" ++ show b ++ "=" ++ show c
-    _ -> putStrLn "No solution found"
+  print solution
