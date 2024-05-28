@@ -24,7 +24,7 @@ subgroup x y
 
 isNotProjecting :: Term Char Char -> Projection -> Bool
 isNotProjecting (Fun c _) p = Data.List.any (\(symbol, list) -> symbol == c && Data.List.null list) p
-isNotProjecting (Var c) p = Data.List.any (\(symbol, list) -> symbol == c && Data.List.null list) p
+isNotProjecting (Var c) p = error "isNotProjecting on variable should never be called"
 
 handBackArgumentsFromTerm :: Term Char Char -> [Term Char Char]
 handBackArgumentsFromTerm (Var _) = []
