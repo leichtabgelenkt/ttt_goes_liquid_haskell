@@ -23,6 +23,7 @@ import GHC.Cmm (CmmNode(res))
 import Data.SBV (constrain, sInteger, allSat)
 import GHC.Prelude (Show(show))
 import Data.Bool (Bool(True, False))
+import Data.Char
 
 aaa = sFalse
 bbb = sNot aaa
@@ -582,30 +583,28 @@ projectionPhilipp (Fun _ xs) x = test `elemAt` x
         test = literal (help xs)
 
 
-projectionPhilipp2 :: Term Char Char -> SInteger -> Char
-projectionPhilipp2 (Fun _ xs) x = case unliteral x of
-  Just c -> help xs Data.List.!! (fromInteger c)
-  Nothing -> 'z'
-  where help (Var b : zs) = b : help zs
+projectionPhilipp2 :: Term Char Char -> SInteger -> SInteger
+projectionPhilipp2 (Fun _ xs) x = test `elemAt` x
+  where help (Var b : zs) = charValue b : help zs
         help [] = []
+        test = literal (help xs)
+
+charValue :: Char -> Integer
+charValue c = toInteger (ord c)
 
 getNumChildren :: Term Char Char -> Integer
 getNumChildren (Fun _ xs) = toInteger $ Data.List.length xs
 
-charToNumber :: Char -> SInteger
-charToNumber x
- | x == 'a' = 1
- | x == 'b' = 2
- | x == 'c' = 3
- | otherwise = 0
+charToNumber :: SInteger -> SInteger
+charToNumber x = ite (x .== literal (toInteger (ord 'b'))) (literal 1) (literal 0)
 
-s = sat $ do
-        let sss = Fun 'f' [Var 'a', Var 'b', Var 'c']
-        let t = Fun 'f' [Var 'a', Var 'c', Var 'b']
-        a <- sInteger "a"
-        constrain $ charToNumber (projectionPhilipp2 sss a) .== literal 0
-        constrain $ a .>= 0
-        constrain $ a .< literal 4
+s = allSat $ do
+  let sss = Fun 'f' [Var 'b', Var 'a', Var 'b']
+  let t = Fun 'f' [Var 'c', Var 'a', Var 'a']
+  a <- sInteger "a"
+  constrain $ charToNumber (projectionPhilipp2 sss a) .> charToNumber (projectionPhilipp2 t a)
+  constrain $ a .>= 0
+  constrain $ a .< literal 3
 
 main :: IO ()
 main = do
