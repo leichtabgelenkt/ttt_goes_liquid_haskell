@@ -95,6 +95,7 @@ test-suite test
         Term
         Rules
         Rest
+        DependencyPairs
     build-depends:
         base >= 4 && < 5,
         term-rewriting,
