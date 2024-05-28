@@ -62,7 +62,8 @@ library
         Data.Rewriting.CriticalPair.Ops
         Data.Graph.SCC
         Rules
-        
+        Multiplicity
+
     other-modules:
         Data.Rewriting.Utils
         Data.Rewriting.Utils.Parse
