@@ -26,6 +26,7 @@ import Data.Bool (Bool(True, False))
 import Data.Char
 import Rules
 import Rest
+import Multiplicity
 
 instance (Show f, Show v, Show v') => Show (Reduct f v v') where
   show (Reduct result pos rule subst) =
@@ -161,11 +162,6 @@ findSccNode _ _ [] = []
 findSccNode rules prepare (y:ys) = findRule rules (getIndex prepare y) : findSccNode (delete (findRule rules (getIndex prepare y)) rules) prepare ys
  where getIndex ((i,a,b):zs) y = if i == y then (i,a,b) else getIndex zs y
 
--- mulitset just as a list
-type Multiset a = [a]
-
-type Projection = [(Char, [Int])]
-
 -- testterme
 term1 = Fun 'f' [Var 'x', Var 'y']
 term12 = Fun 'f' [Var 'x', Var 'z']
@@ -174,37 +170,6 @@ term3 = Fun 'h' [Fun 'f' [Var 'z', Var 'x']]
 
 projection :: Projection
 projection = [('f',[1]),('g',[]),('h',[1])]
-
-subgroup :: Term Char Char -> Term Char Char -> Bool
-subgroup x y
-  | x == y = True
-  | isVar y = False
-  | otherwise = or [subgroup x v | v <- handBackArgumentsFromTerm y]
-
-isNotProjecting :: Term Char Char -> Projection -> Bool
-isNotProjecting (Fun c _) p = Data.List.any (\(symbol, list) -> symbol == c && Data.List.null list) p
-isNotProjecting (Var c) p = Data.List.any (\(symbol, list) -> symbol == c && Data.List.null list) p
-
-handBackArgumentsFromTerm :: Term Char Char -> [Term Char Char]
-handBackArgumentsFromTerm (Var _) = []
-handBackArgumentsFromTerm (Fun _ args) = args
-
-maybeToInt :: Maybe Int -> Int
-maybeToInt Nothing = -1
-maybeToInt (Just x) = x
-
-isProjectingToArgument :: Term Char Char -> Term Char Char -> Projection -> Bool
-isProjectingToArgument x ( Fun c vars ) p = maybeToInt (elemIndex x (handBackArgumentsFromTerm s)) + 1 `Data.List.elem` snd (Data.List.head (Data.List.filter (\(symbol, list) -> symbol == c) p))
-  where s = Fun c vars
- 
-
--- Multiplicity of a term in another termisVar
-multiplicity :: Int -> Term Char Char -> Term Char Char -> Projection -> Int
-multiplicity w s t p
-  | s == t && not (isVar s) = if isNotProjecting t p then w else 0
-  | s == t && isVar s = w
-  | subgroup t s && not (isVar s) = sum [multiplicity w x t p | x <- handBackArgumentsFromTerm s, isProjectingToArgument x s p]
-  | otherwise = 0 -- case4 finished
 
 
 examplerules = [r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12, r13, r14, r15]
