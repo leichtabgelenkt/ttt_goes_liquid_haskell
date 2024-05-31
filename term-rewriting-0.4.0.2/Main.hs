@@ -242,6 +242,29 @@ getNumChildren (Fun _ xs) = toInteger $ Data.List.length xs
 charToNumber :: SInteger -> SInteger
 charToNumber x = ite (x .== literal (toInteger (ord 'b'))) (literal 1) (literal 0)
 
+proj :: Projection
+proj = [('f',[1]),('g',[]),('h',[1])]
+
+sub :: Term Char Char -> Term Char Char -> [Term Char Char]
+sub s t = Data.List.nub $ help s Data.List.++ help t
+ where help f@(Fun _ xs) = f : concatMap help xs
+       help v@(Var _) = [v]
+
+upper :: Term Char Char -> Term Char Char -> Term Char Char -> Bool
+upper u s t = and [help u v | v <- sub s t]
+ where help u v
+        | u `properSubgroup` v = (multiplicity 1 s v proj) == (multiplicity 1 t v proj)
+        | otherwise = True
+
+geq :: Term Char Char -> Term Char Char -> Bool
+geq s t = and [help u | u <- sub s t]
+ where help u
+        | upper u s t = (multiplicity 1 s u proj) >= (multiplicity 1 t u proj)
+        | otherwise = True
+
+neq :: Term Char Char -> Term Char Char -> Bool
+neq s t = not $ and [(multiplicity 1 s u proj) == (multiplicity 1 t u proj) | u <- sub s t]
+
 s = allSat $ do
   let sss = Fun 'f' [Var 'b', Var 'a', Var 'b']
   let t = Fun 'f' [Var 'c', Var 'a', Var 'a']

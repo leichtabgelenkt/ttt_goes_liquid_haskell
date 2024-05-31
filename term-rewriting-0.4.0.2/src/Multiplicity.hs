@@ -16,9 +16,17 @@ import Data.List
 
 type Projection = [(Char, [Int])]
 
+-- True if x is imbedded in y
 subgroup :: Term Char Char -> Term Char Char -> Bool
 subgroup x y
   | x == y = True
+  | isVar y = False
+  | otherwise = or [subgroup x v | v <- handBackArgumentsFromTerm y]
+
+-- True if x is properly imbedded in y
+properSubgroup :: Term Char Char -> Term Char Char -> Bool
+properSubgroup x y
+  | x == y = False
   | isVar y = False
   | otherwise = or [subgroup x v | v <- handBackArgumentsFromTerm y]
 
