@@ -214,6 +214,9 @@ sampleTerm3 = Fun 'h' [Var 'x', Var 'y']
 sampleTerm4 :: Term Char Char
 sampleTerm4 = Fun 'f' [Fun 'g' [Var 'x', Fun 'h' [Fun 'f' [Var 'x', Var 'y'], Var 'b']], Fun 'h' [Var 'x', Var 'y']]
 
+sampleTerm5 :: Term Char Char
+sampleTerm5 = Fun 'h' [Fun 'f' [Var 'x', Var 'y'], Fun 'g' [Var 'x', Var 'y']]
+
 -- Apply full rewrite
 resultTerms :: [Reduct Char Char Char]
 resultTerms = fullRewrite rSet sampleTerm4
@@ -243,27 +246,33 @@ charToNumber :: SInteger -> SInteger
 charToNumber x = ite (x .== literal (toInteger (ord 'b'))) (literal 1) (literal 0)
 
 proj :: Projection
-proj = [('f',[1]),('g',[]),('h',[1])]
+proj = [('f',[1]),('g',[]),('h',[2])]
 
 sub :: Term Char Char -> Term Char Char -> [Term Char Char]
 sub s t = Data.List.nub $ help s Data.List.++ help t
  where help f@(Fun _ xs) = f : concatMap help xs
        help v@(Var _) = [v]
 
-upper :: Term Char Char -> Term Char Char -> Term Char Char -> Bool
-upper u s t = and [help u v | v <- sub s t]
+upper :: Term Char Char -> Term Char Char -> Term Char Char -> Projection -> Bool
+upper u s t p = and [help u v | v <- sub s t]
  where help u v
-        | u `properSubgroup` v = (multiplicity 1 s v proj) == (multiplicity 1 t v proj)
+        | u `properSubgroup` v = (multiplicity 1 s v p) == (multiplicity 1 t v p)
         | otherwise = True
 
-geq :: Term Char Char -> Term Char Char -> Bool
-geq s t = and [help u | u <- sub s t]
+geq :: Term Char Char -> Term Char Char -> Projection -> Bool
+geq s t p = and [help u | u <- sub s t]
  where help u
-        | upper u s t = (multiplicity 1 s u proj) >= (multiplicity 1 t u proj)
+        | upper u s t p = (multiplicity 1 s u p) >= (multiplicity 1 t u p)
         | otherwise = True
 
-neq :: Term Char Char -> Term Char Char -> Bool
-neq s t = not $ and [(multiplicity 1 s u proj) == (multiplicity 1 t u proj) | u <- sub s t]
+neq :: Term Char Char -> Term Char Char -> Projection -> Bool
+neq s t p = not $ and [(multiplicity 1 s u p) == (multiplicity 1 t u p) | u <- sub s t]
+
+geqRules :: [Rule Char Char] -> Projection -> Bool
+geqRules rules p = and [geq (getLHS rule) (getRHS rule) p | rule <- rules]
+
+neqRules :: [Rule Char Char] -> Projection -> Bool
+neqRules rules p = or [neq (getLHS rule) (getRHS rule) p | rule <- rules]
 
 s = allSat $ do
   let sss = Fun 'f' [Var 'b', Var 'a', Var 'b']
@@ -273,7 +282,19 @@ s = allSat $ do
   constrain $ a .>= 0
   constrain $ a .< literal 3
 
+j = allSat $ do
+  a <- sInteger "a"
+  b <- sInteger "b"
+  c <- sInteger "c"
+  d <- sInteger "d"
+  e <- sInteger "e"
+  f <- sInteger "f"
+  g <- sInteger "g"
+  constrain $ literal (geqRules drules [('1', a), ('2', b), ('3', c), ('4', d), ('5', e), ('6', f), ('7', g)]) .== sTrue
+  constrain $ literal (neqRules drules [('1', a), ('2', b), ('3', c), ('4', d), ('5', e), ('6', f), ('7', g)]) .== sTrue
+
+
 main :: IO ()
 main = do
-  result <- s
+  result <- 'j'
   print result

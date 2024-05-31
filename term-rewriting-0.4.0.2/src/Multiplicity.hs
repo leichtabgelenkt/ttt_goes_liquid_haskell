@@ -13,8 +13,9 @@ import Data.Rewriting.Rule.Type
 import Data.Rewriting.Rules.Rewrite
 import Data.Rewriting.Problem
 import Data.List
+import Data.SBV.Internals
 
-type Projection = [(Char, [Int])]
+type Projection = [(Char, SInteger)]
 
 -- True if x is imbedded in y
 subgroup :: Term Char Char -> Term Char Char -> Bool
