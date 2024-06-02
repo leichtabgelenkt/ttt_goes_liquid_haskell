@@ -15,7 +15,15 @@ import Data.Rewriting.Problem
 import Data.List
 import Data.SBV.Internals
 
-type Projection = [(Char, SInteger)]
+-- everything starting with s* is meant to use proper form to be used in an SMT-Solver
+-- therefore the recursively should only use other s* - functions
+-- furthermore the use Projection instead of Multiprojection to differentiate 
+-- (later will Projection also use a SInteger instead of a list) 
+
+
+type Multiprojection = [(Char, [Integer])]
+
+type Projection = [(Char, [SInteger])]
 
 -- True if x is imbedded in y
 subgroup :: Term Char Char -> Term Char Char -> Bool
@@ -24,6 +32,9 @@ subgroup x y
   | isVar y = False
   | otherwise = or [subgroup x v | v <- handBackArgumentsFromTerm y]
 
+sSubgroup :: Term Char Char -> Term Char Char -> Bool
+sSubgroup = subgroup
+
 -- True if x is properly imbedded in y
 properSubgroup :: Term Char Char -> Term Char Char -> Bool
 properSubgroup x y
@@ -31,27 +42,53 @@ properSubgroup x y
   | isVar y = False
   | otherwise = or [subgroup x v | v <- handBackArgumentsFromTerm y]
 
-isNotProjecting :: Term Char Char -> Projection -> Bool
+sProperSubgroup :: Term Char Char -> Term Char Char -> Bool
+sProperSubgroup = properSubgroup
+
+isNotProjecting :: Term Char Char -> Multiprojection -> Bool
 isNotProjecting (Fun c _) p = Data.List.any (\(symbol, list) -> symbol == c && Data.List.null list) p
 isNotProjecting (Var c) p = error "isNotProjecting on variable should never be called"
+
+sIsNotProjecting :: Term Char Char -> Projection -> Bool
+sIsNotProjecting (Fun c _) p = Data.List.any (\(symbol, list) -> symbol == c && Data.List.null list) p
+sIsNotProjecting (Var c) p = error "isNotProjecting on variable should never be called"
 
 handBackArgumentsFromTerm :: Term Char Char -> [Term Char Char]
 handBackArgumentsFromTerm (Var _) = []
 handBackArgumentsFromTerm (Fun _ args) = args
 
+sHandBackArgumentsFromTerm :: Term Char Char -> [Term Char Char]
+sHandBackArgumentsFromTerm = handBackArgumentsFromTerm
+
 maybeToInt :: Maybe Int -> Int
 maybeToInt Nothing = -1
 maybeToInt (Just x) = x
 
-isProjectingToArgument :: Term Char Char -> Term Char Char -> Projection -> Bool
+sMaybeToInt :: Maybe Int -> Int
+sMaybeToInt = maybeToInt
+
+isProjectingToArgument :: Term Char Char -> Term Char Char -> Multiprojection -> Bool
 isProjectingToArgument x ( Fun c vars ) p = maybeToInt (elemIndex x (handBackArgumentsFromTerm s)) + 1 `Data.List.elem` snd (Data.List.head (Data.List.filter (\(symbol, list) -> symbol == c) p))
   where s = Fun c vars
  
+sIsProjectingToArgument :: Term Char Char -> Term Char Char -> Projection -> Bool
+sIsProjectingToArgument x ( Fun c vars ) p = 
+  let s = Fun c vars
+      index = sFromIntegral $ maybeToInt (elemIndex x (handBackArgumentsFromTerm s)) + 1
+  in sAny (\(symbol, list) -> symbol .== c .&& index `sElem` list) p
 
--- Multiplicity of a term in another termisVar
-multiplicity :: Int -> Term Char Char -> Term Char Char -> Projection -> Int
+
+-- Multiplicity of a term in another term
+multiplicity :: Int -> Term Char Char -> Term Char Char -> Multiprojection -> Int
 multiplicity w s t p
   | s == t && not (isVar s) = if isNotProjecting t p then w else 0
   | s == t && isVar s = w
   | subgroup t s && not (isVar s) = sum [multiplicity w x t p | x <- handBackArgumentsFromTerm s, isProjectingToArgument x s p]
-  | otherwise = 0 -- case4 finished
+  | otherwise = 0
+
+sMultiplicity :: SInteger -> Term Char Char -> Term Char Char -> Projection -> SInteger
+sMultiplicity w s t p
+  | s == t && not (isVar s) = ite (sIsNotProjecting t p) w 0
+  | s == t && isVar s = w
+  | sSubgroup t s && not (isVar s) = sSum [sMultiplicity w x t p | x <- sHandBackArgumentsFromTerm s, sIsProjectingToArgument x s p]
+  | otherwise = 0
