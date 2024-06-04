@@ -13,7 +13,6 @@ import Data.Rewriting.Rule.Type
 import Data.Rewriting.Rules.Rewrite
 import Data.Rewriting.Problem
 import Data.SBV
-import Data.SBV.List
 import Data.List
 import Data.SBV.Internals
 
@@ -72,7 +71,7 @@ sMaybeToInt x = literal (maybeToInt x)
 isProjectingToArgument :: Term Char Char -> Term Char Char -> Multiprojection -> Bool
 isProjectingToArgument x ( Fun c vars ) p = maybeToInt (elemIndex x (handBackArgumentsFromTerm s)) + 1 `Data.List.elem` snd (Data.List.head (Data.List.filter (\(symbol, list) -> symbol == c) p))
   where s = Fun c vars
-
+ 
 sIsProjectingToArgument :: Term Char Char -> Term Char Char -> Projection -> SBool
 sIsProjectingToArgument x (Fun c vars) p =
   let s = Fun c vars
@@ -91,5 +90,8 @@ sMultiplicity :: SInteger -> Term Char Char -> Term Char Char -> Projection -> S
 sMultiplicity w s t p
   | s == t && not (isVar s) = ite (sIsNotProjecting t p) w (literal 0)
   | s == t && isVar s = w
-  | sSubgroup t s && not (isVar s) = Data.SBV.List.head $ Data.SBV.List.map (\x -> sMultiplicity w x t p) $ Data.SBV.List.filter ( \x -> sIsProjectingToArgument x s p) (sHandBackArgumentsFromTerm s)
+  | sSubgroup t s && not (isVar s) = (\x -> sMultiplicity w x t p) $ test (sHandBackArgumentsFromTerm s) s p 
   | otherwise = literal 0
+
+test :: [Term Char Char] -> Term Char Char -> Projection -> Term Char Char
+test (x:xs) s p = ite (sIsProjectingToArgument x s p) (x) (test xs s p)
