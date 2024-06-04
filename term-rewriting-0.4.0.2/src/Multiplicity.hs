@@ -13,6 +13,7 @@ import Data.Rewriting.Rule.Type
 import Data.Rewriting.Rules.Rewrite
 import Data.Rewriting.Problem
 import Data.SBV
+import Data.SBV.List
 import Data.List
 import Data.SBV.Internals
 
@@ -86,12 +87,20 @@ multiplicity w s t p
   | subgroup t s && not (isVar s) = sum [multiplicity w x t p | x <- handBackArgumentsFromTerm s, isProjectingToArgument x s p]
   | otherwise = 0
 
+findProjectingIndex :: Projection -> Term Char Char -> SInteger
+findProjectingIndex [] _ = literal (-1)
+findProjectingIndex ((k, v):xs) s@(Fun c _) = if k == c then v else findProjectingIndex xs s
+
 sMultiplicity :: SInteger -> Term Char Char -> Term Char Char -> Projection -> SInteger
 sMultiplicity w s t p
   | s == t && not (isVar s) = ite (sIsNotProjecting t p) w (literal 0)
   | s == t && isVar s = w
-  | sSubgroup t s && not (isVar s) = (\x -> sMultiplicity w x t p) $ test (sHandBackArgumentsFromTerm s) s p 
+  | sSubgroup t s && not (isVar s) = help (sHandBackArgumentsFromTerm s) (findProjectingIndex p s) 0--(\x -> sMultiplicity w x t p) $ (sHandBackArgumentsFromTerm s) !! fromIntegral (findIndexTest (sHandBackArgumentsFromTerm s) s p 0)
   | otherwise = literal 0
+  where help [] _ _ = literal 0
+        help (x:xs) i y = ite (i .== literal y) (sMultiplicity w x t p) (help xs i (y+1))
 
-test :: [Term Char Char] -> Term Char Char -> Projection -> Term Char Char
-test (x:xs) s p = ite (sIsProjectingToArgument x s p) (x) (test xs s p)
+
+findIndexTest :: [Term Char Char] -> Term Char Char -> Projection -> Integer -> Integer
+findIndexTest (x:xs) s p y = ite (sIsProjectingToArgument x s p) (y) (findIndexTest xs s p (y+1))
+findIndexTest [] _ _ y = y
