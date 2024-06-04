@@ -1,3 +1,5 @@
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+{-# HLINT ignore "Redundant bracket" #-}
 import Data.Rewriting.Term
 import Data.Rewriting.Term.Type
 import Data.Rewriting.Term.Ops as TermOps
@@ -65,13 +67,13 @@ splitAndRemove xs = Data.List.filter (not . Data.List.null) $ case break (== Fun
   (before, _ : after) -> before : splitAndRemove after
 
 isSublist :: Eq a => [a] -> [a] -> Bool
-isSublist sublist list = sublist `Data.List.elem` (Data.List.tail $ Data.List.init $ subsequences list)
+isSublist sublist list = sublist `Data.List.elem` Data.List.tail (Data.List.init $ subsequences list)
 
 removeEmptySublists :: [[Term a b]] -> [[Term a b]]
 removeEmptySublists = Data.List.filter (not . Data.List.null)
 
 removeSublists :: Eq a => [[a]] -> [[a]]
-removeSublists lists = Data.List.filter (\x -> Data.List.all (not . (`isSublist` x)) (delete x lists)) lists
+removeSublists lists = Data.List.filter (\x -> not (any (`isSublist` x) (delete x lists))) lists
 
 mysequence = RewriteSequence [(Fun 'n' [Fun 'u' [Fun 's' [],Fun 't' []],Fun 's' []],Fun 'u' [Fun 'n' [Fun 's' [],Fun 's' []],Fun 'n' [Fun 't' [],Fun 's' []]]),(Fun 'u' [Fun 'n' [Fun 's' [],Fun 's' []],Fun 'n' [Fun 't' [],Fun 's' []]],Fun 'u' [Fun 's' [],Fun 'n' [Fun 't' [],Fun 's' []]]),(Fun 'u' [Fun 'n' [Fun 's' [],Fun 's' []],Fun 'n' [Fun 't' [],Fun 's' []]],Fun 'u' [Fun 'n' [Fun 's' [],Fun 's' []],Fun 'e' []]),(Fun 'u' [Fun 'n' [Fun 's' [],Fun 's' []],Fun 'e' []],Fun 'u' [Fun 's' [],Fun 'e' []]),(Fun 'u' [Fun 's' [],Fun 'e' []],Fun 's' []),(Fun 'u' [Fun 's' [],Fun 'n' [Fun 't' [],Fun 's' []]],Fun 'u' [Fun 's' [],Fun 'e' []]),(Fun 'u' [Fun 's' [],Fun 'e' []],Fun 's' [])]
 
