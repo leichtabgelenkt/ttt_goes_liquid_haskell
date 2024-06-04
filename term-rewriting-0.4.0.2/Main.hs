@@ -278,7 +278,23 @@ s = allSat $ do
   constrain $ a .>= 0
   constrain $ a .< literal 3
 
-j = allSat $ do
+rule11 :: Rule Char Char
+rule11 = Rule
+    { lhs = Fun 'f' [Fun 'g' [Var 'x'], Var 'y']
+    , rhs = Fun 'g' [Var 'x']
+    }
+
+teeeest = [rule11]
+
+k = sat $ do
+  b <- sInteger "b"
+  constrain $ geqRules teeeest [('f', literal 1), ('g', b)] .== sTrue
+  constrain $ neqRules teeeest [('f', literal 1), ('g', b)] .== sTrue
+  constrain $ b .> 0
+  constrain $ b .< 2
+  
+
+j = sat $ do
   a <- sInteger "a"
   b <- sInteger "b"
   c <- sInteger "c"
