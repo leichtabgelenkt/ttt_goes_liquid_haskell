@@ -73,7 +73,7 @@ removeEmptySublists :: [[Term a b]] -> [[Term a b]]
 removeEmptySublists = Data.List.filter (not . Data.List.null)
 
 removeSublists :: Eq a => [[a]] -> [[a]]
-removeSublists lists = Data.List.filter (\x -> not (any (`isSublist` x) (delete x lists))) lists
+removeSublists lists = Data.List.filter (\x -> not (Data.List.any (`isSublist` x) (delete x lists))) lists
 
 mysequence = RewriteSequence [(Fun 'n' [Fun 'u' [Fun 's' [],Fun 't' []],Fun 's' []],Fun 'u' [Fun 'n' [Fun 's' [],Fun 's' []],Fun 'n' [Fun 't' [],Fun 's' []]]),(Fun 'u' [Fun 'n' [Fun 's' [],Fun 's' []],Fun 'n' [Fun 't' [],Fun 's' []]],Fun 'u' [Fun 's' [],Fun 'n' [Fun 't' [],Fun 's' []]]),(Fun 'u' [Fun 'n' [Fun 's' [],Fun 's' []],Fun 'n' [Fun 't' [],Fun 's' []]],Fun 'u' [Fun 'n' [Fun 's' [],Fun 's' []],Fun 'e' []]),(Fun 'u' [Fun 'n' [Fun 's' [],Fun 's' []],Fun 'e' []],Fun 'u' [Fun 's' [],Fun 'e' []]),(Fun 'u' [Fun 's' [],Fun 'e' []],Fun 's' []),(Fun 'u' [Fun 's' [],Fun 'n' [Fun 't' [],Fun 's' []]],Fun 'u' [Fun 's' [],Fun 'e' []]),(Fun 'u' [Fun 's' [],Fun 'e' []],Fun 's' [])]
 
@@ -91,7 +91,7 @@ term2 = Fun 'g' [Fun 'h' [Var 'x'], Fun 'f' [Var 'x', Var 'y']]
 term3 = Fun 'h' [Fun 'f' [Var 'z', Var 'x']]
 
 projection :: Projection
-projection = [('f',[1]),('g',[]),('h',[1])]
+projection = [('f',1),('g',-1),('h',1)]
 
 
 examplerules = [r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12, r13, r14, r15]
@@ -248,33 +248,27 @@ charToNumber :: SInteger -> SInteger
 charToNumber x = ite (x .== literal (toInteger (ord 'b'))) (literal 1) (literal 0)
 
 proj :: Projection
-proj = [('f',[1]),('g',[]),('h',[2])]
+proj = [('f',1),('g',-1),('h',2)]
 
 sub :: Term Char Char -> Term Char Char -> [Term Char Char]
 sub s t = Data.List.nub $ help s Data.List.++ help t
  where help f@(Fun _ xs) = f : concatMap help xs
        help v@(Var _) = [v]
 
-upper :: Term Char Char -> Term Char Char -> Term Char Char -> Projection -> Bool
-upper u s t p = and [help u v | v <- sub s t]
- where help u v
-        | u `properSubgroup` v = (multiplicity 1 s v p) == (multiplicity 1 t v p)
-        | otherwise = True
+upper :: Term Char Char -> Term Char Char -> Term Char Char -> Projection -> SBool
+upper u s t p = sAnd [ite (literal (u `properSubgroup` v)) ((sMultiplicity 1 s v p) .== (sMultiplicity 1 t v p)) (sTrue) | v <- sub s t]
 
-geq :: Term Char Char -> Term Char Char -> Projection -> Bool
-geq s t p = and [help u | u <- sub s t]
- where help u
-        | upper u s t p = (multiplicity 1 s u p) >= (multiplicity 1 t u p)
-        | otherwise = True
+geq :: Term Char Char -> Term Char Char -> Projection -> SBool
+geq s t p = sAnd [ite (upper u s t p) ((sMultiplicity 1 s u p) .>= (sMultiplicity 1 t u p)) (sTrue)| u <- sub s t]
 
-neq :: Term Char Char -> Term Char Char -> Projection -> Bool
-neq s t p = not $ and [(multiplicity 1 s u p) == (multiplicity 1 t u p) | u <- sub s t]
+neq :: Term Char Char -> Term Char Char -> Projection -> SBool
+neq s t p = sNot $ sAnd [(sMultiplicity 1 s u p) .== (sMultiplicity 1 t u p) | u <- sub s t]
 
-geqRules :: [Rule Char Char] -> Projection -> Bool
-geqRules rules p = and [geq (getLHS rule) (getRHS rule) p | rule <- rules]
+geqRules :: [Rule Char Char] -> Projection -> SBool
+geqRules rules p = sAnd [geq (getLHS rule) (getRHS rule) p | rule <- rules]
 
-neqRules :: [Rule Char Char] -> Projection -> Bool
-neqRules rules p = or [neq (getLHS rule) (getRHS rule) p | rule <- rules]
+neqRules :: [Rule Char Char] -> Projection -> SBool
+neqRules rules p = sOr [neq (getLHS rule) (getRHS rule) p | rule <- rules]
 
 s = allSat $ do
   let sss = Fun 'f' [Var 'b', Var 'a', Var 'b']
@@ -292,11 +286,11 @@ j = allSat $ do
   e <- sInteger "e"
   f <- sInteger "f"
   g <- sInteger "g"
-  constrain $ literal (geqRules drules [('1', a), ('2', b), ('3', c), ('4', d), ('5', e), ('6', f), ('7', g)]) .== sTrue
-  constrain $ literal (neqRules drules [('1', a), ('2', b), ('3', c), ('4', d), ('5', e), ('6', f), ('7', g)]) .== sTrue
+  constrain $ geqRules drules [('1', a), ('2', b), ('3', c), ('4', d), ('5', e), ('6', f), ('7', g)] .== sTrue
+  constrain $ neqRules drules [('1', a), ('2', b), ('3', c), ('4', d), ('5', e), ('6', f), ('7', g)] .== sTrue
 
 
 main :: IO ()
 main = do
-  result <- 'j'
+  result <- j
   print result

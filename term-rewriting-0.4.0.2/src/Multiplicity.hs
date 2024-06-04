@@ -72,11 +72,11 @@ isProjectingToArgument :: Term Char Char -> Term Char Char -> Multiprojection ->
 isProjectingToArgument x ( Fun c vars ) p = maybeToInt (elemIndex x (handBackArgumentsFromTerm s)) + 1 `Data.List.elem` snd (Data.List.head (Data.List.filter (\(symbol, list) -> symbol == c) p))
   where s = Fun c vars
  
-sIsProjectingToArgument :: Term Char Char -> Term Char Char -> Projection -> Bool
+sIsProjectingToArgument :: Term Char Char -> Term Char Char -> Projection -> SBool
 sIsProjectingToArgument x (Fun c vars) p =
   let s = Fun c vars
       index = sFromIntegral $ sMaybeToInt (elemIndex x (sHandBackArgumentsFromTerm s)) + 1
-  in any (\(symbol, idx) -> symbol == c && index == idx) p
+  in sAny (\(symbol, idx) -> literal (symbol == c) .&& index .== idx) p
 
 -- Multiplicity of a term in another term
 multiplicity :: Integer -> Term Char Char -> Term Char Char -> Multiprojection -> Integer
@@ -90,5 +90,5 @@ sMultiplicity :: SInteger -> Term Char Char -> Term Char Char -> Projection -> S
 sMultiplicity w s t p
   | s == t && not (isVar s) = ite (sIsNotProjecting t p) w (literal 0)
   | s == t && isVar s = w
-  | sSubgroup t s && not (isVar s) = head [sMultiplicity w x t p | x <- sHandBackArgumentsFromTerm s, sIsProjectingToArgument x s p]
+  | sSubgroup t s && not (isVar s) = map (sMultiplicity w x t p) sFilter ((\ )sIsProjectingToArgument x s p) [x | x <- sHandBackArgumentsFromTerm s]
   | otherwise = literal 0
