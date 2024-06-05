@@ -270,6 +270,12 @@ geqRules rules p = sAnd [geq (getLHS rule) (getRHS rule) p | rule <- rules]
 neqRules :: [Rule Char Char] -> Projection -> SBool
 neqRules rules p = sOr [neq (getLHS rule) (getRHS rule) p | rule <- rules]
 
+rt :: Term Char Char -> Projection -> SBool
+rt t p = sNot $ sIsNotProjecting t p
+
+rtRules :: [Rule Char Char] -> Projection -> SBool
+rtRules rules p = sAnd [ite (rt lhs p) (geq lhs rhs p) (sTrue) | (Rule rhs lhs) <- rules]
+
 s = allSat $ do
   let sss = Fun 'f' [Var 'b', Var 'a', Var 'b']
   let t = Fun 'f' [Var 'c', Var 'a', Var 'a']
@@ -278,20 +284,37 @@ s = allSat $ do
   constrain $ a .>= 0
   constrain $ a .< literal 3
 
+teerm1 = Fun 'f' [Fun 'g' [Var 'x'], Var 'y']
+teerm2 = Fun 'g' [Var 'x']
+
 rule11 :: Rule Char Char
 rule11 = Rule
-    { lhs = Fun 'f' [Fun 'g' [Var 'x'], Var 'y']
-    , rhs = Fun 'g' [Var 'x']
+    { lhs = Fun 'a' [Fun '0' [], Var 'y']
+    , rhs = Var 'y'
     }
 
-teeeest = [rule11]
+ssss = (Fun '1' [Fun 's' [Var 'x'], Var 'y'])
+tttt = (Fun '1' [Var 'x', Var 'y'])
 
-k = sat $ do
+rule12 :: Rule Char Char
+rule12 = Rule
+    { lhs = Fun 'a' [Fun 's' [Var 'x'], Var 'y']
+    , rhs = Fun 's' [Fun 'a' [Var 'x', Var 'y']]
+    }
+
+teeeest = [rule11, rule12]
+dependencyRules = dependencyPairs teeeest teeeest
+
+k = allSat $ do
+  a <- sInteger "a"
   b <- sInteger "b"
-  constrain $ geqRules teeeest [('f', literal 1), ('g', b)] .== sTrue
-  constrain $ neqRules teeeest [('f', literal 1), ('g', b)] .== sTrue
-  constrain $ b .> 0
-  constrain $ b .< 2
+  c <- sInteger "c"
+  constrain $ geqRules dependencyRules [('a', a), ('s', b), ('1', c)]
+  constrain $ neqRules dependencyRules [('a', a), ('s', b), ('1', c)]
+  --constrain $ rtRules teeeest [('a', a), ('s', b), ('1', c)]
+  constrain $ a .== (literal (-1)) .|| (a .> (literal 0) .&& a .< (literal 3))
+  constrain $ b .== (literal (-1)) .|| (b .> (literal 0) .&& b .< (literal 2))
+  constrain $ c .== (literal (-1)) .|| (c .> (literal 0) .&& c .< (literal 3))
   
 
 j = sat $ do
@@ -308,5 +331,5 @@ j = sat $ do
 
 main :: IO ()
 main = do
-  result <- j
+  result <- k
   print result

@@ -35,7 +35,7 @@ subgroup x y
   | otherwise = or [subgroup x v | v <- handBackArgumentsFromTerm y]
 
 sSubgroup :: Term Char Char -> Term Char Char -> Bool
-sSubgroup = subgroup
+sSubgroup = properSubgroup
 
 -- True if x is properly imbedded in y
 properSubgroup :: Term Char Char -> Term Char Char -> Bool
@@ -95,7 +95,7 @@ sMultiplicity :: SInteger -> Term Char Char -> Term Char Char -> Projection -> S
 sMultiplicity w s t p
   | s == t && not (isVar s) = ite (sIsNotProjecting t p) w (literal 0)
   | s == t && isVar s = w
-  | sSubgroup t s && not (isVar s) = help (sHandBackArgumentsFromTerm s) (findProjectingIndex p s) 0--(\x -> sMultiplicity w x t p) $ (sHandBackArgumentsFromTerm s) !! fromIntegral (findIndexTest (sHandBackArgumentsFromTerm s) s p 0)
+  | sSubgroup t s && not (isVar s) = help (sHandBackArgumentsFromTerm s) (findProjectingIndex p s) 1--(\x -> sMultiplicity w x t p) $ (sHandBackArgumentsFromTerm s) !! fromIntegral (findIndexTest (sHandBackArgumentsFromTerm s) s p 0)
   | otherwise = literal 0
   where help [] _ _ = literal 0
         help (x:xs) i y = ite (i .== literal y) (sMultiplicity w x t p) (help xs i (y+1))
