@@ -311,7 +311,7 @@ k = allSat $ do
   c <- sInteger "c"
   constrain $ geqRules dependencyRules [('a', a), ('s', b), ('1', c)]
   constrain $ neqRules dependencyRules [('a', a), ('s', b), ('1', c)]
-  --constrain $ rtRules teeeest [('a', a), ('s', b), ('1', c)]
+  constrain $ rtRules teeeest [('a', a), ('s', b), ('1', c)]
   constrain $ a .== (literal (-1)) .|| (a .> (literal 0) .&& a .< (literal 3))
   constrain $ b .== (literal (-1)) .|| (b .> (literal 0) .&& b .< (literal 2))
   constrain $ c .== (literal (-1)) .|| (c .> (literal 0) .&& c .< (literal 3))

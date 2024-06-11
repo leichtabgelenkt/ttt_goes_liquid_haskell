@@ -53,7 +53,7 @@ isNotProjecting (Var c) p = error "isNotProjecting on variable should never be c
 
 sIsNotProjecting :: Term Char Char -> Projection -> SBool
 sIsNotProjecting (Fun c _) p = sAny (\(symbol, idx) -> (literal symbol) .== (literal c) .&& idx .== -1) p
-sIsNotProjecting (Var c) p = error "isNotProjecting on variable should never be called"
+sIsNotProjecting (Var c) p = sFalse
 
 handBackArgumentsFromTerm :: Term Char Char -> [Term Char Char]
 handBackArgumentsFromTerm (Var _) = []
@@ -104,3 +104,11 @@ sMultiplicity w s t p
 findIndexTest :: [Term Char Char] -> Term Char Char -> Projection -> Integer -> Integer
 findIndexTest (x:xs) s p y = ite (sIsProjectingToArgument x s p) (y) (findIndexTest xs s p (y+1))
 findIndexTest [] _ _ y = y
+
+
+s = Fun 'a' [Fun 's' [Var 'x'], Var 'y']
+t = Fun 'a' [Var 'x', Var 'y']
+u = Fun 's' [Var 'x']
+project = [('a', literal 1), ('s', literal (-1))]
+
+fff = sMultiplicity (literal 1) s u project
