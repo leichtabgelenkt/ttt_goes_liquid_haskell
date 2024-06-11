@@ -373,6 +373,12 @@ rule21 = Rule
     , rhs = Fun 'f' [Var 'x']
     }
 
+rule21b :: Rule Char Char
+rule21b = Rule
+    { lhs = Fun 'g' [Var 'x']
+    , rhs = Fun 'j' [Var 'x']
+    }
+
 rule22 :: Rule Char Char
 rule22 = Rule
     { lhs = Fun 'i' [Fun 'k' [Var 'x']]
@@ -385,12 +391,12 @@ rule23 = Rule
     , rhs = Fun 'i' [Var 'x']
     }
 
-sccNavigationRules = [rule20, rule21, rule22, rule23]
+sccNavigationRules = [rule20, rule21, rule21b, rule22, rule23]
 sccNavigationDependencyRules = dependencyPairs sccNavigationRules sccNavigationRules
 graph = getSccFromDependencyPairs sccNavigationDependencyRules
 numbers = definedSymbols sccNavigationRules
 sccEdges = sccPrepare sccNavigationDependencyRules 1
-testSCCReachable = reachableNodesFromTerm sccNavigationRules (Fun 'i' [Fun 'k' [Var 'x']]) sccEdges
+testSCCReachable = reachableNodesFromTerm sccNavigationRules (Fun 'j' [Fun 's' [Var 'x']]) sccEdges
 
 k = allSat $ do
   a <- sInteger "a"

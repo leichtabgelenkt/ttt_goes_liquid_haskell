@@ -83,6 +83,6 @@ module MySCCGraph where
         dependecyRules = dependencyPairs s s
 
     reachableHelpSearch :: [Char] -> [(Int, String, String)] -> [(Int, String, String)] -> [String] -> [String]
-    reachableHelpSearch z@(k:ks) w@((a,b,c):ys) i e = if (k == Data.List.head b) && not (c `Data.List.elem` e) then (reachableHelpSearch (Data.List.head c : ks) w i ([c] Data.List.++ e)) Data.List.++ (reachableHelpSearch z ys i e) else (reachableHelpSearch z ys i e)
+    reachableHelpSearch z@(k:ks) w@((a,b,c):ys) i e = if (k == Data.List.head b) && not (c `Data.List.elem` e) then (reachableHelpSearch (Data.List.head c : ks) w i ([show a] Data.List.++ e)) Data.List.++ (reachableHelpSearch z ys i e) else (reachableHelpSearch z ys i e)
     reachableHelpSearch (k:ks) [] i e = reachableHelpSearch ks i i e
     reachableHelpSearch [] _ i e = e
