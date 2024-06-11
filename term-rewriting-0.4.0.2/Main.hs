@@ -40,6 +40,8 @@ instance (Show f, Show v, Show v') => Show (Reduct f v v') where
     Data.List.++ ", subst = " Data.List.++ show subst
     Data.List.++ " }"
 
+
+
 instance Show RewriteSequence where
   show s@(RewriteSequence a) = show $ Prelude.map listToStringWithArrows $ nub $ removeSublists $ removeEmptySublists $ Prelude.map nub $ showRewriteSequence s (fst (Data.List.head a))
 
@@ -302,20 +304,132 @@ rule12 = Rule
     , rhs = Fun 's' [Fun 'a' [Var 'x', Var 'y']]
     }
 
-teeeest = [rule11, rule12]
-dependencyRules = dependencyPairs teeeest teeeest
+rule13 :: Rule Char Char
+rule13 = Rule
+    { lhs = Fun 'h' [Fun '0' []]
+    , rhs = Fun '0' []
+    }
+
+rule14 :: Rule Char Char
+rule14 = Rule
+    { lhs = Fun 'h' [Fun 's' [Fun '0' []]]
+    , rhs = Fun '0' []
+    }
+
+rule15 :: Rule Char Char
+rule15 = Rule
+    { lhs = Fun 'h' [Fun 's' [Fun 's'[Var 'x']]]
+    , rhs = Fun 's' [Fun 'h' [Var 'x']]
+    }
+
+rule16 :: Rule Char Char
+rule16 = Rule
+    { lhs = Fun 'b' [Fun '0' []]
+    , rhs = Fun 'b' [Fun 'b' [Fun '0' []]]
+    }
+
+rule17 :: Rule Char Char
+rule17 = Rule
+    { lhs = Fun 'b' [Fun 's' [Var 'x']]
+    , rhs = Fun 's' [Fun 'b' [Fun 'h' [Fun 's' [Var 'x']]]]
+    }
+
+
+rule18 :: Rule Char Char
+rule18 = Rule
+    { lhs = Fun 'a' [Var 'x']
+    , rhs = Fun 'b' [Var 'x']
+    }
+
+rule19 :: Rule Char Char
+rule19 = Rule
+    { lhs = Fun 'b' [Var 'x']
+    , rhs = Fun 'a' [Var 'x']
+    }
+
+rppp = [('b', literal ((1)::Integer)), ('1', literal ((1)::Integer))]
+rrrr = geq (Fun '1' [Fun '0' []]) (Fun '1' [Fun 'b' [Fun '0' []]]) rppp
+
+tttAdd = [rule11, rule12]
+tttBits = [rule13, rule14, rule15, rule16]
+
+
+sanity = [rule18, rule19]
+dependencyRulesSanity = dependencyPairs sanity sanity
+
+dependencyRulesAdd = dependencyPairs tttAdd tttAdd
+dependencyRulesBits = dependencyPairs tttBits tttBits
+
+
+rule20 :: Rule Char Char
+rule20 = Rule
+    { lhs = Fun 'f' [Var 'x']
+    , rhs = Fun 'g' [Var 'x']
+    }
+
+rule21 :: Rule Char Char
+rule21 = Rule
+    { lhs = Fun 'g' [Var 'x']
+    , rhs = Fun 'f' [Var 'x']
+    }
+
+rule22 :: Rule Char Char
+rule22 = Rule
+    { lhs = Fun 'i' [Fun 'k' [Var 'x']]
+    , rhs = Fun 'j' [Var 'x']
+    }
+
+rule23 :: Rule Char Char
+rule23 = Rule
+    { lhs = Fun 'j' [Fun 's' [Var 'x']]
+    , rhs = Fun 'i' [Var 'x']
+    }
+
+sccNavigationRules = [rule20, rule21, rule22, rule23]
+sccNavigationDependencyRules = dependencyPairs sccNavigationRules sccNavigationRules
+graph = getSccFromDependencyPairs sccNavigationDependencyRules
+numbers = definedSymbols sccNavigationRules
+sccEdges = sccPrepare sccNavigationDependencyRules 1
+testSCCReachable = reachableNodesFromTerm sccNavigationRules (Fun 'i' [Fun 'k' [Var 'x']]) sccEdges
 
 k = allSat $ do
   a <- sInteger "a"
   b <- sInteger "b"
   c <- sInteger "c"
-  constrain $ geqRules dependencyRules [('a', a), ('s', b), ('1', c)]
-  constrain $ neqRules dependencyRules [('a', a), ('s', b), ('1', c)]
-  constrain $ rtRules teeeest [('a', a), ('s', b), ('1', c)]
+  constrain $ geqRules dependencyRulesAdd [('a', a), ('s', b), ('1', c)]
+  constrain $ neqRules dependencyRulesAdd [('a', a), ('s', b), ('1', c)]
+  constrain $ rtRules tttAdd [('a', a), ('s', b), ('1', c)]
   constrain $ a .== (literal (-1)) .|| (a .> (literal 0) .&& a .< (literal 3))
   constrain $ b .== (literal (-1)) .|| (b .> (literal 0) .&& b .< (literal 2))
   constrain $ c .== (literal (-1)) .|| (c .> (literal 0) .&& c .< (literal 3))
-  
+
+b = allSat $ do
+  a <- sInteger "a"
+  b <- sInteger "b"
+  c <- sInteger "c"
+  d <- sInteger "d"
+  e <- sInteger "e"
+  constrain $ geqRules dependencyRulesBits [('h', a), ('s', b), ('b', c), ('1', d), ('2', e)]
+  constrain $ neqRules dependencyRulesBits [('h', a), ('s', b), ('b', c), ('1', d), ('2', e)]
+  constrain $ rtRules tttAdd [('h', a), ('s', b), ('b', c), ('1', d), ('2', e)]
+  constrain $ a .== (literal (-1)) .|| (a .> (literal 0) .&& a .< (literal 2))
+  constrain $ b .== (literal (-1)) .|| (b .> (literal 0) .&& b .< (literal 2))
+  constrain $ c .== (literal (-1)) .|| (c .> (literal 0) .&& c .< (literal 2))
+  constrain $ d .== (literal (-1)) .|| (d .> (literal 0) .&& d .< (literal 2))
+  constrain $ e .== (literal (-1)) .|| (e .> (literal 0) .&& e .< (literal 2))
+
+satSanity = allSat $ do
+  a <- sInteger "a"
+  b <- sInteger "b"
+  d <- sInteger "d"
+  e <- sInteger "e"
+  constrain $ geqRules dependencyRulesSanity [('a', a), ('b', b), ('1', d), ('2', e)]
+  constrain $ neqRules dependencyRulesSanity [('a', a), ('b', b), ('1', d), ('2', e)]
+  constrain $ rtRules sanity [('a', a), ('b', b), ('1', d), ('2', e)]
+  constrain $ a .== (literal (-1)) .|| (a .> (literal 0) .&& a .< (literal 2))
+  constrain $ b .== (literal (-1)) .|| (b .> (literal 0) .&& b .< (literal 2))
+  constrain $ d .== (literal (-1)) .|| (d .> (literal 0) .&& d .< (literal 2))
+  constrain $ e .== (literal (-1)) .|| (e .> (literal 0) .&& e .< (literal 2))
 
 j = sat $ do
   a <- sInteger "a"
@@ -331,5 +445,5 @@ j = sat $ do
 
 main :: IO ()
 main = do
-  result <- k
+  result <- b
   print result

@@ -62,3 +62,27 @@ module MySCCGraph where
     findSccNode _ _ [] = []
     findSccNode rules prepare (y:ys) = findRule rules (getIndex prepare y) : findSccNode (delete (findRule rules (getIndex prepare y)) rules) prepare ys
         where getIndex ((i,a,b):zs) y = if i == y then (i,a,b) else getIndex zs y
+
+    instance (Eq f, Eq v, Eq v') => Eq (Reduct f v v') where
+        (Reduct result1 _ _ _) == (Reduct result2 _ _ _) = result1 == result2
+
+    createNewTerm :: Char -> Term Char Char -> Term Char Char
+    createNewTerm a (Fun b c) = Fun a c
+        
+    reachableNodesFromTerm :: [Rule Char Char] -> Term Char Char -> [(Int, String, String)] -> [String]
+    reachableNodesFromTerm s m@(Fun t o) w@((a,b,c):ys) =
+        if fullRewrite dependecyRules newTerm /= fullRewrite [] newTerm
+        then nub (reachableHelpSearch [k] w w [[k]])
+        else []
+     where
+        numbers = definedSymbols s
+        k = findNumber t numbers
+        findNumber e ((r, p):ts) = if r == e then p else findNumber e ts
+        findNumber e [] = '0'
+        newTerm = createNewTerm k m
+        dependecyRules = dependencyPairs s s
+
+    reachableHelpSearch :: [Char] -> [(Int, String, String)] -> [(Int, String, String)] -> [String] -> [String]
+    reachableHelpSearch z@(k:ks) w@((a,b,c):ys) i e = if (k == Data.List.head b) && not (c `Data.List.elem` e) then (reachableHelpSearch (Data.List.head c : ks) w i ([c] Data.List.++ e)) Data.List.++ (reachableHelpSearch z ys i e) else (reachableHelpSearch z ys i e)
+    reachableHelpSearch (k:ks) [] i e = reachableHelpSearch ks i i e
+    reachableHelpSearch [] _ i e = e
