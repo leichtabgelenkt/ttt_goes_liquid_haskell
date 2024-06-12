@@ -68,12 +68,14 @@ module MySCCGraph where
 
     createNewTerm :: Char -> Term Char Char -> Term Char Char
     createNewTerm a (Fun b c) = Fun a c
+
+    findStartingNodes :: [Rule Char Char] -> [Int] -> [(Int, String, String)] -> Term Char Char -> [Int]
+    findStartingNodes rules (y:ys) preparation term = if fullRewrite (findSccNode rules preparation [y]) term /= fullRewrite [] term then y : findStartingNodes rules ys preparation term else findStartingNodes rules ys preparation term
+    findStartingNodes _ [] _ _ = []
         
-    reachableNodesFromTerm :: [Rule Char Char] -> Term Char Char -> [(Int, String, String)] -> [String]
-    reachableNodesFromTerm s m@(Fun t o) w@((a,b,c):ys) =
-        if fullRewrite dependecyRules newTerm /= fullRewrite [] newTerm
-        then nub (reachableHelpSearch [k] w w [[k]])
-        else []
+    -- Arguments: The normal rewrite rules, the term of which you want to now the reach in the dependency graph  
+    reachableNodesFromTerm :: [Rule Char Char] -> Term Char Char -> [Int]
+    reachableNodesFromTerm s m@(Fun t o) = nub (reachableHelpSearch startingNodes edges edges startingNodes)
      where
         numbers = definedSymbols s
         k = findNumber t numbers
@@ -81,8 +83,11 @@ module MySCCGraph where
         findNumber e [] = '0'
         newTerm = createNewTerm k m
         dependecyRules = dependencyPairs s s
+        preparation = sccPrepare dependecyRules 1
+        edges = getVertices preparation preparation
+        startingNodes = findStartingNodes dependecyRules [1..Data.List.length dependecyRules] preparation newTerm
 
-    reachableHelpSearch :: [Char] -> [(Int, String, String)] -> [(Int, String, String)] -> [String] -> [String]
-    reachableHelpSearch z@(k:ks) w@((a,b,c):ys) i e = if (k == Data.List.head b) && not (c `Data.List.elem` e) then (reachableHelpSearch (Data.List.head c : ks) w i ([show a] Data.List.++ e)) Data.List.++ (reachableHelpSearch z ys i e) else (reachableHelpSearch z ys i e)
+    reachableHelpSearch :: [Int] -> [(Int, Int)] -> [(Int, Int)] -> [Int] -> [Int]
+    reachableHelpSearch z@(k:ks) w@((a,b):ys) i e = if (k == a) && not (b `Data.List.elem` e) then (reachableHelpSearch (b : ks) w i ([b] Data.List.++ e)) Data.List.++ (reachableHelpSearch z ys i e) else (reachableHelpSearch z ys i e)
     reachableHelpSearch (k:ks) [] i e = reachableHelpSearch ks i i e
     reachableHelpSearch [] _ i e = e

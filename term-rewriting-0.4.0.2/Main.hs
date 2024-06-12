@@ -395,8 +395,9 @@ sccNavigationRules = [rule20, rule21, rule21b, rule22, rule23]
 sccNavigationDependencyRules = dependencyPairs sccNavigationRules sccNavigationRules
 graph = getSccFromDependencyPairs sccNavigationDependencyRules
 numbers = definedSymbols sccNavigationRules
-sccEdges = sccPrepare sccNavigationDependencyRules 1
-testSCCReachable = reachableNodesFromTerm sccNavigationRules (Fun 'j' [Fun 's' [Var 'x']]) sccEdges
+preparation = sccPrepare sccNavigationDependencyRules 1
+sccEdges = getVertices preparation preparation
+testSCCReachable = reachableNodesFromTerm sccNavigationRules (Fun 'i' [Fun 'k' [Var 'x']])
 
 k = allSat $ do
   a <- sInteger "a"
