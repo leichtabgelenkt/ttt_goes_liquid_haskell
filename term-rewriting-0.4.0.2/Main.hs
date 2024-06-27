@@ -351,7 +351,7 @@ rppp = [('b', literal ((1)::Integer)), ('1', literal ((1)::Integer))]
 rrrr = geq (Fun '1' [Fun '0' []]) (Fun '1' [Fun 'b' [Fun '0' []]]) rppp
 
 tttAdd = [rule11, rule12]
-tttBits = [rule13, rule14, rule15, rule16]
+tttBits = [rule13, rule14, rule15, rule16, rule17]
 
 
 sanity = [rule18, rule19]
@@ -391,6 +391,94 @@ rule23 = Rule
     , rhs = Fun 'i' [Var 'x']
     }
 
+----- TTT mul Rules termination example -------
+
+mulRule1 :: Rule Char Char
+mulRule1 = Rule
+    { lhs = Fun 'a' [Fun '0' [], Var 'y']
+    , rhs = Var 'y'
+    }
+
+mulRule2 :: Rule Char Char
+mulRule2 = Rule
+    { lhs = Fun 'a' [Fun 's' [Var 'x'], Var 'y']
+    , rhs = Fun 's' [Fun 'a' [Var 'x', Var 'y']]
+    }
+
+mulRule3 :: Rule Char Char
+mulRule3 = Rule
+    { lhs = Fun 'm' [Fun '0' [], Var 'y']
+    , rhs = Fun '0' []
+    }
+
+mulRule4 :: Rule Char Char
+mulRule4 = Rule
+    { lhs = Fun 'm' [Fun 's' [Var 'x'], Var 'y']
+    , rhs = Fun 'a' [Fun 'm' [Var 'x', Var 'y'], Var 'y']
+    }
+
+mulRules = [mulRule1, mulRule2, mulRule3, mulRule4]
+mulDependencyRules = dependencyPairs mulRules mulRules
+
+mul = sat $ do
+  a <- sInteger "a"
+  b <- sInteger "b"
+  constrain $ geqRules mulDependencyRules [('1', a), ('2', b), ('m', -1), ('a', -1), ('s', -1), ('0', -1)]
+  constrain $ neqRules mulDependencyRules [('1', a), ('2', b), ('m', -1), ('a', -1), ('s', -1), ('0', -1)]
+  --constrain $ rtRules mulRules [('1', a), ('2', b), ('m', -1), ('a', -1), ('s', -1), ('0', -1)]
+  constrain $ a .== (literal (-1)) .|| (a .> (literal 0) .&& a .< (literal 3))
+  constrain $ b .== (literal (-1)) .|| (b .> (literal 0) .&& b .< (literal 3))
+
+{-
+Ergebnis Philipp & Luca: Unsatisfiable
+Ergebnis TTT2: Satisfiable
+-}
+---------------------------------------------------
+
+----- TTT Rules for non termination example -------
+
+mulWRule1 :: Rule Char Char
+mulWRule1 = Rule
+    { lhs = Fun 'a' [Fun '0' [], Var 'y']
+    , rhs = Var 'y'
+    }
+
+mulWRule2 :: Rule Char Char
+mulWRule2 = Rule
+    { lhs = Fun 'a' [Fun 's' [Var 'x'], Var 'y']
+    , rhs = Fun 's' [Fun 'a' [Var 'x', Var 'y']]
+    }
+
+mulWRule3 :: Rule Char Char
+mulWRule3 = Rule
+    { lhs = Fun 'm' [Fun '0' [], Var 'y']
+    , rhs = Fun '0' []
+    }
+
+mulWRule4 :: Rule Char Char
+mulWRule4 = Rule
+    { lhs = Fun 'm' [Var 'x', Var 'y']
+    , rhs = Fun 'm' [Fun 's' [Var 'x'], Var 'y']
+    }
+
+mulWRules = [mulWRule1, mulWRule2, mulWRule3, mulWRule4]
+mulWDependencyRules = dependencyPairs mulWRules mulWRules
+
+mulW = sat $ do
+  a <- sInteger "a"
+  b <- sInteger "b"
+  constrain $ geqRules mulWDependencyRules [('1', a), ('2', b), ('m', -1), ('a', -1), ('s', -1), ('0', -1)]
+  constrain $ neqRules mulWDependencyRules [('1', a), ('2', b), ('m', -1), ('a', -1), ('s', -1), ('0', -1)]
+  --constrain $ rtRules mulWRules [('1', a), ('2', b), ('m', -1), ('a', -1), ('s', -1), ('0', -1)]
+  constrain $ a .== (literal (-1)) .|| (a .> (literal 0) .&& a .< (literal 2))
+  constrain $ b .== (literal (-1)) .|| (b .> (literal 0) .&& b .< (literal 2))
+
+{-
+Ergebnis Philipp & Luca: No Solution
+Ergebnis TTT2: No Solution
+-}
+---------------------------------------------------
+
 sccNavigationRules = [rule20, rule21, rule21b, rule22, rule23]
 sccNavigationDependencyRules = dependencyPairs sccNavigationRules sccNavigationRules
 graph = getSccFromDependencyPairs sccNavigationDependencyRules
@@ -399,16 +487,7 @@ preparation = sccPrepare sccNavigationDependencyRules 1
 sccEdges = getVertices preparation preparation
 testSCCReachable = reachableNodesFromTerm sccNavigationRules (Fun 'i' [Fun 'k' [Var 'x']])
 
-k = allSat $ do
-  a <- sInteger "a"
-  b <- sInteger "b"
-  c <- sInteger "c"
-  constrain $ geqRules dependencyRulesAdd [('a', a), ('s', b), ('1', c)]
-  constrain $ neqRules dependencyRulesAdd [('a', a), ('s', b), ('1', c)]
-  constrain $ rtRules tttAdd [('a', a), ('s', b), ('1', c)]
-  constrain $ a .== (literal (-1)) .|| (a .> (literal 0) .&& a .< (literal 3))
-  constrain $ b .== (literal (-1)) .|| (b .> (literal 0) .&& b .< (literal 2))
-  constrain $ c .== (literal (-1)) .|| (c .> (literal 0) .&& c .< (literal 3))
+
 
 b = allSat $ do
   a <- sInteger "a"
@@ -416,14 +495,11 @@ b = allSat $ do
   c <- sInteger "c"
   d <- sInteger "d"
   e <- sInteger "e"
-  constrain $ geqRules dependencyRulesBits [('h', a), ('s', b), ('b', c), ('1', d), ('2', e)]
-  constrain $ neqRules dependencyRulesBits [('h', a), ('s', b), ('b', c), ('1', d), ('2', e)]
-  constrain $ rtRules tttAdd [('h', a), ('s', b), ('b', c), ('1', d), ('2', e)]
+  constrain $ geqRules dependencyRulesBits [('1', a), ('2', b)]
+  constrain $ neqRules dependencyRulesBits [('1', a), ('2', b)]
+  constrain $ rtRules tttBits [('1', a), ('2', b)]
   constrain $ a .== (literal (-1)) .|| (a .> (literal 0) .&& a .< (literal 2))
   constrain $ b .== (literal (-1)) .|| (b .> (literal 0) .&& b .< (literal 2))
-  constrain $ c .== (literal (-1)) .|| (c .> (literal 0) .&& c .< (literal 2))
-  constrain $ d .== (literal (-1)) .|| (d .> (literal 0) .&& d .< (literal 2))
-  constrain $ e .== (literal (-1)) .|| (e .> (literal 0) .&& e .< (literal 2))
 
 satSanity = allSat $ do
   a <- sInteger "a"
@@ -452,5 +528,5 @@ j = sat $ do
 
 main :: IO ()
 main = do
-  result <- b
+  result <- mul
   print result
