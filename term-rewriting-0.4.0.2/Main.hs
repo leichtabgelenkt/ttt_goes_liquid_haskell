@@ -278,7 +278,70 @@ rt t p = sNot $ sIsNotProjecting t p
 rtRules :: [Rule Char Char] -> Projection -> SBool
 rtRules rules p = sAnd [ite (rt lhs p) (geq lhs rhs p) (sTrue) | (Rule rhs lhs) <- rules]
 
-s = allSat $ do
+isUnsatisfiable :: SMTResult -> Bool
+isUnsatisfiable (Unsatisfiable _ _) = True
+isUnsatisfiable _     = False
+
+ttt3 :: [Rule Char Char] -> Term Char Char -> String
+ttt3 rules term
+ | and (ttt3Help rules term) = "The term terminates with the given rules"
+ | otherwise = "The term does not terminate with the given rules"
+
+ttt3Help :: [Rule Char Char] -> Term Char Char -> [Bool]
+ttt3Help rules@(x:xs) term
+ | (fullRewrite rules term) == [] = [True]
+  where dependencyRules = dependencyPairs rules rules
+        reachableNodes = reachableNodesFromTerm rules term
+        reachableRulesFromNodes = findSccNode dependencyRules (sccPrepare dependencyRules 1) reachableNodes
+        projection = buildProjection rules
+        value = sat $ do
+          a <- sInteger "a"
+          b <- sInteger "b"
+          c <- sInteger "c"
+          d <- sInteger "d"
+          e <- sInteger "e"
+          let constrainList = [a,b,c,d,e]
+          let newProjection = putValuesIntoProjection constrainList projection
+          constrain $ geqRules reachableRulesFromNodes newProjection
+          constrain $ neqRules reachableRulesFromNodes newProjection
+          constrain $ a .== (literal (-1)) .|| (a .> (literal 0) .&& a .< (literal 2))
+          constrain $ b .== (literal (-1)) .|| (b .> (literal 0) .&& b .< (literal 2))
+          constrain $ c .== (literal (-1)) .|| (c .> (literal 0) .&& c .< (literal 2))
+          constrain $ d .== (literal (-1)) .|| (d .> (literal 0) .&& d .< (literal 2))
+          constrain $ e .== (literal (-1)) .|| (e .> (literal 0) .&& e .< (literal 2))
+
+compareSatResult :: IO SATResult -> Bool
+
+putValuesIntoProjection :: [SInteger] -> Projection -> Projection
+putValuesIntoProjection (x:xs) ((a,b):ys) = ite (b .== 0) ((a,x) : putValuesIntoProjection xs ys) ((a,b) : putValuesIntoProjection (x:xs) ys)
+putValuesIntoProjection _ [] = []
+
+buildProjection :: [Rule Char Char] -> Projection
+buildProjection rules = (buildProjectionNormalSymbols ruleSymbols) Data.List.++ (buildProjectionDependencySmybols dependencySymbols)
+  where dependencyRules = dependencyPairs rules rules
+        ruleSymbols = findAllSymbols rules
+        dependencySymbols = (findAllSymbols dependencyRules) \\ ruleSymbols
+
+buildProjectionNormalSymbols :: String -> Projection
+buildProjectionNormalSymbols (x:xs) = (x,-1) : buildProjectionNormalSymbols xs
+buildProjectionNormalSymbols [] = []
+
+buildProjectionDependencySymbols :: String -> Projection
+buildProjectionDependencySmybols (x:xs) = (x,0) : buildProjectionNormalSymbols xs
+buildProjectionDependencySymbols [] = []
+
+findAllSymbols :: [Rule Char Char] -> [Char]
+findAllSymbols (Rule lhs rhs : xs) = Data.List.nub (findAllSymbolsFromTerm lhs Data.List.++ findAllSymbolsFromTerm rhs Data.List.++ findAllSymbols xs)
+findAllSymbols [] = []
+
+findAllSymbolsFromTerm :: Term Char Char -> [Char]
+findAllSymbolsFromTerm (Fun a b) = a : (Data.List.nub $ Data.List.concat [findAllSymbolsFromTerm t | t <- b])
+findAllSymbolsFromTerm (Var _) = []
+
+checkIfSatisfiable :: [Rule Char Char] -> String
+checkIfSatisfiable = undefined
+
+s = sat $ do
   let sss = Fun 'f' [Var 'b', Var 'a', Var 'b']
   let t = Fun 'f' [Var 'c', Var 'a', Var 'a']
   a <- sInteger "a"
@@ -350,14 +413,12 @@ rule19 = Rule
 rppp = [('b', literal ((1)::Integer)), ('1', literal ((1)::Integer))]
 rrrr = geq (Fun '1' [Fun '0' []]) (Fun '1' [Fun 'b' [Fun '0' []]]) rppp
 
-tttAdd = [rule11, rule12]
 tttBits = [rule13, rule14, rule15, rule16, rule17]
 
 
 sanity = [rule18, rule19]
 dependencyRulesSanity = dependencyPairs sanity sanity
 
-dependencyRulesAdd = dependencyPairs tttAdd tttAdd
 dependencyRulesBits = dependencyPairs tttBits tttBits
 
 
@@ -390,6 +451,137 @@ rule23 = Rule
     { lhs = Fun 'j' [Fun 's' [Var 'x']]
     , rhs = Fun 'i' [Var 'x']
     }
+
+----- TTT Bits which should terminate -------
+
+bitsRule1 :: Rule Char Char
+bitsRule1 = Rule
+    { lhs = Fun 'h' [Fun '0' []]
+    , rhs = Fun '0' []
+    }
+
+bitsRule2 :: Rule Char Char
+bitsRule2 = Rule
+    { lhs = Fun 'h' [Fun 's' [Fun '0' []]]
+    , rhs = Fun '0' []
+    }
+
+bitsRule3 :: Rule Char Char
+bitsRule3 = Rule
+    { lhs = Fun 'h' [Fun 's' [Fun 's'[Var 'x']]]
+    , rhs = Fun 's' [Fun 'h' [Var 'x']]
+    }
+
+bitsRule4 :: Rule Char Char
+bitsRule4 = Rule
+    { lhs = Fun 'b' [Fun '0' []]
+    , rhs = Fun '0' []
+    }
+
+bitsRule5 :: Rule Char Char
+bitsRule5 = Rule
+    { lhs = Fun 'b' [Fun 's' [Var 'x']]
+    , rhs = Fun 's' [Fun 'b' [Fun 'h' [Fun 's' [Var 'x']]]]
+    }
+
+bitsRules = [bitsRule1, bitsRule2, bitsRule3, bitsRule4, bitsRule5]
+bitsDependencyRules = dependencyPairs bitsRules bitsRules
+
+bits = allSat $ do
+  a <- sInteger "a"
+  b <- sInteger "b"
+  constrain $ geqRules bitsDependencyRules [('1', a), ('2', b), ('s', -1), ('b', -1), ('h', -1), ('s', -1), ('0', -1)]
+  --constrain $ neqRules bitsDependencyRules [('1', a), ('2', b), ('s', -1), ('b', -1), ('h', -1), ('s', -1), ('0', -1)]
+  --constrain $ rtRules mulRules [('1', a), ('2', b), ('m', -1), ('a', -1), ('s', -1), ('0', -1)]
+  constrain $ a .== (literal (-1)) .|| (a .> (literal 0) .&& a .< (literal 2))
+  constrain $ b .== (literal (-1)) .|| (b .> (literal 0) .&& b .< (literal 2))
+{-
+Ergebnis Philipp & Luca: Unsatisfiable
+Ergebnis TTT2: Satisfiable
+-}
+-------------------------------------------------
+
+----- TTT Bits which should not terminate -------
+
+bitsWRule1 :: Rule Char Char
+bitsWRule1 = Rule
+    { lhs = Fun 'h' [Fun '0' []]
+    , rhs = Fun '0' []
+    }
+
+bitsWRule2 :: Rule Char Char
+bitsWRule2 = Rule
+    { lhs = Fun 'h' [Fun 's' [Fun '0' []]]
+    , rhs = Fun '0' []
+    }
+
+bitsWRule3 :: Rule Char Char
+bitsWRule3 = Rule
+    { lhs = Fun 'h' [Fun 's' [Fun 's'[Var 'x']]]
+    , rhs = Fun 's' [Fun 'h' [Var 'x']]
+    }
+
+bitsWRule4 :: Rule Char Char
+bitsWRule4 = Rule
+    { lhs = Fun 'b' [Fun '0' []]
+    , rhs = Fun 'b' [Fun 'b' [Fun '0' []]]
+    }
+
+bitsWRule5 :: Rule Char Char
+bitsWRule5 = Rule
+    { lhs = Fun 'b' [Fun 's' [Var 'x']]
+    , rhs = Fun 's' [Fun 'b' [Fun 'h' [Fun 's' [Var 'x']]]]
+    }
+
+bitsWRules = [bitsWRule1, bitsWRule2, bitsWRule3, bitsWRule4, bitsWRule5]
+bitsWDependencyRules = dependencyPairs bitsWRules bitsWRules
+
+bitsW = allSat $ do
+  a <- sInteger "a"
+  b <- sInteger "b"
+  constrain $ geqRules bitsWDependencyRules [('1', a), ('2', b), ('s', -1), ('b', -1), ('h', -1), ('s', -1), ('0', -1)]
+  constrain $ neqRules bitsWDependencyRules [('1', a), ('2', b), ('s', -1), ('b', -1), ('h', -1), ('s', -1), ('0', -1)]
+  --constrain $ rtRules mulRules [('1', a), ('2', b), ('m', -1), ('a', -1), ('s', -1), ('0', -1)]
+  constrain $ a .== (literal (-1)) .|| (a .> (literal 0) .&& a .< (literal 2))
+  constrain $ b .== (literal (-1)) .|| (b .> (literal 0) .&& b .< (literal 2))
+{-
+Ergebnis Philipp & Luca: Unsatisfiable
+Ergebnis TTT2: Unsatisfiable
+-}
+-------------------------------------------------
+
+----- TTT add Rules termination example -------
+
+addRule1 :: Rule Char Char
+addRule1 = Rule
+    { lhs = Fun 'a' [Fun '0' [], Var 'y']
+    , rhs = Var 'y'
+    }
+
+addRule2 :: Rule Char Char
+addRule2 = Rule
+    { lhs = Fun 'a' [Fun 's' [Var 'x'], Var 'y']
+    , rhs = Fun 's' [Fun 'a' [Var 'x', Var 'y']]
+    }
+
+
+addRules = [addRule1, addRule2]
+addDependencyRules = dependencyPairs addRules addRules
+
+add = allSat $ do
+  a <- sInteger "a"
+  constrain $ geqRules addDependencyRules [('1', a), ('s', -1)]
+  constrain $ neqRules addDependencyRules [('1', a), ('s', -1)]
+  --constrain $ rtRules mulRules [('1', a), ('2', b), ('m', -1), ('a', -1), ('s', -1), ('0', -1)]
+  constrain $ a .== (literal (-1)) .|| (a .> (literal 0) .&& a .< (literal 3))
+
+{-
+Ergebnis Philipp & Luca: Satisfiable
+Ergebnis TTT2: Satisfiable
+-}
+---------------------------------------------------
+
+
 
 ----- TTT mul Rules termination example -------
 
@@ -528,5 +720,8 @@ j = sat $ do
 
 main :: IO ()
 main = do
-  result <- mul
-  print result
+  result <- bits
+  aaa <- Main.s
+  bits1 <- bits
+  bits2 <- bits
+  print ((show bits1) == (show bits2))
