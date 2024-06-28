@@ -287,6 +287,15 @@ ttt3 rules term
  | and (ttt3Help rules term) = "The term terminates with the given rules"
  | otherwise = "The term does not terminate with the given rules"
 
+{-
+Stand 28.6.: ttt3Help und ttt3 müssen wsl zu einer IO Funktion umgebaut werden, alle anderen Hilfsfunktionen davon werden kompiliert wurden aber noch nicht 100% getestet
+Nächster Schritt: Lösung überlegen um alles auf IO umzustellen, denn ansonst kann das Ergebnis in value (SMT output) nicht vergliechen werden.
+Auch wichtig wäre zu schauen ob "reachableRulesFromNodes" wirklich die richtigen Regeln enthält die man braucht
+!!! reachableRulesFromNodes enthält momentan alle Regeln die man erreichen kann, allerdings brauchen wir nur die, welche sich in einem SCC befinden. Müsste noch
+implementiert werden
+-}
+
+
 ttt3Help :: [Rule Char Char] -> Term Char Char -> [Bool]
 ttt3Help rules@(x:xs) term
  | (fullRewrite rules term) == [] = [True]
