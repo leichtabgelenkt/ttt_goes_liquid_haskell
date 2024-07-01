@@ -52,6 +52,10 @@ listToStringWithArrows [] = ""
 listToStringWithArrows [x] = show x
 listToStringWithArrows (x:xs) = show x Data.List.++ " -> " Data.List.++ listToStringWithArrows xs
 
+newtype PrintRule = PrintRule (Rule Char Char)
+
+instance Show PrintRule where
+  show (PrintRule (Rule lhs rhs)) = show lhs Data.List.++ " -> " Data.List.++ show rhs Data.List.++ "\n"
 
 showRewriteSequence :: RewriteSequence -> Term Char Char -> [[Term Char Char]]
 showRewriteSequence (RewriteSequence []) x = [[]]
@@ -99,12 +103,15 @@ projection = [('f',1),('g',-1),('h',1)]
 
 
 examplerules = [r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12, r13, r14, r15]
+printExampleRules = Data.List.map PrintRule examplerules
 drules = dependencyPairs examplerules examplerules
 resultExample = getSccFromDependencyPairs drules
 see = sccPrepare drules 1
 index = [drules Data.List.!! 7, drules Data.List.!! 9]
 sccTest = getSccFromDependencyPairs (dependencyPairs rulesTest rulesTest)
 findScc = findSccNode drules (sccPrepare drules 1) [7,9]
+
+printDrules = Data.List.map PrintRule drules
 
 rulesTest = [rule7, rule8, rule9, rule10]
 -- Example 1 of Rest
