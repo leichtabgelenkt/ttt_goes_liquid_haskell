@@ -325,7 +325,6 @@ ttt3Help rules@(x:xs) term
           constrain $ d .== (literal (-1)) .|| (d .> (literal 0) .&& d .< (getArityOfSymbol d rules newProjection))
           constrain $ e .== (literal (-1)) .|| (e .> (literal 0) .&& e .< (getArityOfSymbol e rules newProjection))
 
--- compareSatResult :: IO SATResult -> Bool
 
 putValuesIntoProjection :: [SInteger] -> Projection -> Projection
 putValuesIntoProjection (x:xs) ((a,b):ys) = ite (b .== 0) ((a,x) : putValuesIntoProjection xs ys) ((a,b) : putValuesIntoProjection (x:xs) ys)
@@ -696,8 +695,8 @@ mulW = sat $ do
   constrain $ b .== (literal (-1)) .|| (b .> (literal 0) .&& b .< (literal 2))
 
 {-
-Ergebnis Philipp & Luca: No Solution
-Ergebnis TTT2: No Solution
+Ergebnis Philipp & Luca: Unsatisfiable
+Ergebnis TTT2: Unsatisfiable
 -}
 ---------------------------------------------------
 
