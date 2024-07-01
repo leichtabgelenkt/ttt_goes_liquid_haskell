@@ -1,5 +1,6 @@
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 {-# HLINT ignore "Redundant bracket" #-}
+{-# HLINT ignore "Use tuple-section" #-}
 import Data.Rewriting.Term
 import Data.Rewriting.Term.Type
 import Data.Rewriting.Term.Ops as TermOps
@@ -31,6 +32,7 @@ import Rest
 import Multiplicity
 import DependencyPairs
 import MySCCGraph
+import Control.Monad.Trans.RWS.Lazy (get)
 
 instance (Show f, Show v, Show v') => Show (Reduct f v v') where
   show (Reduct result pos rule subst) =
@@ -309,21 +311,41 @@ ttt3Help rules@(x:xs) term
           c <- sInteger "c"
           d <- sInteger "d"
           e <- sInteger "e"
-          let constrainList = [a,b,c,d,e]
-          let newProjection = putValuesIntoProjection constrainList projection
+          let
+            constrainList :: [SInteger]
+            constrainList = [a,b,c,d,e]
+          let
+            newProjection :: Projection
+            newProjection = putValuesIntoProjection constrainList projection
           constrain $ geqRules reachableRulesFromNodes newProjection
           constrain $ neqRules reachableRulesFromNodes newProjection
-          constrain $ a .== (literal (-1)) .|| (a .> (literal 0) .&& a .< (literal 2))
-          constrain $ b .== (literal (-1)) .|| (b .> (literal 0) .&& b .< (literal 2))
-          constrain $ c .== (literal (-1)) .|| (c .> (literal 0) .&& c .< (literal 2))
-          constrain $ d .== (literal (-1)) .|| (d .> (literal 0) .&& d .< (literal 2))
-          constrain $ e .== (literal (-1)) .|| (e .> (literal 0) .&& e .< (literal 2))
+          constrain $ a .== (literal (-1)) .|| (a .> (literal 0) .&& a .< (getArityOfSymbol a rules newProjection))
+          constrain $ b .== (literal (-1)) .|| (b .> (literal 0) .&& b .< (getArityOfSymbol b rules newProjection))
+          constrain $ c .== (literal (-1)) .|| (c .> (literal 0) .&& c .< (getArityOfSymbol c rules newProjection))
+          constrain $ d .== (literal (-1)) .|| (d .> (literal 0) .&& d .< (getArityOfSymbol d rules newProjection))
+          constrain $ e .== (literal (-1)) .|| (e .> (literal 0) .&& e .< (getArityOfSymbol e rules newProjection))
 
-compareSatResult :: IO SATResult -> Bool
+-- compareSatResult :: IO SATResult -> Bool
 
 putValuesIntoProjection :: [SInteger] -> Projection -> Projection
 putValuesIntoProjection (x:xs) ((a,b):ys) = ite (b .== 0) ((a,x) : putValuesIntoProjection xs ys) ((a,b) : putValuesIntoProjection (x:xs) ys)
 putValuesIntoProjection _ [] = []
+
+
+-- when the symbol is not used there will be returned (literal 2)
+getArityOfSymbol :: SInteger -> [Rule Char Char] -> Projection -> SInteger
+getArityOfSymbol symbol rules projectionWithSymbols
+  | functions == ' ' = literal 2
+  | otherwise = getArityOfRule (getRuleOfFunctionSymbol functions rules)
+    where
+      findFunctionSymbolWithValue :: SInteger -> Projection -> Char
+      findFunctionSymbolWithValue value [] = ' '
+      findFunctionSymbolWithValue value ((a,b):xs) = ite (b .== value) a (findFunctionSymbolWithValue value xs)
+      getRuleOfFunctionSymbol :: Char -> [Rule Char Char] -> Rule Char Char
+      getRuleOfFunctionSymbol symbol (Rule lhs rhs : xs) = if (lhs == Fun symbol []) then (Rule lhs rhs) else (getRuleOfFunctionSymbol symbol xs)
+      getArityOfRule :: Rule Char Char -> SInteger
+      getArityOfRule (Rule (Fun _ arityList) _) = literal (toInteger (Data.List.length arityList))
+      functions = (findFunctionSymbolWithValue symbol projectionWithSymbols)
 
 buildProjection :: [Rule Char Char] -> Projection
 buildProjection rules = (buildProjectionNormalSymbols ruleSymbols) Data.List.++ (buildProjectionDependencySmybols dependencySymbols)
@@ -332,8 +354,7 @@ buildProjection rules = (buildProjectionNormalSymbols ruleSymbols) Data.List.++ 
         dependencySymbols = (findAllSymbols dependencyRules) \\ ruleSymbols
 
 buildProjectionNormalSymbols :: String -> Projection
-buildProjectionNormalSymbols (x:xs) = (x,-1) : buildProjectionNormalSymbols xs
-buildProjectionNormalSymbols [] = []
+buildProjectionNormalSymbols = Data.List.map (\ x -> (x, - 1))
 
 buildProjectionDependencySymbols :: String -> Projection
 buildProjectionDependencySmybols (x:xs) = (x,0) : buildProjectionNormalSymbols xs
@@ -390,7 +411,7 @@ rule14 = Rule
 
 rule15 :: Rule Char Char
 rule15 = Rule
-    { lhs = Fun 'h' [Fun 's' [Fun 's'[Var 'x']]]
+    { lhs = Fun 'h' [Fun 's' [Fun 's' [Var 'x']]]
     , rhs = Fun 's' [Fun 'h' [Var 'x']]
     }
 
@@ -477,7 +498,7 @@ bitsRule2 = Rule
 
 bitsRule3 :: Rule Char Char
 bitsRule3 = Rule
-    { lhs = Fun 'h' [Fun 's' [Fun 's'[Var 'x']]]
+    { lhs = Fun 'h' [Fun 's' [Fun 's' [Var 'x']]]
     , rhs = Fun 's' [Fun 'h' [Var 'x']]
     }
 
@@ -526,7 +547,7 @@ bitsWRule2 = Rule
 
 bitsWRule3 :: Rule Char Char
 bitsWRule3 = Rule
-    { lhs = Fun 'h' [Fun 's' [Fun 's'[Var 'x']]]
+    { lhs = Fun 'h' [Fun 's' [Fun 's' [Var 'x']]]
     , rhs = Fun 's' [Fun 'h' [Var 'x']]
     }
 
