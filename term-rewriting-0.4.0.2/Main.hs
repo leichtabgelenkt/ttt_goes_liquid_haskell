@@ -33,6 +33,7 @@ import Multiplicity
 import DependencyPairs
 import MySCCGraph
 import Control.Monad.Trans.RWS.Lazy (get)
+import Control.Monad.IO.Class (MonadIO(liftIO))
 
 instance (Show f, Show v, Show v') => Show (Reduct f v v') where
   show (Reduct result pos rule subst) =
@@ -102,16 +103,24 @@ projection :: Projection
 projection = [('f',1),('g',-1),('h',1)]
 
 
+examplerules :: [Rule Char Char]
 examplerules = [r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12, r13, r14, r15]
-printExampleRules = Data.List.map PrintRule examplerules
+drules :: [Rule Char Char]
 drules = dependencyPairs examplerules examplerules
+resultExample :: [SCC Vertex]
 resultExample = getSccFromDependencyPairs drules
+see :: [(Int, String, String)]
 see = sccPrepare drules 1
 index = [drules Data.List.!! 7, drules Data.List.!! 9]
 sccTest = getSccFromDependencyPairs (dependencyPairs rulesTest rulesTest)
+findScc :: [Rule Char Char]
 findScc = findSccNode drules (sccPrepare drules 1) [7,9]
 
+
+printExampleRules = Data.List.map PrintRule examplerules
 printDrules = Data.List.map PrintRule drules
+printScc = Data.List.map PrintRule findScc
+
 
 rulesTest = [rule7, rule8, rule9, rule10]
 -- Example 1 of Rest
@@ -291,10 +300,12 @@ isUnsatisfiable :: SMTResult -> Bool
 isUnsatisfiable (Unsatisfiable _ _) = True
 isUnsatisfiable _     = False
 
-ttt3 :: [Rule Char Char] -> Term Char Char -> String
-ttt3 rules term
- | and (ttt3Help rules term) = "The term terminates with the given rules"
- | otherwise = "The term does not terminate with the given rules"
+ttt3 :: [Rule Char Char] -> Term Char Char -> IO String
+ttt3 rules term = do
+  result <- ttt3Help rules term
+  if and result
+    then return "The term terminates with the given rules"
+    else return "The term does not terminate with the given rules"
 
 {-
 Stand 28.6.: ttt3Help und ttt3 müssen wsl zu einer IO Funktion umgebaut werden, alle anderen Hilfsfunktionen davon werden kompiliert wurden aber noch nicht 100% getestet
@@ -305,37 +316,76 @@ implementiert werden
 -}
 
 
-ttt3Help :: [Rule Char Char] -> Term Char Char -> [Bool]
+ttt3Help :: [Rule Char Char] -> Term Char Char -> IO [Bool]
 ttt3Help rules@(x:xs) term
- | (fullRewrite rules term) == [] = [True]
-  where dependencyRules = dependencyPairs rules rules
+ | (fullRewrite rules term) == [] = return [True]
+ | otherwise = do
+
+    let dependencyRules = dependencyPairs rules rules
         reachableNodes = reachableNodesFromTerm rules term
         reachableRulesFromNodes = findSccNode dependencyRules (sccPrepare dependencyRules 1) reachableNodes
         projection = buildProjection rules
-        value = sat $ do
-          a <- sInteger "a"
-          b <- sInteger "b"
-          c <- sInteger "c"
-          d <- sInteger "d"
-          e <- sInteger "e"
-          let
-            constrainList :: [SInteger]
-            constrainList = [a,b,c,d,e]
-          let
-            newProjection :: Projection
-            newProjection = putValuesIntoProjection constrainList projection
-          constrain $ geqRules reachableRulesFromNodes newProjection
-          constrain $ neqRules reachableRulesFromNodes newProjection
-          constrain $ a .== (literal (-1)) .|| (a .> (literal 0) .&& a .< (getArityOfSymbol a rules newProjection))
-          constrain $ b .== (literal (-1)) .|| (b .> (literal 0) .&& b .< (getArityOfSymbol b rules newProjection))
-          constrain $ c .== (literal (-1)) .|| (c .> (literal 0) .&& c .< (getArityOfSymbol c rules newProjection))
-          constrain $ d .== (literal (-1)) .|| (d .> (literal 0) .&& d .< (getArityOfSymbol d rules newProjection))
-          constrain $ e .== (literal (-1)) .|| (e .> (literal 0) .&& e .< (getArityOfSymbol e rules newProjection))
-
+    -- value :: SMTResult
+    value <- sat $ do
+      a <- sInteger "a"
+      b <- sInteger "b"
+      c <- sInteger "c"
+      d <- sInteger "d"
+      e <- sInteger "e"
+      let
+        constrainList :: [SInteger]
+        constrainList = [a,b,c,d,e]
+      let
+        newProjection :: Projection
+        newProjection = putValuesIntoProjection constrainList projection
+      constrain $ geqRules reachableRulesFromNodes newProjection
+      constrain $ neqRules reachableRulesFromNodes newProjection
+      constrain $ a .== (literal (-1)) .|| (a .> (literal 0) .&& a .< (getArityOfSymbol a rules newProjection))
+      constrain $ b .== (literal (-1)) .|| (b .> (literal 0) .&& b .< (getArityOfSymbol b rules newProjection))
+      constrain $ c .== (literal (-1)) .|| (c .> (literal 0) .&& c .< (getArityOfSymbol c rules newProjection))
+      constrain $ d .== (literal (-1)) .|| (d .> (literal 0) .&& d .< (getArityOfSymbol d rules newProjection))
+      constrain $ e .== (literal (-1)) .|| (e .> (literal 0) .&& e .< (getArityOfSymbol e rules newProjection))
+    result <- isSatisfiable value
+    return [result]
 
 putValuesIntoProjection :: [SInteger] -> Projection -> Projection
 putValuesIntoProjection (x:xs) ((a,b):ys) = ite (b .== 0) ((a,x) : putValuesIntoProjection xs ys) ((a,b) : putValuesIntoProjection (x:xs) ys)
 putValuesIntoProjection _ [] = []
+
+
+-- BORROWED FROM REST
+-- | @checkSat' handles expr@ checks satisfiability of @expr@ in an instantiated SMT solver.
+--   This is wrapped in a @push@ / @pop@, so it does not change the SMT environment
+checkSat' :: (Handle,  Handle) -> SMTExpr Bool -> IO Bool
+checkSat' (stdIn, stdOut) expr = do
+  sendCommands $ Push:askCmds expr
+  result <- hGetLine stdOut
+  sat <- case result of
+    "sat"   -> do
+      -- getModel stdIn
+      -- model <- readModel stdOut
+      -- putStrLn model
+      return True
+    "unsat" -> return False
+    other   -> error other
+  sendCommands [Pop]
+  return sat
+  where
+    sendCommands cmds = do
+      hPutStr stdIn $ T.unpack (T.intercalate "\n" (map commandString cmds)) ++ "\n"
+      hFlush stdIn
+
+-- BORROWED FROM REST
+-- | @checkSat expr@ launches Z3, to checks satisfiability of @expr@, terminating Z3
+--   afterwards. Just a utility wrapper for `checkSat'`
+checkSat :: SMTExpr Bool -> IO Bool
+checkSat expr = do
+  z3     <- spawnZ3
+  result <- checkSat' z3 expr
+  killZ3 z3
+  return result
+
+
 
 
 -- when the symbol is not used there will be returned (literal 2)
