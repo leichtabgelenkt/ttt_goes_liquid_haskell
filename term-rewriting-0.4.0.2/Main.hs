@@ -345,7 +345,7 @@ ttt3Help rules@(x:xs) term
       constrain $ c .== (literal (-1)) .|| (c .> (literal 0) .&& c .< (getArityOfSymbol c rules newProjection))
       constrain $ d .== (literal (-1)) .|| (d .> (literal 0) .&& d .< (getArityOfSymbol d rules newProjection))
       constrain $ e .== (literal (-1)) .|| (e .> (literal 0) .&& e .< (getArityOfSymbol e rules newProjection))
-    result <- isSatisfiable value
+    result <- checkSat value
     return [result]
 
 putValuesIntoProjection :: [SInteger] -> Projection -> Projection
@@ -356,8 +356,8 @@ putValuesIntoProjection _ [] = []
 -- BORROWED FROM REST
 -- | @checkSat' handles expr@ checks satisfiability of @expr@ in an instantiated SMT solver.
 --   This is wrapped in a @push@ / @pop@, so it does not change the SMT environment
-checkSat' :: (Handle,  Handle) -> SMTExpr Bool -> IO Bool
-checkSat' (stdIn, stdOut) expr = do
+checkSat :: (Handle,  Handle) -> SMTExpr Bool -> IO Bool
+checkSat (stdIn, stdOut) expr = do
   sendCommands $ Push:askCmds expr
   result <- hGetLine stdOut
   sat <- case result of
@@ -378,11 +378,11 @@ checkSat' (stdIn, stdOut) expr = do
 -- BORROWED FROM REST
 -- | @checkSat expr@ launches Z3, to checks satisfiability of @expr@, terminating Z3
 --   afterwards. Just a utility wrapper for `checkSat'`
-checkSat :: SMTExpr Bool -> IO Bool
-checkSat expr = do
-  z3     <- spawnZ3
-  result <- checkSat' z3 expr
-  killZ3 z3
+checkSat' :: SMTExpr Bool -> IO Bool
+checkSat' expr = do
+  -- z3     <- spawnZ3
+  result <- checkSat z3 expr
+  -- killZ3 z3
   return result
 
 
