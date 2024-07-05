@@ -320,7 +320,6 @@ ttt3Help :: [Rule Char Char] -> Term Char Char -> IO [Bool]
 ttt3Help rules@(x:xs) term
  | (fullRewrite rules term) == [] = return [True]
  | otherwise = do
-
     let dependencyRules = dependencyPairs rules rules
         reachableNodes = reachableNodesFromTerm rules term
         reachableRulesFromNodes = findSccNode dependencyRules (sccPrepare dependencyRules 1) reachableNodes
@@ -345,8 +344,17 @@ ttt3Help rules@(x:xs) term
       constrain $ c .== (literal (-1)) .|| (c .> (literal 0) .&& c .< (getArityOfSymbol c rules newProjection))
       constrain $ d .== (literal (-1)) .|| (d .> (literal 0) .&& d .< (getArityOfSymbol d rules newProjection))
       constrain $ e .== (literal (-1)) .|| (e .> (literal 0) .&& e .< (getArityOfSymbol e rules newProjection))
-    result <- checkSat value
-    return [result]
+    result <- checkTest value
+    if result == False 
+      then do
+        return [False] 
+      else do
+        resultList <- mapM (ttt3Help rules) ([Data.List.head $ getNewReduct term r | r <- rules] \\ [term])
+        let combined = Data.List.concat resultList
+        return combined
+        --return $ Data.List.concat $ mapM (ttt3Help rules) ([fullRewrite [r] term | r <- rules] \\ [term])
+        --return bv
+        -- return ([True] Data.List.++ (Data.List.concat $ Data.List.map (ttt3Help rules) ([fullRewrite [r] term | r <- rules] \\ [term])))
 
 putValuesIntoProjection :: [SInteger] -> Projection -> Projection
 putValuesIntoProjection (x:xs) ((a,b):ys) = ite (b .== 0) ((a,x) : putValuesIntoProjection xs ys) ((a,b) : putValuesIntoProjection (x:xs) ys)
@@ -356,36 +364,41 @@ putValuesIntoProjection _ [] = []
 -- BORROWED FROM REST
 -- | @checkSat' handles expr@ checks satisfiability of @expr@ in an instantiated SMT solver.
 --   This is wrapped in a @push@ / @pop@, so it does not change the SMT environment
-checkSat :: (Handle,  Handle) -> SMTExpr Bool -> IO Bool
-checkSat (stdIn, stdOut) expr = do
-  sendCommands $ Push:askCmds expr
-  result <- hGetLine stdOut
-  sat <- case result of
-    "sat"   -> do
-      -- getModel stdIn
-      -- model <- readModel stdOut
-      -- putStrLn model
-      return True
-    "unsat" -> return False
-    other   -> error other
-  sendCommands [Pop]
-  return sat
-  where
-    sendCommands cmds = do
-      hPutStr stdIn $ T.unpack (T.intercalate "\n" (map commandString cmds)) ++ "\n"
-      hFlush stdIn
+-- checkSat :: (Handle,  Handle) -> SMTExpr Bool -> IO Bool
+-- checkSat (stdIn, stdOut) expr = do
+--   sendCommands $ Push:askCmds expr
+--   result <- hGetLine stdOut
+--   sat <- case result of
+--     "sat"   -> do
+--       -- getModel stdIn
+--       -- model <- readModel stdOut
+--       -- putStrLn model
+--       return True
+--     "unsat" -> return False
+--     other   -> error other
+--   sendCommands [Pop]
+--   return sat
+--   where
+--     sendCommands cmds = do
+--       hPutStr stdIn $ T.unpack (T.intercalate "\n" (map commandString cmds)) ++ "\n"
+--       hFlush stdIn
 
 -- BORROWED FROM REST
 -- | @checkSat expr@ launches Z3, to checks satisfiability of @expr@, terminating Z3
 --   afterwards. Just a utility wrapper for `checkSat'`
-checkSat' :: SMTExpr Bool -> IO Bool
-checkSat' expr = do
+--checkSat' :: SMTExpr Bool -> IO Bool
+--checkSat' expr = do
   -- z3     <- spawnZ3
-  result <- checkSat z3 expr
-  -- killZ3 z3
-  return result
+  -- result <- checkSat z3 expr
+  -- -- killZ3 z3
+  -- return result
 
 
+
+checkTest :: SatResult -> IO Bool
+checkTest result = do
+  r2 <- bits
+  if (show result) == (show r2) then return False else return True
 
 
 -- when the symbol is not used there will be returned (literal 2)
@@ -573,7 +586,7 @@ bitsRule5 = Rule
 bitsRules = [bitsRule1, bitsRule2, bitsRule3, bitsRule4, bitsRule5]
 bitsDependencyRules = dependencyPairs bitsRules bitsRules
 
-bits = allSat $ do
+bits = sat $ do
   a <- sInteger "a"
   b <- sInteger "b"
   constrain $ geqRules bitsDependencyRules [('1', a), ('2', b), ('s', -1), ('b', -1), ('h', -1), ('s', -1), ('0', -1)]
