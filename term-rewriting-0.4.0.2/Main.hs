@@ -288,6 +288,7 @@ geqRules :: [Rule Char Char] -> Projection -> SBool
 geqRules rules p = sAnd [geq (getLHS rule) (getRHS rule) p | rule <- rules]
 
 neqRules :: [Rule Char Char] -> Projection -> SBool
+neqRules [] _ = sTrue
 neqRules rules p = sOr [neq (getLHS rule) (getRHS rule) p | rule <- rules]
 
 rt :: Term Char Char -> Projection -> SBool
@@ -304,7 +305,7 @@ ttt3 :: [Rule Char Char] -> Term Char Char -> IO String
 ttt3 rules term = do
   result <- ttt3Help rules term
   if and result
-    then return "The term terminates with the given rules"
+    then return "Success!! The term terminates with the given rules"
     else return "The term does not terminate with the given rules"
 
 {-
@@ -315,7 +316,6 @@ Auch wichtig wäre zu schauen ob "reachableRulesFromNodes" wirklich die richtige
 implementiert werden
 -}
 
-
 ttt3Help :: [Rule Char Char] -> Term Char Char -> IO [Bool]
 ttt3Help rules@(x:xs) term
  | (fullRewrite rules term) == [] = return [True]
@@ -324,7 +324,6 @@ ttt3Help rules@(x:xs) term
         reachableNodes = reachableNodesFromTerm rules term
         reachableRulesFromNodes = findSccNode dependencyRules (sccPrepare dependencyRules 1) reachableNodes
         projection = buildProjection rules
-    -- value :: SMTResult
     value <- sat $ do
       a <- sInteger "a"
       b <- sInteger "b"
@@ -337,19 +336,23 @@ ttt3Help rules@(x:xs) term
       let
         newProjection :: Projection
         newProjection = putValuesIntoProjection constrainList projection
+      liftIO $ putStrLn (show dependencyRules)
+      liftIO $ putStrLn (show reachableRulesFromNodes)
+      liftIO $ putStrLn (show reachableNodes)
       constrain $ geqRules reachableRulesFromNodes newProjection
       constrain $ neqRules reachableRulesFromNodes newProjection
-      constrain $ a .== (literal (-1)) .|| (a .> (literal 0) .&& a .< (getArityOfSymbol a rules newProjection))
-      constrain $ b .== (literal (-1)) .|| (b .> (literal 0) .&& b .< (getArityOfSymbol b rules newProjection))
-      constrain $ c .== (literal (-1)) .|| (c .> (literal 0) .&& c .< (getArityOfSymbol c rules newProjection))
-      constrain $ d .== (literal (-1)) .|| (d .> (literal 0) .&& d .< (getArityOfSymbol d rules newProjection))
-      constrain $ e .== (literal (-1)) .|| (e .> (literal 0) .&& e .< (getArityOfSymbol e rules newProjection))
+      constrain $ a .== (literal (-1)) .|| (a .> (literal 0) .&& a .<= (getArityOfSymbol '1' dependencyRules))
+      constrain $ b .== (literal (-1)) .|| (b .> (literal 0) .&& b .<= (getArityOfSymbol '2' dependencyRules))
+      constrain $ c .== (literal (-1)) .|| (c .> (literal 0) .&& c .<= (getArityOfSymbol '3' dependencyRules))
+      constrain $ d .== (literal (-1)) .|| (d .> (literal 0) .&& d .<= (getArityOfSymbol '4' dependencyRules))
+      constrain $ e .== (literal (-1)) .|| (e .> (literal 0) .&& e .<= (getArityOfSymbol '5' dependencyRules))
     result <- checkTest value
+    putStrLn $ show result
     if result == False 
       then do
         return [False] 
       else do
-        resultList <- mapM (ttt3Help rules) ([Data.List.head $ getNewReduct term r | r <- rules] \\ [term])
+        resultList <- mapM (ttt3Help rules) ((Data.List.nub $ findAllNewTerms rules term) \\ [term])
         let combined = Data.List.concat resultList
         return combined
         --return $ Data.List.concat $ mapM (ttt3Help rules) ([fullRewrite [r] term | r <- rules] \\ [term])
@@ -359,6 +362,10 @@ ttt3Help rules@(x:xs) term
 putValuesIntoProjection :: [SInteger] -> Projection -> Projection
 putValuesIntoProjection (x:xs) ((a,b):ys) = ite (b .== 0) ((a,x) : putValuesIntoProjection xs ys) ((a,b) : putValuesIntoProjection (x:xs) ys)
 putValuesIntoProjection _ [] = []
+
+findAllNewTerms :: [Rule Char Char] -> Term Char Char -> [Term Char Char]
+findAllNewTerms (x:xs) term = if (getNewReduct term x) == [] then findAllNewTerms xs term else (getNewReduct term x) Data.List.++ (findAllNewTerms xs term)
+findAllNewTerms [] _ = []
 
 
 -- BORROWED FROM REST
@@ -393,7 +400,28 @@ putValuesIntoProjection _ [] = []
   -- -- killZ3 z3
   -- return result
 
-
+-- ccc = sat $ do
+--   rules = mulRules
+--   dependencyRules = dependencyPairs rules rules
+--   value <- sat $ do
+--     a <- sInteger "a"
+--     b <- sInteger "b"
+--     c <- sInteger "c"
+--     d <- sInteger "d"
+--     e <- sInteger "e"
+--     let
+--       constrainList :: [SInteger]
+--       constrainList = [a,b,c,d,e]
+--     let
+--       newProjection :: Projection
+--       newProjection = [putValuesIntoProjection constrainList projection]
+--     constrain $ geqRules reachableRulesFromNodes newProjection
+--     constrain $ neqRules reachableRulesFromNodes newProjection
+--     constrain $ a .== (literal (-1)) .|| (a .> (literal 0) .&& a .<= (getArityOfSymbol '1' dependencyRules))
+--     constrain $ b .== (literal (-1)) .|| (b .> (literal 0) .&& b .<= (getArityOfSymbol '2' dependencyRules))
+--     constrain $ c .== (literal (-1)) .|| (c .> (literal 0) .&& c .<= (getArityOfSymbol '3' dependencyRules))
+--     constrain $ d .== (literal (-1)) .|| (d .> (literal 0) .&& d .<= (getArityOfSymbol '4' dependencyRules))
+--     constrain $ e .== (literal (-1)) .|| (e .> (literal 0) .&& e .<= (getArityOfSymbol '5' dependencyRules))
 
 checkTest :: SatResult -> IO Bool
 checkTest result = do
@@ -402,31 +430,22 @@ checkTest result = do
 
 
 -- when the symbol is not used there will be returned (literal 2)
-getArityOfSymbol :: SInteger -> [Rule Char Char] -> Projection -> SInteger
-getArityOfSymbol symbol rules projectionWithSymbols
-  | functions == ' ' = literal 2
-  | otherwise = getArityOfRule (getRuleOfFunctionSymbol functions rules)
-    where
-      findFunctionSymbolWithValue :: SInteger -> Projection -> Char
-      findFunctionSymbolWithValue value [] = ' '
-      findFunctionSymbolWithValue value ((a,b):xs) = ite (b .== value) a (findFunctionSymbolWithValue value xs)
-      getRuleOfFunctionSymbol :: Char -> [Rule Char Char] -> Rule Char Char
-      getRuleOfFunctionSymbol symbol (Rule lhs rhs : xs) = if (lhs == Fun symbol []) then (Rule lhs rhs) else (getRuleOfFunctionSymbol symbol xs)
-      getArityOfRule :: Rule Char Char -> SInteger
-      getArityOfRule (Rule (Fun _ arityList) _) = literal (toInteger (Data.List.length arityList))
-      functions = (findFunctionSymbolWithValue symbol projectionWithSymbols)
+getArityOfSymbol :: Char -> [Rule Char Char] -> SInteger
+getArityOfSymbol _ [] = literal 1
+getArityOfSymbol symbol ((Rule lhs rhs) : xs) = help symbol lhs
+  where help c (Fun a b) = if c == a then literal (toInteger $ Data.List.length b) else getArityOfSymbol c xs
 
 buildProjection :: [Rule Char Char] -> Projection
-buildProjection rules = (buildProjectionNormalSymbols ruleSymbols) Data.List.++ (buildProjectionDependencySmybols dependencySymbols)
+buildProjection rules = (buildProjectionNormalSymbols ruleSymbols) Data.List.++ (buildProjectionDependencySymbols dependencySymbols)
   where dependencyRules = dependencyPairs rules rules
         ruleSymbols = findAllSymbols rules
         dependencySymbols = (findAllSymbols dependencyRules) \\ ruleSymbols
 
 buildProjectionNormalSymbols :: String -> Projection
-buildProjectionNormalSymbols = Data.List.map (\ x -> (x, - 1))
+buildProjectionNormalSymbols = Data.List.map (\ x -> (x, -1))
 
 buildProjectionDependencySymbols :: String -> Projection
-buildProjectionDependencySmybols (x:xs) = (x,0) : buildProjectionNormalSymbols xs
+buildProjectionDependencySymbols (x:xs) = (x,0) : buildProjectionDependencySymbols xs
 buildProjectionDependencySymbols [] = []
 
 findAllSymbols :: [Rule Char Char] -> [Char]
@@ -667,7 +686,7 @@ addRule2 = Rule
 addRules = [addRule1, addRule2]
 addDependencyRules = dependencyPairs addRules addRules
 
-add = allSat $ do
+add = sat $ do
   a <- sInteger "a"
   constrain $ geqRules addDependencyRules [('1', a), ('s', -1)]
   constrain $ neqRules addDependencyRules [('1', a), ('s', -1)]
@@ -820,7 +839,8 @@ j = sat $ do
 main :: IO ()
 main = do
   result <- bits
-  aaa <- Main.s
+  aaa <- add
   bits1 <- bits
   bits2 <- bits
-  print ((show bits1) == (show bits2))
+  res <- (checkTest aaa)
+  print aaa
