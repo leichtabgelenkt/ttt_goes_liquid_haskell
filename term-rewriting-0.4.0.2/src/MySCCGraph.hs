@@ -75,7 +75,7 @@ module MySCCGraph where
         
     -- Arguments: The normal rewrite rules, the term of which you want to now the reach in the dependency graph  
     reachableNodesFromTerm :: [Rule Char Char] -> Term Char Char -> [Int]
-    reachableNodesFromTerm s m@(Fun t o) = nub (reachableHelpSearch startingNodes edges edges startingNodes)
+    reachableNodesFromTerm s m@(Fun t o) = nub (reachableHelpSearch startingNodes startingNodes edges edges)
      where
         numbers = definedSymbols s
         k = findNumber t numbers
@@ -87,7 +87,15 @@ module MySCCGraph where
         edges = getVertices preparation preparation
         startingNodes = findStartingNodes dependecyRules [1..Data.List.length dependecyRules] preparation newTerm
 
-    reachableHelpSearch :: [Int] -> [(Int, Int)] -> [(Int, Int)] -> [Int] -> [Int]
-    reachableHelpSearch z@(k:ks) w@((a,b):ys) i e = if (k == a) && not (b `Data.List.elem` e) then (reachableHelpSearch (b : ks) w i ([b] Data.List.++ e)) Data.List.++ (reachableHelpSearch z ys i e) else (reachableHelpSearch z ys i e)
-    reachableHelpSearch (k:ks) [] i e = reachableHelpSearch ks i i e
-    reachableHelpSearch [] _ i e = e
+    reachableHelpSearch :: [Int] -> [Int] -> [(Int, Int)] -> [(Int, Int)] -> [Int]
+    reachableHelpSearch [] z _ _ = z
+    reachableHelpSearch (x:xs) z v [] = reachableHelpSearch xs z v v
+    reachableHelpSearch (x:xs) z v ((a,b) : ys) = if (x == a) && (not $ b `Data.List.elem` z) then (reachableHelpSearch (z Data.List.++ [b]) (z Data.List.++ [b]) v v) else (reachableHelpSearch (x:xs) z v ys)
+    
+
+    -- Evtl. ineffizient
+    reachableAndInSCC :: [Int] -> [Int] -> [SCC Vertex] -> [SCC Vertex] -> [[Int]]
+    reachableAndInSCC _ _ _ [] = []
+    reachableAndInSCC (x:xs) z v (CyclicSCC a : ys) = if x `Data.List.elem` a then a : reachableAndInSCC xs z v (CyclicSCC a : ys) else reachableAndInSCC xs z v (CyclicSCC a : ys)
+    reachableAndInSCC [] z v b = reachableAndInSCC z z v (Data.List.tail b)
+    reachableAndInSCC b z v (AcyclicSCC a : ys) = reachableAndInSCC b z v ys

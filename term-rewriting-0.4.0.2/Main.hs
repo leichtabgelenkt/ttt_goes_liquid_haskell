@@ -34,6 +34,7 @@ import DependencyPairs
 import MySCCGraph
 import Control.Monad.Trans.RWS.Lazy (get)
 import Control.Monad.IO.Class (MonadIO(liftIO))
+import TTT3TestSets
 
 instance (Show f, Show v, Show v') => Show (Reduct f v v') where
   show (Reduct result pos rule subst) =
@@ -324,30 +325,18 @@ ttt3Help rules@(x:xs) term
         reachableNodes = reachableNodesFromTerm rules term
         reachableRulesFromNodes = findSccNode dependencyRules (sccPrepare dependencyRules 1) reachableNodes
         projection = buildProjection rules
-    value <- sat $ do
-      a <- sInteger "a"
-      b <- sInteger "b"
-      c <- sInteger "c"
-      d <- sInteger "d"
-      e <- sInteger "e"
-      let
-        constrainList :: [SInteger]
-        constrainList = [a,b,c,d,e]
-      let
-        newProjection :: Projection
-        newProjection = putValuesIntoProjection constrainList projection
-      liftIO $ putStrLn (show dependencyRules)
-      liftIO $ putStrLn (show reachableRulesFromNodes)
-      liftIO $ putStrLn (show reachableNodes)
-      constrain $ geqRules reachableRulesFromNodes newProjection
-      constrain $ neqRules reachableRulesFromNodes newProjection
-      constrain $ a .== (literal (-1)) .|| (a .> (literal 0) .&& a .<= (getArityOfSymbol '1' dependencyRules))
-      constrain $ b .== (literal (-1)) .|| (b .> (literal 0) .&& b .<= (getArityOfSymbol '2' dependencyRules))
-      constrain $ c .== (literal (-1)) .|| (c .> (literal 0) .&& c .<= (getArityOfSymbol '3' dependencyRules))
-      constrain $ d .== (literal (-1)) .|| (d .> (literal 0) .&& d .<= (getArityOfSymbol '4' dependencyRules))
-      constrain $ e .== (literal (-1)) .|| (e .> (literal 0) .&& e .<= (getArityOfSymbol '5' dependencyRules))
-    result <- checkTest value
-    putStrLn $ show result
+        prepare = sccPrepare dependencyRules 1
+        vertices = getVertices prepare prepare
+        scc = getSccFromDependencyPairs dependencyRules
+        reachableAndInSCCNodes = nub $ reachableAndInSCC reachableNodes reachableNodes scc scc
+        importantRules = Data.List.map (findSccNode dependencyRules (sccPrepare dependencyRules 1)) reachableAndInSCCNodes
+    putStrLn $ show reachableAndInSCCNodes
+    putStrLn $ show scc
+    putStrLn $ show reachableNodes
+    values <- mapM (getSatResult dependencyRules projection) importantRules
+    checkedValues <- mapM (checkTest) values
+    let result = and checkedValues
+    putStrLn (show result)
     if result == False 
       then do
         return [False] 
@@ -359,6 +348,38 @@ ttt3Help rules@(x:xs) term
         --return bv
         -- return ([True] Data.List.++ (Data.List.concat $ Data.List.map (ttt3Help rules) ([fullRewrite [r] term | r <- rules] \\ [term])))
 
+
+getSatResult :: [Rule Char Char] -> Projection -> [Rule Char Char] -> IO SatResult
+getSatResult dependencyRules projection rules = sat $ do
+  a <- sInteger "a"
+  b <- sInteger "b"
+  c <- sInteger "c"
+  d <- sInteger "d"
+  e <- sInteger "e"
+  f <- sInteger "f"
+  g <- sInteger "g"
+  h <- sInteger "h"
+  i <- sInteger "i"
+  j <- sInteger "j"
+  k <- sInteger "k"
+  l <- sInteger "l"
+  m <- sInteger "m"
+  let
+    constrainList :: [SInteger]
+    constrainList = [a,b,c,d,e,f,g,h,i,j,k,l,m]
+  let
+    newProjection :: Projection
+    newProjection = putValuesIntoProjection constrainList projection
+  constrain $ geqRules rules newProjection
+  constrain $ neqRules rules newProjection
+  constrain $ a .== (literal (-1)) .|| (a .> (literal 0) .&& a .<= (getArityOfSymbol '1' dependencyRules))
+  constrain $ b .== (literal (-1)) .|| (b .> (literal 0) .&& b .<= (getArityOfSymbol '2' dependencyRules))
+  constrain $ c .== (literal (-1)) .|| (c .> (literal 0) .&& c .<= (getArityOfSymbol '3' dependencyRules))
+  constrain $ d .== (literal (-1)) .|| (d .> (literal 0) .&& d .<= (getArityOfSymbol '4' dependencyRules))
+  constrain $ e .== (literal (-1)) .|| (e .> (literal 0) .&& e .<= (getArityOfSymbol '5' dependencyRules))
+
+
+
 putValuesIntoProjection :: [SInteger] -> Projection -> Projection
 putValuesIntoProjection (x:xs) ((a,b):ys) = ite (b .== 0) ((a,x) : putValuesIntoProjection xs ys) ((a,b) : putValuesIntoProjection (x:xs) ys)
 putValuesIntoProjection _ [] = []
@@ -366,62 +387,6 @@ putValuesIntoProjection _ [] = []
 findAllNewTerms :: [Rule Char Char] -> Term Char Char -> [Term Char Char]
 findAllNewTerms (x:xs) term = if (getNewReduct term x) == [] then findAllNewTerms xs term else (getNewReduct term x) Data.List.++ (findAllNewTerms xs term)
 findAllNewTerms [] _ = []
-
-
--- BORROWED FROM REST
--- | @checkSat' handles expr@ checks satisfiability of @expr@ in an instantiated SMT solver.
---   This is wrapped in a @push@ / @pop@, so it does not change the SMT environment
--- checkSat :: (Handle,  Handle) -> SMTExpr Bool -> IO Bool
--- checkSat (stdIn, stdOut) expr = do
---   sendCommands $ Push:askCmds expr
---   result <- hGetLine stdOut
---   sat <- case result of
---     "sat"   -> do
---       -- getModel stdIn
---       -- model <- readModel stdOut
---       -- putStrLn model
---       return True
---     "unsat" -> return False
---     other   -> error other
---   sendCommands [Pop]
---   return sat
---   where
---     sendCommands cmds = do
---       hPutStr stdIn $ T.unpack (T.intercalate "\n" (map commandString cmds)) ++ "\n"
---       hFlush stdIn
-
--- BORROWED FROM REST
--- | @checkSat expr@ launches Z3, to checks satisfiability of @expr@, terminating Z3
---   afterwards. Just a utility wrapper for `checkSat'`
---checkSat' :: SMTExpr Bool -> IO Bool
---checkSat' expr = do
-  -- z3     <- spawnZ3
-  -- result <- checkSat z3 expr
-  -- -- killZ3 z3
-  -- return result
-
--- ccc = sat $ do
---   rules = mulRules
---   dependencyRules = dependencyPairs rules rules
---   value <- sat $ do
---     a <- sInteger "a"
---     b <- sInteger "b"
---     c <- sInteger "c"
---     d <- sInteger "d"
---     e <- sInteger "e"
---     let
---       constrainList :: [SInteger]
---       constrainList = [a,b,c,d,e]
---     let
---       newProjection :: Projection
---       newProjection = [putValuesIntoProjection constrainList projection]
---     constrain $ geqRules reachableRulesFromNodes newProjection
---     constrain $ neqRules reachableRulesFromNodes newProjection
---     constrain $ a .== (literal (-1)) .|| (a .> (literal 0) .&& a .<= (getArityOfSymbol '1' dependencyRules))
---     constrain $ b .== (literal (-1)) .|| (b .> (literal 0) .&& b .<= (getArityOfSymbol '2' dependencyRules))
---     constrain $ c .== (literal (-1)) .|| (c .> (literal 0) .&& c .<= (getArityOfSymbol '3' dependencyRules))
---     constrain $ d .== (literal (-1)) .|| (d .> (literal 0) .&& d .<= (getArityOfSymbol '4' dependencyRules))
---     constrain $ e .== (literal (-1)) .|| (e .> (literal 0) .&& e .<= (getArityOfSymbol '5' dependencyRules))
 
 checkTest :: SatResult -> IO Bool
 checkTest result = do
