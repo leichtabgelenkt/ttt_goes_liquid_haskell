@@ -33,9 +33,9 @@ module MySCCGraph where
     sccPrepare (x:xs) y = (y, outermostSymbolRule x, outermostSymbolRuleRight x) : sccPrepare xs (y+1)
 
     -- Compute vertices of dependency graph
-    getVertices :: [(Int, String, String)] -> [(Int, String, String)] -> [(Int, Int)]
-    getVertices [] _ = []
-    getVertices (x:xs) y = help x y Data.List.++ getVertices xs y
+    getEdges :: [(Int, String, String)] -> [(Int, String, String)] -> [(Int, Int)]
+    getEdges [] _ = []
+    getEdges (x:xs) y = help x y Data.List.++ getEdges xs y
         where help _ [] = []
               help s@(i, _, r) ((i2, l, _):xs) = if r == l then (i, i2) : help s xs else help s xs
 
@@ -52,8 +52,8 @@ module MySCCGraph where
     getSccFromDependencyPairs :: [Rule Char Char] -> [SCC Vertex]
     getSccFromDependencyPairs x = sccList graph
         where prepare = sccPrepare x 1
-              vertices = getVertices prepare prepare
-              graph = buildG (getMinMax prepare (0,0)) vertices
+              edges = getEdges prepare prepare
+              graph = buildG (getMinMax prepare (0,0)) edges
 
     findRule :: [Rule Char Char] -> (Int, String, String) -> Rule Char Char
     findRule s p@(_, a, b) = if (outermostSymbolRule (Data.List.head s) == a) && (outermostSymbolRuleRight (Data.List.head s) == b) then (Data.List.head s) else findRule (Data.List.tail s) p
@@ -84,7 +84,7 @@ module MySCCGraph where
         newTerm = createNewTerm k m
         dependecyRules = dependencyPairs s s
         preparation = sccPrepare dependecyRules 1
-        edges = getVertices preparation preparation
+        edges = getEdges preparation preparation
         startingNodes = findStartingNodes dependecyRules [1..Data.List.length dependecyRules] preparation newTerm
 
     reachableHelpSearch :: [Int] -> [Int] -> [(Int, Int)] -> [(Int, Int)] -> [Int]

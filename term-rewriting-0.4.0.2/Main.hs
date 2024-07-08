@@ -326,13 +326,14 @@ ttt3Help rules@(x:xs) term
         reachableRulesFromNodes = findSccNode dependencyRules (sccPrepare dependencyRules 1) reachableNodes
         projection = buildProjection rules
         prepare = sccPrepare dependencyRules 1
-        vertices = getVertices prepare prepare
+        edges = getEdges prepare prepare
         scc = getSccFromDependencyPairs dependencyRules
         reachableAndInSCCNodes = nub $ reachableAndInSCC reachableNodes reachableNodes scc scc
         importantRules = Data.List.map (findSccNode dependencyRules (sccPrepare dependencyRules 1)) reachableAndInSCCNodes
     putStrLn $ show reachableAndInSCCNodes
     putStrLn $ show scc
     putStrLn $ show reachableNodes
+    putStrLn $ show edges
     values <- mapM (getSatResult dependencyRules projection) importantRules
     checkedValues <- mapM (checkTest) values
     let result = and checkedValues
@@ -759,7 +760,7 @@ sccNavigationDependencyRules = dependencyPairs sccNavigationRules sccNavigationR
 graph = getSccFromDependencyPairs sccNavigationDependencyRules
 numbers = definedSymbols sccNavigationRules
 preparation = sccPrepare sccNavigationDependencyRules 1
-sccEdges = getVertices preparation preparation
+sccEdges = getEdges preparation preparation
 testSCCReachable = reachableNodesFromTerm sccNavigationRules (Fun 'i' [Fun 'k' [Var 'x']])
 
 
