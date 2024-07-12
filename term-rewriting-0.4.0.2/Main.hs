@@ -306,16 +306,8 @@ ttt3 :: [Rule Char Char] -> Term Char Char -> IO String
 ttt3 rules term = do
   result <- ttt3Help rules term
   if and result
-    then return "Success!! The term terminates with the given rules"
-    else return "The term does not terminate with the given rules"
-
-{-
-Stand 28.6.: ttt3Help und ttt3 müssen wsl zu einer IO Funktion umgebaut werden, alle anderen Hilfsfunktionen davon werden kompiliert wurden aber noch nicht 100% getestet
-Nächster Schritt: Lösung überlegen um alles auf IO umzustellen, denn ansonst kann das Ergebnis in value (SMT output) nicht vergliechen werden.
-Auch wichtig wäre zu schauen ob "reachableRulesFromNodes" wirklich die richtigen Regeln enthält die man braucht
-!!! reachableRulesFromNodes enthält momentan alle Regeln die man erreichen kann, allerdings brauchen wir nur die, welche sich in einem SCC befinden. Müsste noch
-implementiert werden
--}
+    then return "Success!! The term terminates with the given rules, using the subterm criterion"
+    else return "The term does not terminate with the given rules, using the subterm criterion"
 
 ttt3Help :: [Rule Char Char] -> Term Char Char -> IO [Bool]
 ttt3Help rules@(x:xs) term
@@ -362,7 +354,8 @@ intermediateStep dependencyRules projection rules = do
         then do
           iii <- getIntermediateResult dependencyRules projection rules
           putStrLn $ show iii
-          return True--result <- iterativeSubterm dependencyRules projection rules
+          resultIterative <- checkTest iii
+          return resultIterative --result <- iterativeSubterm dependencyRules projection rules
         else do
           putStrLn "haahahahahahahahah"
           return False
@@ -395,6 +388,11 @@ getSanity dependencyRules projection rules = sat $ do
   constrain $ h .== (literal (-1)) .|| (h .> (literal 0) .&& h .<= (getArityOfSymbol '8' dependencyRules))
   constrain $ i .== (literal (-1)) .|| (i .> (literal 0) .&& i .<= (getArityOfSymbol '9' dependencyRules))
 
+{-
+Bekomme momentan für set4Term1 Satisfiable (iterative Aufruf fehlt jedoch), für set4Term2 Unsatisfiable und set2Term1 einen cycle. Evtl. muss mann vor Intermediate Result
+Noch eine Funktion schalten, um die sie erneut auf die restlichen Regeln aufrufen zu können. Weiters habe ich noch keine Idee wie man die Regeln bestimmt, welche nochmal
+behandelt werden müssen. Ansatz scheint jedoch nicht allzu schlecht zu sein...
+-}
 
 getIntermediateResult :: [Rule Char Char] -> Projection -> [Rule Char Char] -> IO SatResult
 getIntermediateResult dependencyRules projection rules = sat $ do
