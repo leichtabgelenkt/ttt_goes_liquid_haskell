@@ -26,21 +26,21 @@ module TTT3TestSets where
         , rhs = Fun 'a' []
         }
 
-    set1rules = [set1rule1, set1rule2]
+    set1Rules = [set1rule1, set1rule2]
 
-    set1term1 = Fun 'f' [Var 'z']
+    set1Term1 = Fun 'f' [Var 'z']
     {-
     Expected Outcome: Terminates
     Actual Outcome: Terminates
     -}
 
-    set1term2 = Fun 'h' [Var 'z']
+    set1Term2 = Fun 'h' [Var 'z']
     {-
     Expected Outcome: Terminates
     Actual Outcome: Terminates
     -}
 
-    set1term3 = Fun 'g' [Fun 'f' [Var 'z']]
+    set1Term3 = Fun 'g' [Fun 'f' [Var 'z']]
     {-
     Expected Outcome: Terminates
     Actual Outcome: Terminates
@@ -69,21 +69,21 @@ module TTT3TestSets where
         , rhs = Fun 'a' []
         }
 
-    set2rules = [set2rule1, set2rule2]
+    set2Rules = [set2rule1, set2rule2, set2rule3]
 
-    set2term1 = Fun 'f' [Var 'z']
+    set2Term1 = Fun 'f' [Var 'z']
     {-
     Expected Outcome: Does not terminate
     Actual Outcome: Does not terminate
     -}
 
-    set2term2 = Fun 'h' [Var 'z']
+    set2Term2 = Fun 'h' [Var 'z']
     {-
     Expected Outcome: Terminates
     Actual Outcome: Terminates
     -}
 
-    set2term3 = Fun 'g' [Fun 'f' [Var 'z']]
+    set2Term3 = Fun 'g' [Fun 'f' [Var 'z']]
     {-
     Expected Outcome: Does not terminate
     Actual Outcome: Does not terminate
@@ -221,8 +221,19 @@ module TTT3TestSets where
 
     set4Rules = [r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12, r13, r14, r15]
     
-    set4term1 = Fun 'q' [Fun ':' [Var 'n', Var 'x']]
+    set4Term1 = Fun 'q' [Fun ':' [Var 'n', Var 'x']]
     {-
     Expected: Terminates
     Actual: Doesn't terminate
+    Comment: Aquivalent of starting at Node 13 from the slides
     -}
+
+    set4Term2 = Fun 'l' [Var 'n', Fun ':' [Var 'm', Var 'x']]
+    {-
+    Expected: Terminates
+    Actual: Doesn't terminate
+    Comment: Aquivalent of starting at Node 1 from the slides
+    -}
+
+
+    -------------------------------------------------------------------------------------
