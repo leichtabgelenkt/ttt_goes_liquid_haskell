@@ -32,18 +32,21 @@ module TTT3TestSets where
     {-
     Expected Outcome: Terminates
     Actual Outcome: Terminates
+    Time elapsed: 0.00s
     -}
 
     set1Term2 = Fun 'h' [Var 'z']
     {-
     Expected Outcome: Terminates
     Actual Outcome: Terminates
+    Time elapsed: 0.00s
     -}
 
     set1Term3 = Fun 'g' [Fun 'f' [Var 'z']]
     {-
     Expected Outcome: Terminates
     Actual Outcome: Terminates
+    Time elapsed: 0.00s
     -}
 
     --------------------------------------------------
@@ -75,18 +78,21 @@ module TTT3TestSets where
     {-
     Expected Outcome: Does not terminate
     Actual Outcome: Does not terminate
+    Time elapsed: 0.97s
     -}
 
     set2Term2 = Fun 'h' [Var 'z']
     {-
     Expected Outcome: Terminates
     Actual Outcome: Terminates
+    Time elapsed: 0.00s
     -}
 
     set2Term3 = Fun 'g' [Fun 'f' [Var 'z']]
     {-
     Expected Outcome: Does not terminate
     Actual Outcome: Does not terminate
+    Time elapsed: 2.52s
     -}
 
     --------------------------------------------------
@@ -122,6 +128,7 @@ module TTT3TestSets where
     {-
     Expected: Terminates
     Actual: Terminates
+    Time elapsed: 0.18s
     -}
 
     ------------------------------------------------------------------------
@@ -226,6 +233,7 @@ module TTT3TestSets where
     Expected: Terminates
     Actual: Doesn't terminate
     Comment: Aquivalent of starting at Node 13 from the slides
+    Time elapsed: 2.04s
     -}
 
     set4Term2 = Fun 'l' [Var 'n', Fun ':' [Var 'm', Var 'x']]
@@ -233,6 +241,7 @@ module TTT3TestSets where
     Expected: Terminates
     Actual: Doesn't terminate
     Comment: Aquivalent of starting at Node 1 from the slides
+    Time elapsed: 1.03s
     -}
 
 

@@ -21,6 +21,8 @@ import Data.Graph.SCC
 import Data.SBV
 import Data.SBV.List
 import Data.SBV.Internals
+import Data.SBV.Trans (getModelValue)
+import Data.Maybe (fromMaybe)
 import GHC.Exts (fromList)
 import GHC.Cmm (CmmNode(res))
 import Data.SBV (constrain, sInteger, allSat)
@@ -304,13 +306,13 @@ isUnsatisfiable _     = False
 
 ttt3 :: [Rule Char Char] -> Term Char Char -> IO String
 ttt3 rules term = do
-  result <- ttt3Help rules term
+  result <- ttt3Help rules [] term
   if and result
     then return "Success!! The term terminates with the given rules, using the subterm criterion"
-    else return "The term does not terminate with the given rules, using the subterm criterion"
+    else return "The term does NOT terminate with the given rules, using the subterm criterion"
 
-ttt3Help :: [Rule Char Char] -> Term Char Char -> IO [Bool]
-ttt3Help rules@(x:xs) term
+ttt3Help :: [Rule Char Char] -> [Term Char Char] -> Term Char Char -> IO [Bool]
+ttt3Help rules@(x:xs) seenTerms term
  | (fullRewrite rules term) == [] = return [True]
  | otherwise = do
     let dependencyRules = dependencyPairs rules rules
@@ -322,21 +324,21 @@ ttt3Help rules@(x:xs) term
         scc = getSccFromDependencyPairs dependencyRules
         reachableAndInSCCNodes = nub $ reachableAndInSCC reachableNodes reachableNodes scc scc
         importantRules = Data.List.map (findSccNode dependencyRules (sccPrepare dependencyRules 1)) reachableAndInSCCNodes
-    putStrLn $ show reachableAndInSCCNodes
-    putStrLn $ show scc
-    putStrLn $ show reachableNodes
-    putStrLn $ show edges
-    values <- mapM (getSatResult dependencyRules projection) importantRules
-    checkedValues <- mapM (intermediateStep dependencyRules projection) importantRules --mapM (checkTest) values
+    checkedValues <- mapM (intermediateStep dependencyRules projection) importantRules
     let result = and checkedValues
-    putStrLn (show result)
     if result == False 
       then do
         return [False] 
       else do
-        resultList <- mapM (ttt3Help rules) ((Data.List.nub $ findAllNewTerms rules term) \\ [term])
-        let combined = Data.List.concat resultList
-        return combined
+          let newTerms = (findAllNewTerms rules term)
+          if term `Data.List.elem` seenTerms
+            then do
+              return [False]
+            else do
+              let allSeenTerms = term : seenTerms
+              resultList <- mapM (ttt3Help rules allSeenTerms) ((Data.List.nub $ newTerms) \\ [term])
+              let combined = Data.List.concat resultList
+              return combined
 
 
 intermediateStep :: [Rule Char Char] -> Projection -> [Rule Char Char] -> IO Bool
@@ -345,54 +347,34 @@ intermediateStep dependencyRules projection rules = do
   satBoolean <- checkTest satRes
   if satBoolean
     then do
-      putStrLn "aaaaaaaaaaaaaaaa"
       return True
     else do
-      sanitySat <- getSanity dependencyRules projection rules
-      sanityBool <- checkTest sanitySat
-      if sanityBool
+      satisfiability <- iterativeMethod dependencyRules projection rules
+      return satisfiability
+
+iterativeMethod :: [Rule Char Char] -> Projection -> [Rule Char Char] -> IO Bool
+iterativeMethod dependencyRules projection rules = do
+  result <- getIntermediateResult dependencyRules projection rules
+  resultBool <- checkTest result
+  if resultBool
+    then do
+      workingRules <- extractValues (result) []
+      let reducedRules = throwOutRules dependencyRules workingRules 0
+      if reducedRules == []
         then do
-          iii <- getIntermediateResult dependencyRules projection rules
-          putStrLn $ show iii
-          resultIterative <- checkTest iii
-          return resultIterative --result <- iterativeSubterm dependencyRules projection rules
+          return True
         else do
-          putStrLn "haahahahahahahahah"
-          return False
+          if reducedRules == dependencyRules
+            then do
+              return False
+            else do
+              iterativeMethod reducedRules projection rules
+    else do
+      return False
 
-getSanity :: [Rule Char Char] -> Projection -> [Rule Char Char] -> IO SatResult
-getSanity dependencyRules projection rules = sat $ do
-  a <- sInteger "a"
-  b <- sInteger "b"
-  c <- sInteger "c"
-  d <- sInteger "d"
-  e <- sInteger "e"
-  f <- sInteger "f"
-  g <- sInteger "g"
-  h <- sInteger "h"
-  i <- sInteger "i"
-  let
-    constrainList :: [SInteger]
-    constrainList = [a,b,c,d,e,f,g,h,i]
-  let
-    newProjection :: Projection
-    newProjection = putValuesIntoProjection constrainList projection
-  constrain $ geqRules rules newProjection
-  constrain $ a .== (literal (-1)) .|| (a .> (literal 0) .&& a .<= (getArityOfSymbol '1' dependencyRules))
-  constrain $ b .== (literal (-1)) .|| (b .> (literal 0) .&& b .<= (getArityOfSymbol '2' dependencyRules))
-  constrain $ c .== (literal (-1)) .|| (c .> (literal 0) .&& c .<= (getArityOfSymbol '3' dependencyRules))
-  constrain $ d .== (literal (-1)) .|| (d .> (literal 0) .&& d .<= (getArityOfSymbol '4' dependencyRules))
-  constrain $ e .== (literal (-1)) .|| (e .> (literal 0) .&& e .<= (getArityOfSymbol '5' dependencyRules))
-  constrain $ f .== (literal (-1)) .|| (f .> (literal 0) .&& f .<= (getArityOfSymbol '6' dependencyRules))
-  constrain $ g .== (literal (-1)) .|| (g .> (literal 0) .&& g .<= (getArityOfSymbol '7' dependencyRules))
-  constrain $ h .== (literal (-1)) .|| (h .> (literal 0) .&& h .<= (getArityOfSymbol '8' dependencyRules))
-  constrain $ i .== (literal (-1)) .|| (i .> (literal 0) .&& i .<= (getArityOfSymbol '9' dependencyRules))
-
-{-
-Bekomme momentan für set4Term1 Satisfiable (iterative Aufruf fehlt jedoch), für set4Term2 Unsatisfiable und set2Term1 einen cycle. Evtl. muss mann vor Intermediate Result
-Noch eine Funktion schalten, um die sie erneut auf die restlichen Regeln aufrufen zu können. Weiters habe ich noch keine Idee wie man die Regeln bestimmt, welche nochmal
-behandelt werden müssen. Ansatz scheint jedoch nicht allzu schlecht zu sein...
--}
+throwOutRules :: [Rule Char Char] -> [Integer] -> Integer -> [Rule Char Char]
+throwOutRules [] _ _ = []
+throwOutRules (x:xs) ys a = if a `Data.List.elem` ys then throwOutRules xs ys (a+1) else x : throwOutRules xs ys (a+1)
 
 getIntermediateResult :: [Rule Char Char] -> Projection -> [Rule Char Char] -> IO SatResult
 getIntermediateResult dependencyRules projection rules = sat $ do
@@ -422,10 +404,7 @@ getIntermediateResult dependencyRules projection rules = sat $ do
     newProjection = putValuesIntoProjection constrainList projection
   let ruleConstrainList = [aa,bb,cc,dd,ee,ff,gg,hh,ii]
   let ruleConstraints = putContraintsWithRules rules ruleConstrainList
-  liftIO $ putStrLn $ show ruleConstraints
-  liftIO $ putStrLn $ show rules
 
-  --constrain $ geqRules rules newProjection
   constrain $ geqRulesS ruleConstraints newProjection []
   constrain $ neqRulesS ruleConstraints newProjection []
   constrain $ (neqRulesSLength ruleConstraints) .> (0 :: SInteger)
@@ -448,8 +427,6 @@ getIntermediateResult dependencyRules projection rules = sat $ do
   constrain $ hh .>= (literal 0) .&& hh .<= (literal 1)
   constrain $ ii .>= (literal 0) .&& ii .<= (literal 1)
   
-
-
 putContraintsWithRules :: [Rule Char Char] -> [SInteger] -> [(Rule Char Char, SInteger)]
 putContraintsWithRules [] _ = []
 putContraintsWithRules (x:xs) (y:ys) = (x,y) : putContraintsWithRules xs ys
@@ -460,21 +437,27 @@ getNeqList ((rule, y):ys) = ite (y ./= 0) (rule : getNeqList ys) (getNeqList ys)
 
 neqRulesS :: [(Rule Char Char, SInteger)] -> Projection -> [Rule Char Char] -> SBool
 neqRulesS [] p r = neqRules r p 
---neqRulesS (((Rule lhs rhs), 0):xs) p = neqRulesS xs p
---neqRulesS (((Rule lhs rhs), 1):xs) p = (neq lhs rhs p) .|| neqRulesS xs p
 neqRulesS ((rule, x):xs) p r = ite (x .== 0) (neqRulesS xs p r) (neqRulesS xs p ([rule] Data.List.++ r))
 
 geqRulesS :: [(Rule Char Char, SInteger)] -> Projection -> [Rule Char Char] -> SBool
 geqRulesS [] p r = geqRules r p 
---neqRulesS (((Rule lhs rhs), 0):xs) p = neqRulesS xs p
---neqRulesS (((Rule lhs rhs), 1):xs) p = (neq lhs rhs p) .|| neqRulesS xs p
 geqRulesS ((rule, x):xs) p r = ite (x .== 0) (geqRulesS xs p r) (geqRulesS xs p ([rule] Data.List.++ r))
 
 neqRulesSLength :: [(Rule Char Char, SInteger)] -> SInteger
 neqRulesSLength [] = 0
 neqRulesSLength ((_, x):xs) = ite (x .== 0) (neqRulesSLength xs) (1 + neqRulesSLength xs)
 
+extractValues :: SatResult -> [String] -> IO [Integer]
+extractValues a _ = do
+  let singleLines = Data.List.lines $ show a
+  let doubleCharacterLines = Data.List.filter (\ x -> (Data.List.length x > 19) && ((x Data.List.!!) 3 /= ' ')) singleLines
+  let indexesOfRulesToRedo = filterIndexRules doubleCharacterLines 0
+  return $ indexesOfRulesToRedo
 
+
+filterIndexRules :: [String] -> Integer -> [Integer]
+filterIndexRules [] _ = []
+filterIndexRules (x:xs) a = if "0" `Data.List.isInfixOf` x then a : filterIndexRules xs (a+1) else filterIndexRules xs (a+1)
 
 getSatResult :: [Rule Char Char] -> Projection -> [Rule Char Char] -> IO SatResult
 getSatResult dependencyRules projection rules = sat $ do
@@ -504,9 +487,6 @@ getSatResult dependencyRules projection rules = sat $ do
   constrain $ g .== (literal (-1)) .|| (g .> (literal 0) .&& g .<= (getArityOfSymbol '7' dependencyRules))
   constrain $ h .== (literal (-1)) .|| (h .> (literal 0) .&& h .<= (getArityOfSymbol '8' dependencyRules))
   constrain $ i .== (literal (-1)) .|| (i .> (literal 0) .&& i .<= (getArityOfSymbol '9' dependencyRules))
-  
-
-
 
 
 putValuesIntoProjection :: [SInteger] -> Projection -> Projection
@@ -553,13 +533,6 @@ findAllSymbolsFromTerm (Var _) = []
 checkIfSatisfiable :: [Rule Char Char] -> String
 checkIfSatisfiable = undefined
 
-s = sat $ do
-  let sss = Fun 'f' [Var 'b', Var 'a', Var 'b']
-  let t = Fun 'f' [Var 'c', Var 'a', Var 'a']
-  a <- sInteger "a"
-  constrain $ charToNumber (projectionPhilipp2 sss a) .> charToNumber (projectionPhilipp2 t a)
-  constrain $ a .>= 0
-  constrain $ a .< literal 3
 
 teerm1 = Fun 'f' [Fun 'g' [Var 'x'], Var 'y']
 teerm2 = Fun 'g' [Var 'x']
@@ -891,50 +864,3 @@ preparation = sccPrepare sccNavigationDependencyRules 1
 sccEdges = getEdges preparation preparation
 testSCCReachable = reachableNodesFromTerm sccNavigationRules (Fun 'i' [Fun 'k' [Var 'x']])
 
-
-
-b = allSat $ do
-  a <- sInteger "a"
-  b <- sInteger "b"
-  c <- sInteger "c"
-  d <- sInteger "d"
-  e <- sInteger "e"
-  constrain $ geqRules dependencyRulesBits [('1', a), ('2', b)]
-  constrain $ neqRules dependencyRulesBits [('1', a), ('2', b)]
-  constrain $ rtRules tttBits [('1', a), ('2', b)]
-  constrain $ a .== (literal (-1)) .|| (a .> (literal 0) .&& a .< (literal 2))
-  constrain $ b .== (literal (-1)) .|| (b .> (literal 0) .&& b .< (literal 2))
-
-satSanity = allSat $ do
-  a <- sInteger "a"
-  b <- sInteger "b"
-  d <- sInteger "d"
-  e <- sInteger "e"
-  constrain $ geqRules dependencyRulesSanity [('a', a), ('b', b), ('1', d), ('2', e)]
-  constrain $ neqRules dependencyRulesSanity [('a', a), ('b', b), ('1', d), ('2', e)]
-  constrain $ rtRules sanity [('a', a), ('b', b), ('1', d), ('2', e)]
-  constrain $ a .== (literal (-1)) .|| (a .> (literal 0) .&& a .< (literal 2))
-  constrain $ b .== (literal (-1)) .|| (b .> (literal 0) .&& b .< (literal 2))
-  constrain $ d .== (literal (-1)) .|| (d .> (literal 0) .&& d .< (literal 2))
-  constrain $ e .== (literal (-1)) .|| (e .> (literal 0) .&& e .< (literal 2))
-
-j = sat $ do
-  a <- sInteger "a"
-  b <- sInteger "b"
-  c <- sInteger "c"
-  d <- sInteger "d"
-  e <- sInteger "e"
-  f <- sInteger "f"
-  g <- sInteger "g"
-  constrain $ geqRules drules [('1', a), ('2', b), ('3', c), ('4', d), ('5', e), ('6', f), ('7', g)] .== sTrue
-  constrain $ neqRules drules [('1', a), ('2', b), ('3', c), ('4', d), ('5', e), ('6', f), ('7', g)] .== sTrue
-
-
-main :: IO ()
-main = do
-  result <- bits
-  aaa <- add
-  bits1 <- bits
-  bits2 <- bits
-  res <- (checkTest aaa)
-  print aaa

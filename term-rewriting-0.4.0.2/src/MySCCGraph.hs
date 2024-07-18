@@ -82,10 +82,10 @@ module MySCCGraph where
         findNumber e ((r, p):ts) = if r == e then p else findNumber e ts
         findNumber e [] = '0'
         newTerm = createNewTerm k m
-        dependecyRules = dependencyPairs s s
-        preparation = sccPrepare dependecyRules 1
+        dependencyRules = dependencyPairs s s
+        preparation = sccPrepare dependencyRules 1
         edges = getEdges preparation preparation
-        startingNodes = findStartingNodes dependecyRules [1..Data.List.length dependecyRules] preparation newTerm
+        startingNodes = findStartingNodes dependencyRules [1..Data.List.length dependencyRules] preparation newTerm
 
     reachableHelpSearch :: [Int] -> [Int] -> [(Int, Int)] -> [(Int, Int)] -> [Int]
     reachableHelpSearch [] z _ _ = z
