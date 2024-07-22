@@ -1,0 +1,17 @@
+:set -package deepseq
+:set -package random
+:set -package QuickCheck
+:set -package syb
+:set -package transformers
+:set -package libBF
+:set -package time
+:set -package uniplate
+:set -package text
+:set -package directory
+:set -package process
+:set -package async
+:set -package template-haskell
+:set -package ghc
+:set -package filepath
+:set -package pretty
+:l Main.hs

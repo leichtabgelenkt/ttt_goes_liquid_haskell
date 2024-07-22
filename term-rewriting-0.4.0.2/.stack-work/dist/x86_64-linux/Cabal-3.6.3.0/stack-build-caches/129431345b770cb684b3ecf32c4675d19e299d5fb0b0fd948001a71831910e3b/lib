@@ -1,0 +1,82 @@
+/home/luca/.ghcup/ghc/9.2.7/lib/ghc-9.2.7/include/ghcversion.h:
+  hash: d590b76d2d5f98f01894882dc106d920a101f52edb6a09b9a7f8dc701b075565
+? /home/luca/uni/ttt_goes_liquid_haskell/term-rewriting-0.4.0.2/.stack-work/dist/x86_64-linux/Cabal-3.6.3.0/build/autogen/cabal_macros.h
+: hash: 1366135e052f061d657c19fa90289759014818c160823840bee4d2b358a4e8d0
+/home/luca/uni/ttt_goes_liquid_haskell/term-rewriting-0.4.0.2/Changelog:
+  hash: c93957e5054e8088950525e12d0c4d0334e9ac70385fd36a5a343c1708a6eb23
+/home/luca/uni/ttt_goes_liquid_haskell/term-rewriting-0.4.0.2/src/Data/Graph/ArraySCC.hs:
+  hash: 591cad6d0be4e0258847c4c64cd959c3b2e2a639eeb1dfe23de46c5cc67f86b6
+/home/luca/uni/ttt_goes_liquid_haskell/term-rewriting-0.4.0.2/src/Data/Graph/SCC.hs:
+  hash: 7dca9a0b300a373b29316e7a7cbc3b5232a9d20dd33cedbefc9e9af95ce6c5c5
+/home/luca/uni/ttt_goes_liquid_haskell/term-rewriting-0.4.0.2/src/Data/Rewriting/Context.hs:
+  hash: cfa54fd4829171304f2de793c85c1c9b128468d06b069bf53ec5f941bced0cc7
+/home/luca/uni/ttt_goes_liquid_haskell/term-rewriting-0.4.0.2/src/Data/Rewriting/Context/Ops.hs:
+  hash: 7d1bdd64075aa3bc7ab0568e8694365d8c04c8023a29690254aca3eb25548859
+/home/luca/uni/ttt_goes_liquid_haskell/term-rewriting-0.4.0.2/src/Data/Rewriting/Context/Type.hs:
+  hash: c5ed25f18f806c494de8b38e5120b652307e1f34b0073640aa9b8dd4b462fe97
+/home/luca/uni/ttt_goes_liquid_haskell/term-rewriting-0.4.0.2/src/Data/Rewriting/CriticalPair.hs:
+  hash: cb98bc03725d5b17e9692ea9bba6780fb5b93a551487d4befa15310907eb6134
+/home/luca/uni/ttt_goes_liquid_haskell/term-rewriting-0.4.0.2/src/Data/Rewriting/CriticalPair/Ops.hs:
+  hash: b0ebccb5a63d2dee4b70b75a82551e1114ee1ae9df20f37207ea9cbe1377c6f7
+/home/luca/uni/ttt_goes_liquid_haskell/term-rewriting-0.4.0.2/src/Data/Rewriting/CriticalPair/Type.hs:
+  hash: 7e707743bf16c2059c9722b9c869f425c2c7d7f7ef315f4c08215729ccc53bee
+/home/luca/uni/ttt_goes_liquid_haskell/term-rewriting-0.4.0.2/src/Data/Rewriting/Pos.hs:
+  hash: 89458fa4b78a74fb456726675735c4821094e685cb56fd3fbce1c956e779d27e
+/home/luca/uni/ttt_goes_liquid_haskell/term-rewriting-0.4.0.2/src/Data/Rewriting/Problem.hs:
+  hash: a52a7dee8419aaeebc3c732567fbc2e11eb03550c1a6b44b4e6f920f7c620648
+/home/luca/uni/ttt_goes_liquid_haskell/term-rewriting-0.4.0.2/src/Data/Rewriting/Problem/Parse.hs:
+  hash: ac27370a656a3bdd313d0a57769e24808938b35d9a6eb6618888fb09b382df43
+/home/luca/uni/ttt_goes_liquid_haskell/term-rewriting-0.4.0.2/src/Data/Rewriting/Problem/Pretty.hs:
+  hash: 369b40bf68ce1fb9fc74ff1fb369f2a991194085d752568d6536c7fa587d3b59
+/home/luca/uni/ttt_goes_liquid_haskell/term-rewriting-0.4.0.2/src/Data/Rewriting/Problem/Type.hs:
+  hash: 64cb6256932c15b11441d303f0284774846dc685ac07bcfe97d61d2fa8f63cd3
+/home/luca/uni/ttt_goes_liquid_haskell/term-rewriting-0.4.0.2/src/Data/Rewriting/Rule.hs:
+  hash: 124a05bd88e54f2c15f2a59406d3b670092c0091cdeb6dd6e87222e98349c3aa
+/home/luca/uni/ttt_goes_liquid_haskell/term-rewriting-0.4.0.2/src/Data/Rewriting/Rule/Ops.hs:
+  hash: a2705e2c2188af4f628fcb4dd4b9066809564756d87f3a85291b96253a7bf1ed
+/home/luca/uni/ttt_goes_liquid_haskell/term-rewriting-0.4.0.2/src/Data/Rewriting/Rule/Pretty.hs:
+  hash: 7ddf77a84735bfdcb86c949c56c6c26a42c68b7adce5ba2dd660c50f4710fae7
+/home/luca/uni/ttt_goes_liquid_haskell/term-rewriting-0.4.0.2/src/Data/Rewriting/Rule/Type.hs:
+  hash: 20fcfec5a6a5c8a2ceae88b97195413a5ca62bbfd5cf2c2375afae27a3666df7
+/home/luca/uni/ttt_goes_liquid_haskell/term-rewriting-0.4.0.2/src/Data/Rewriting/Rules.hs:
+  hash: 43ad833b241c1f243114ca386e5ea08a15d3ec14492e54ab1bc972aed7b45fc3
+/home/luca/uni/ttt_goes_liquid_haskell/term-rewriting-0.4.0.2/src/Data/Rewriting/Rules/Ops.hs:
+  hash: fa9a83253c79883dee587be6231fe3fe906099b3c06a2462c68def590ef768ef
+/home/luca/uni/ttt_goes_liquid_haskell/term-rewriting-0.4.0.2/src/Data/Rewriting/Rules/Rewrite.hs:
+  hash: 30f8e813e0d1188234fd985c297e3c6baf821606c877061d6e458e0f7ba689dc
+/home/luca/uni/ttt_goes_liquid_haskell/term-rewriting-0.4.0.2/src/Data/Rewriting/Substitution.hs:
+  hash: 0d3d0f08a4a6aa2fd0395db567953f14654b7bf14a90381f6a79140841d44650
+/home/luca/uni/ttt_goes_liquid_haskell/term-rewriting-0.4.0.2/src/Data/Rewriting/Substitution/Match.hs:
+  hash: 6964d8adeee78db333586c8a1e5196ad411010ba1845e02608c81dbae9c90cbb
+/home/luca/uni/ttt_goes_liquid_haskell/term-rewriting-0.4.0.2/src/Data/Rewriting/Substitution/Ops.hs:
+  hash: 9172b32cfc65b9a24dca416543b291eec1ddd553472a446402a47d43a5978ead
+/home/luca/uni/ttt_goes_liquid_haskell/term-rewriting-0.4.0.2/src/Data/Rewriting/Substitution/Parse.hs:
+  hash: 46771e1bfcce52280d1077a6e57e238d705af2243e0c30c6b00b50d0e2473c67
+/home/luca/uni/ttt_goes_liquid_haskell/term-rewriting-0.4.0.2/src/Data/Rewriting/Substitution/Pretty.hs:
+  hash: 9f13e47c8d58f76e3004af756b20ae07de74721d8e504eb81a6610b7616326af
+/home/luca/uni/ttt_goes_liquid_haskell/term-rewriting-0.4.0.2/src/Data/Rewriting/Substitution/Type.hs:
+  hash: d01bb7b71b0d6ed530acc129b8971ed943b0285ff399c6afcac98348b3a33e72
+/home/luca/uni/ttt_goes_liquid_haskell/term-rewriting-0.4.0.2/src/Data/Rewriting/Substitution/Unify.hs:
+  hash: 0d40c26a66304134678132a68e9060cd0bdf2336cc7baba1c38bb087bf712954
+/home/luca/uni/ttt_goes_liquid_haskell/term-rewriting-0.4.0.2/src/Data/Rewriting/Term.hs:
+  hash: 5c05da2b78ac642946aea699f39f5b115ed83b87d8b4674880bab744c6259c1a
+/home/luca/uni/ttt_goes_liquid_haskell/term-rewriting-0.4.0.2/src/Data/Rewriting/Term/Ops.hs:
+  hash: ec244fc5541a626a76ba6b8ebf1ec280ff5cc2043f5c9c2d1d9df38b1b8d81a4
+/home/luca/uni/ttt_goes_liquid_haskell/term-rewriting-0.4.0.2/src/Data/Rewriting/Term/Parse.hs:
+  hash: 0ad8a36e7c058e9f838d0c8b114a7e88b38d1f61c2bca32293d1f38a67cc8bd4
+/home/luca/uni/ttt_goes_liquid_haskell/term-rewriting-0.4.0.2/src/Data/Rewriting/Term/Pretty.hs:
+  hash: 8271196c8802aad4949e9279d6efa73dbbe89d0fd2dfab1a76834f5d449c3520
+/home/luca/uni/ttt_goes_liquid_haskell/term-rewriting-0.4.0.2/src/Data/Rewriting/Term/Type.hs:
+  hash: 2ae0bf5f027c93b31b1bcce63a28981e9e9bb23d4565f209a013303c53e66853
+/home/luca/uni/ttt_goes_liquid_haskell/term-rewriting-0.4.0.2/src/Data/Rewriting/Utils.hs:
+  hash: f7004cf6b707a9d25a0b9fce4a09455d1240817f8f7a6b1b5470825a5d9b3d4d
+/home/luca/uni/ttt_goes_liquid_haskell/term-rewriting-0.4.0.2/src/Data/Rewriting/Utils/Parse.hs:
+  hash: 389d10ea70b9fae3ca16f2cf5e8a69e48103ac92e11b05285a88e4e86f9d60bc
+/home/luca/uni/ttt_goes_liquid_haskell/term-rewriting-0.4.0.2/src/Multiplicity.hs:
+  hash: 36a40072415ca2698583966d76ddcc3425a5220e0f4b92a42a821b00e8336425
+/home/luca/uni/ttt_goes_liquid_haskell/term-rewriting-0.4.0.2/src/Rules.hs:
+  hash: bfdd2417d4c32965b321441743ef898706d8ae6d96328e4054ef8a96f17e92d5
+/home/luca/uni/ttt_goes_liquid_haskell/term-rewriting-0.4.0.2/term-rewriting.cabal:
+  hash: 9c3cc7e70d560069ab148530b52f574cbc5ce876cdc0e1d7dfdb9b0aa8caebb6
+/usr/include/stdc-predef.h:
+  hash: cb08cd5d4cc059a90833ac48a284d25016e8d56ded8ad4cd98d8ac59cc5053f3

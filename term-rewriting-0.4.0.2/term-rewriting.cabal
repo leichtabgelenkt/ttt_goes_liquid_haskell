@@ -60,6 +60,10 @@ library
         Data.Rewriting.CriticalPair
         Data.Rewriting.CriticalPair.Type
         Data.Rewriting.CriticalPair.Ops
+        Data.Graph.SCC
+        Rules
+        Multiplicity
+
     other-modules:
         Data.Rewriting.Utils
         Data.Rewriting.Utils.Parse
@@ -71,7 +75,8 @@ library
         array >= 0.3 && < 0.6,
         ansi-wl-pprint >= 0.6 && < 0.7,
         mtl >= 1.1 && < 2.3,
-        base >= 4 && < 5
+        base >= 4.16 && < 5,
+        sbv
     extensions:
         TypeSynonymInstances
         BangPatterns
@@ -88,9 +93,15 @@ test-suite test
         Samples
         Substitution
         Term
+        Rules
+        Rest
+        DependencyPairs
+        MySCCGraph
     build-depends:
         base >= 4 && < 5,
         term-rewriting,
         containers >= 0.3 && < 0.7,
         HUnit >= 1.2 && < 1.7,
-        QuickCheck >= 2.6 && < 2.14
+        QuickCheck >= 2.6 && < 2.14,
+        sbv,
+        deepseq
