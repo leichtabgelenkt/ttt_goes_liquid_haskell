@@ -230,7 +230,7 @@ module TTT3TestSets where
     
     set4Term1 = Fun 'q' [Fun ':' [Var 'n', Var 'x']]
     {-
-    Expected: Terminates
+    Expected: Terminates (But only with help of LPO)
     Actual: Doesn't terminate
     Comment: Aquivalent of starting at Node 13 from the slides
     Time elapsed: 2.04s
@@ -239,7 +239,7 @@ module TTT3TestSets where
     set4Term2 = Fun 'l' [Var 'n', Fun ':' [Var 'm', Var 'x']]
     {-
     Expected: Terminates
-    Actual: Doesn't terminate
+    Actual: Terminates
     Comment: Aquivalent of starting at Node 1 from the slides
     Time elapsed: 1.03s
     -}
