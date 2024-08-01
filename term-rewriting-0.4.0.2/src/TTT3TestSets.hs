@@ -135,7 +135,7 @@ module TTT3TestSets where
 
 
 
-    --------------- TestSet from termrewriting slides 13, slide 37-39 -----------------------------------
+    --------------- TestSet5; TestSet from termrewriting slides 13, slides 37-39 -----------------------------------
     r1 :: Rule Char Char
     r1 = Rule
         { lhs = Fun 'l' [Var 'n', Fun 'o' []]
@@ -246,3 +246,180 @@ module TTT3TestSets where
 
 
     -------------------------------------------------------------------------------------
+
+
+    --------------- TestSet5; TestSet from termrewriting slides 6, slide 8 -------------------------
+    set5rule1 :: Rule Char Char
+    set5rule1 = Rule
+        { lhs = Fun '*' [Fun 'e' [], Var 'x']
+        , rhs = Var 'x'
+        }
+
+    set5rule2 :: Rule Char Char
+    set5rule2 = Rule
+        { lhs = Fun '*' [Fun '-' [Var 'x'], Var 'x']
+        , rhs = Fun 'e' []
+        }
+
+    set5rule3 :: Rule Char Char
+    set5rule3 = Rule
+        { lhs = Fun '*' [Fun '*' [Var 'x', Var 'y'], Var 'z']
+        , rhs = Fun '*' [Var 'x', Fun '*' [Var 'y', Var 'z']]
+        }
+
+    set5rule4 :: Rule Char Char
+    set5rule4 = Rule
+        { lhs = Fun '-' [Fun 'e' []]
+        , rhs = Fun 'e' []
+        }
+
+    set5rule5 :: Rule Char Char
+    set5rule5 = Rule
+        { lhs = Fun '*' [Fun '-' [Var 'x'], Fun '*' [Var 'x', Var 'y']]
+        , rhs = Var 'y'
+        }
+
+    set5rule6 :: Rule Char Char
+    set5rule6 = Rule
+        { lhs = Fun '*' [Var 'x', Fun 'e' []]
+        , rhs = Var 'x'
+        }
+
+    set5rule7 :: Rule Char Char
+    set5rule7 = Rule
+        { lhs = Fun '*' [Var 'x', Fun '-' [Var 'x']]
+        , rhs = Fun 'e' []
+        }
+
+    set5rule8 :: Rule Char Char
+    set5rule8 = Rule
+        { lhs = Fun '-' [Fun '-' [Var 'x']]
+        , rhs = Var 'x'
+        }
+
+    set5rule9 :: Rule Char Char
+    set5rule9 = Rule
+        { lhs = Fun '-' [Fun '*' [Var 'x', Var 'y']]
+        , rhs = Fun '*' [Fun '-' [Var 'y'], Fun '-' [Var 'x']]
+        }
+
+    set5rule10 :: Rule Char Char
+    set5rule10 = Rule
+        { lhs = Fun '*' [Var 'x', Fun '*' [Fun '-' [Var 'x'], Var 'y']]
+        , rhs = Var 'y'
+        }
+
+    set5Rules = [set5rule1, set5rule2, set5rule3, set5rule4, set5rule5, set5rule6, set5rule7, set5rule8, set5rule9, set5rule10]
+
+    set5Term1 = Fun '*' [Fun 'e' [], Var 'x']
+    {-
+    Expected Outcome: Terminates
+    Actual Outcome: Terminates
+    Time elapsed: 0.04s
+    -}
+
+    set5Term2 = Fun '*' [Fun '*' [Fun 'e' [], Var 'x'], Fun '-' [Var 'x']]
+    {-
+    Expected Outcome: Terminates
+    Actual Outcome: Terminates
+    Time elapsed: 0.15s
+    -}
+
+    set5Term3 = Fun '*' [Fun 'e' [], Fun '*' [Fun '*' [Fun 'e' [], Var 'y'], Var 'z']]
+    {-
+    Expected Outcome: Terminates
+    Actual Outcome: Terminates
+    Time elapsed: 0.09s
+    -}
+
+    set5Term4 = Fun '*' [Fun 'e' [], Fun '*' [Fun '*' [Fun 'e' [], Var 'y'], Fun '-' [Fun '-' [Fun '*' [Var 'x', Fun '*' [Fun '-' [Var 'x'], Var 'z']]]]]]
+    {-
+    Expected Outcome: Terminates
+    Actual Outcome: Terminates
+    Time elapsed: 22.69s
+    -}
+
+    --------------------------------------------------
+
+
+    --------------- TestSet6; TestSet from termrewriting book, page 81 -------------------------
+    set6rule1 :: Rule Char Char
+    set6rule1 = Rule
+        { lhs = Fun 'p' []
+        , rhs = Fun 'v' [Fun 'f' [Fun 's' [Fun 's' [Fun '0' []]]]]
+        }
+
+    set6rule2 :: Rule Char Char
+    set6rule2 = Rule
+        { lhs = Fun 'f' [Var 'x']
+        , rhs = Fun ':' [Var 'x', Fun 'f' [Fun 's' [Var 'x']]]
+        }
+
+    set6rule3 :: Rule Char Char
+    set6rule3 = Rule
+        { lhs = Fun 'h' [Fun ':' [Var 'x', Var 'y']]
+        , rhs = Var 'x'
+        }
+
+    set6rule4 :: Rule Char Char
+    set6rule4 = Rule
+        { lhs = Fun 't' [Fun ':' [Var 'x', Var 'y']]
+        , rhs = Var 'y'
+        }
+
+    set6rule5 :: Rule Char Char
+    set6rule5 = Rule
+        { lhs = Fun 'v' [Fun ':' [Fun '0' [], Var 'y']]
+        , rhs = Fun 'v' [Var 'y']
+        }
+
+    set6rule6 :: Rule Char Char
+    set6rule6 = Rule
+        { lhs = Fun 'v' [Fun 's' [Var 'x'], Var 'y']
+        , rhs = Fun ':' [Fun 's' [Var 'x'], Fun 'v' [Fun 'r' [Var 'x', Var 'y', Var 'x']]]
+        }
+
+    set6rule7 :: Rule Char Char
+    set6rule7 = Rule
+        { lhs = Fun 'r' [Fun '0' [], Fun ':' [Var 'y', Var 'z'], Var 'w']
+        , rhs = Fun ':' [Fun '0' [], Fun 'r' [Var 'w', Var 'z', Var 'w']]
+        }
+
+    set6rule8 :: Rule Char Char
+    set6rule8 = Rule
+        { lhs = Fun 'r' [Fun 's' [Var 'x'], Fun ':' [Var 'y', Var 'z'], Var 'w']
+        , rhs = Fun ':' [Var 'y', Fun 'r' [Var 'x', Var 'z', Var 'w']]
+        }
+
+
+    set6Rules = [set6rule1, set6rule2, set6rule3, set6rule4, set6rule5, set6rule6, set6rule7, set6rule8]
+
+    set6Term1 = Fun 'f' [Var 'x']
+    {-
+    Expected Outcome: Does not terminate
+    Actual Outcome: Does not terminate
+    Time elapsed: 0.24s
+    -}
+
+    set6Term2 = Fun 'r' [Fun 's' [Var 'x'], Fun ':' [Var 'y', Var 'z'], Var 'w']
+    {-
+    Expected Outcome: Terminates
+    Actual Outcome: Terminates
+    Time elapsed: 0.02s
+    -}
+
+    set6Term3 = Fun 'v' [Fun 's' [Fun 'h' [Fun ':' [Var 'x', Var 'y']]], Fun 't' [Fun ':' [Var 'x', Var 'y']]]
+    {-
+    Expected Outcome: Terminates
+    Actual Outcome: Terminates
+    Time elapsed: 1.33s
+    -}
+
+    set6Term4 = Fun 'p' []
+    {-
+    Expected Outcome: Does not terminate
+    Actual Outcome: Does not terminate
+    Time elapsed: 0.58000,s
+    -}
+
+    --------------------------------------------------
