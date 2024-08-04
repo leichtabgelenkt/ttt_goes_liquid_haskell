@@ -419,7 +419,61 @@ module TTT3TestSets where
     {-
     Expected Outcome: Does not terminate
     Actual Outcome: Does not terminate
-    Time elapsed: 0.58000,s
+    Time elapsed: 0.58s
     -}
 
+    --------------------------------------------------
+
+    --------------- TestSet7; TestSet from the equations on sets -------------------------
+    set7rule1 :: Rule Char Char
+    set7rule1 = Rule
+        { lhs = Fun 'u' [Var 'x', Var 'x']
+        , rhs = Var 'x'
+        }
+
+    set7rule2 :: Rule Char Char
+    set7rule2 = Rule
+        { lhs = Fun 'i' [Var 'x', Var 'x']
+        , rhs = Var 'x'
+        }
+
+    set7rule3 :: Rule Char Char
+    set7rule3 = Rule
+        { lhs = Fun 'u' [Var 'x', Fun 'e' []]
+        , rhs = Var 'x'
+        }
+
+    set7rule4 :: Rule Char Char
+    set7rule4 = Rule
+        { lhs = Fun 'i' [Var 'x', Fun 'e' []]
+        , rhs = Fun 'e' []
+        }
+
+    set7rule5 :: Rule Char Char
+    set7rule5 = Rule
+        { lhs = Fun 'u' [Fun 'i' [Var 'x', Var 'z'], Fun 'i' [Var 'y', Var 'z']]
+        , rhs = Fun 'i' [Fun 'u' [Var 'x', Var 'y'], Var 'z']
+        }
+
+    set7rule6 :: Rule Char Char
+    set7rule6 = Rule
+        { lhs = Fun 'u' [Fun 'i' [Var 'x', Var 'y'], Var 'y']
+        , rhs = Fun 'i' [Fun 'u' [Var 'x', Var 'y'], Var 'y']
+        }
+
+    set7rule7 :: Rule Char Char
+    set7rule7 = Rule
+        { lhs = Fun 'u' [Var 'x', Fun 'i' [Var 'y', Var 'x']]
+        , rhs = Fun 'i' [Fun 'u' [Var 'x', Var 'y'], Var 'x']
+        }
+
+
+    set7Rules = [set7rule1, set7rule2, set7rule3, set7rule4, set7rule5, set7rule6, set7rule7]
+
+    set7Term1 = Fun 'u' [Fun 'i' [Var 'x', Var 'y'], Fun 'u' [Var 'y', Fun 'e' []]]
+    {-
+    Expected Outcome: Terminates
+    Actual Outcome: Terminates
+    Time elapsed: 0.01s
+    -}
     --------------------------------------------------
