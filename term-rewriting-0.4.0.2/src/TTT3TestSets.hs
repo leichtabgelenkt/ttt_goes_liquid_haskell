@@ -476,4 +476,39 @@ module TTT3TestSets where
     Actual Outcome: Terminates
     Time elapsed: 0.01s
     -}
+
+    set7Term2 = Fun 'i' [Fun 'u' [Var 'x', Var 'y'], Var 'y']
+    {-
+    Expected Outcome: Terminates
+    Actual Outcome: Terminates
+    Time elapsed: 0.00s
+    -}
+
+    set7Term3 = Fun 'u' [Fun 'i' [Var 'x', Fun 'u' [Var 'z', Fun 'i' [Var 'y', Var 'z']]], Fun 'i' [Var 'x', Fun 'u' [Var 'z', Fun 'i' [Var 'y', Var 'z']]]]
+    {-
+    Expected Outcome: Terminates
+    Actual Outcome: Terminates
+    Time elapsed: 0.27s
+    -}
+
+    set7Term4 = Fun 'i' [Var 'x', Fun 'i' [Fun 'u' [Var 'z', Var 'y'], Var 'z']]
+    {-
+    Expected Outcome: Terminates
+    Actual Outcome: Terminates
+    Time elapsed: 0.01s
+    -}
+
+    set7Term5 = Fun 'i' [Fun 'i' [Var 'x' , Fun 'e' []], Fun 'u' [Fun 'i' [Var 'z', Var 'y'], Fun 'u' [Var 'z', Var 'x']]]
+    {-
+    Expected Outcome: Terminates
+    Actual Outcome: Terminates
+    Time elapsed: 0.01s
+    -}
+
+    set7Term6 = Fun 'i' [Fun 'u' [Var 'x' , Fun 'e' []], Fun 'i' [Fun 'u' [Var 'y', Fun 'e' []], Fun 'i' [Var 'z', Fun 'e' []]]]
+    {-
+    Expected Outcome: Terminates
+    Actual Outcome: Terminates
+    Time elapsed: 0.03s
+    -}
     --------------------------------------------------
