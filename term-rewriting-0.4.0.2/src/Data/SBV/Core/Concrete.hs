@@ -15,6 +15,8 @@
 {-# LANGUAGE Rank2Types          #-}
 
 {-# OPTIONS_GHC -Wall -Werror #-}
+{-# LANGUAGE PatternGuards #-}
+
 
 module Data.SBV.Core.Concrete where
 

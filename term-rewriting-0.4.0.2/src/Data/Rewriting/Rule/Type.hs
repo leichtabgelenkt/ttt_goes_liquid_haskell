@@ -23,10 +23,6 @@ import Data.SBV.Trans
 data Rule f v = Rule { lhs :: Term f v, rhs :: Term f v }
     deriving (Ord, Eq, Show, Generic)
 
-instance (Mergeable (Term f v)) => Mergeable (Rule f v) where
-  symbolicMerge force cond (Rule lhs1 rhs1) (Rule lhs2 rhs2) = 
-    Rule (symbolicMerge force cond lhs1 lhs2) (symbolicMerge force cond rhs1 rhs2)
-
 mapSides :: (Term f v -> Term f' v') -> Rule f v -> Rule f' v'
 mapSides f r = Rule{ lhs = f (lhs r), rhs = f (rhs r) }
 

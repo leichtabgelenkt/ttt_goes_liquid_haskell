@@ -526,3 +526,58 @@ module TTT3TestSets where
     Time elapsed: 0.01s
     -}
     --------------------------------------------------
+
+    --------------- Dershowitz TRS from https://www.sciencedirect.com/science/article/pii/S0890540106001593?via%3Dihub-------------------------
+    setDrule1 :: Rule Char Char
+    setDrule1 = Rule
+        { lhs = Fun 'n' [Fun 'n' [Var 'x']]
+        , rhs = Var 'x'
+        }
+
+    setDrule2 :: Rule Char Char
+    setDrule2 = Rule
+        { lhs = Fun 'n' [Fun 'u' [Var 'x', Var 'y']]
+        , rhs = Fun 'i' [Fun 'n' [Var 'x'], Fun 'n' [Var 'y']]
+        }
+
+    setDrule3 :: Rule Char Char
+    setDrule3 = Rule
+        { lhs = Fun 'n' [Fun 'i' [Var 'x', Var 'y']]
+        , rhs = Fun 'u' [Fun 'n' [Var 'x'], Fun 'n' [Var 'y']]
+        }
+
+    setDrule4 :: Rule Char Char
+    setDrule4 = Rule
+        { lhs = Fun 'i' [Var 'x', Fun 'u' [Var 'y', Var 'z']]
+        , rhs = Fun 'u' [Fun 'i' [Var 'x', Var 'y'], Fun 'i' [Var 'x', Var 'z']]
+        }
+
+    setDrule5 :: Rule Char Char
+    setDrule5 = Rule
+        { lhs = Fun 'i' [Fun 'u' [Var 'y', Var 'z'], Var 'x']
+        , rhs = Fun 'u' [Fun 'i' [Var 'x', Var 'y'], Fun 'i' [Var 'x', Var 'z']]
+        }
+
+    setDrule6 :: Rule Char Char
+    setDrule6 = Rule
+        { lhs = Fun 'u' [Fun 'u' [Var 'x', Var 'y'], Var 'z']
+        , rhs = Fun 'u' [Var 'x', Fun 'u' [Var 'y', Var 'z']]
+        }
+
+
+    setDRules = [setDrule1, setDrule2, setDrule3, setDrule4, setDrule5, setDrule6]
+
+    setDTerm1 = Fun 'u' [Fun 'n' [Fun 'i' [Var 'x', Var 'y']], Fun 'u' [Fun 'u' [Var 'x', Var 'y'], Var 'z']]
+    {-
+    Expected Outcome: Terminates
+    Actual Outcome: Terminates
+    Time elapsed: 0.14s
+    -}
+
+    setDTerm2 = Fun 'i' [Fun 'u' [Var 'y', Var 'z'], Var 'x']
+    {-
+    Expected Outcome: Terminates
+    Actual Outcome: Terminates
+    Time elapsed: 0.00s
+    -}
+--------------------------------------------------------------------------------------------------------------

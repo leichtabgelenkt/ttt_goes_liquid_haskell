@@ -12,6 +12,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 
 {-# OPTIONS_GHC -Wall -Werror #-}
+{-# LANGUAGE PatternGuards #-}
 
 module Data.SBV.Utils.Numeric (
            fpMaxH, fpMinH, fp2fp, fpRemH, fpRoundToIntegralH, fpIsEqualObjectH, fpCompareObjectH, fpIsNormalizedH

@@ -12,6 +12,7 @@
 {-# LANGUAGE NamedFieldPuns #-}
 
 {-# OPTIONS_GHC -Wall -Werror -Wno-incomplete-uni-patterns #-}
+{-# LANGUAGE PatternGuards #-}
 
 module Data.SBV.Utils.CrackNum (
         crackNum

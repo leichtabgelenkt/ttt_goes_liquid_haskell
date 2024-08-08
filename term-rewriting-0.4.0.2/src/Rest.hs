@@ -19,10 +19,7 @@ module Rest where
     import Data.SBV
     import Data.SBV.List
     import Data.SBV.Internals
-    import GHC.Exts (fromList)
-    import GHC.Cmm (CmmNode(res))
     import Data.SBV (constrain, sInteger, allSat)
-    import GHC.Prelude (Show(show))
     import Data.Bool (Bool(True, False))
     import Data.Char
 

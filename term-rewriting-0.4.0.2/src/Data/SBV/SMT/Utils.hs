@@ -12,6 +12,7 @@
 {-# LANGUAGE NamedFieldPuns #-}
 
 {-# OPTIONS_GHC -Wall -Werror #-}
+{-# LANGUAGE PatternGuards #-}
 
 module Data.SBV.SMT.Utils (
           SMTLibConverter

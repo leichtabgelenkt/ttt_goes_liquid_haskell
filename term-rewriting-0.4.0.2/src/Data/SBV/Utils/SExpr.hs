@@ -12,6 +12,7 @@
 {-# LANGUAGE BangPatterns #-}
 
 {-# OPTIONS_GHC -Wall -Werror #-}
+{-# LANGUAGE PatternGuards #-}
 
 module Data.SBV.Utils.SExpr (SExpr(..), parenDeficit, parseSExpr, parseSExprFunction, makeHaskellFunction) where
 

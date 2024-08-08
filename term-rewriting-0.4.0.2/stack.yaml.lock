@@ -32,6 +32,94 @@ packages:
       size: 385
   original:
     hackage: deepseq-1.4.6.1
+- completed:
+    commit: ac8e4a5920af1e36f09995d03626cfce3d9ee69a
+    git: https://github.com/ComputationWithBoundedResources/term-rewriting-xml
+    name: term-rewriting-xml
+    pantry-tree:
+      sha256: a0358d840216af4235d4c6c2dac577a08e4c85026be59123c870cb73d9a8f8fc
+      size: 687
+    version: 0.1.1.1
+  original:
+    commit: ac8e4a5920af1e36f09995d03626cfce3d9ee69a
+    git: https://github.com/ComputationWithBoundedResources/term-rewriting-xml
+- completed:
+    commit: 66f7a9eefbe8335331962bdc5710c8c4392a1188
+    git: https://github.com/ComputationWithBoundedResources/term-rewriting-ext
+    name: term-rewriting-ext
+    pantry-tree:
+      sha256: 3fcf4731a1a567ed34ca56561b9600916b55151d4396080cf2c3d5d181b660fc
+      size: 4148
+    version: 0.1.4
+  original:
+    commit: 66f7a9eefbe8335331962bdc5710c8c4392a1188
+    git: https://github.com/ComputationWithBoundedResources/term-rewriting-ext
+- completed:
+    commit: b8446e7b4b5403f5122b901d76542eab505cb106
+    git: https://github.com/ComputationWithBoundedResources/term-rewriting-applicative
+    name: term-rewriting-applicative
+    pantry-tree:
+      sha256: 58b482d8222a6fc029cb9c3ba24c7bc817eeab2561defd3eb4efe3837059ce68
+      size: 732
+    version: 0.2.1
+  original:
+    commit: b8446e7b4b5403f5122b901d76542eab505cb106
+    git: https://github.com/ComputationWithBoundedResources/term-rewriting-applicative
+- completed:
+    commit: 69f85a4025dfba3a691ac11793c6da9264a7a89d
+    git: https://github.com/ComputationWithBoundedResources/hoca
+    name: hoca
+    pantry-tree:
+      sha256: 2bb5b77986d5e5950b6404c36f598beac974781d01cf52243d02cd9dd8b800de
+      size: 7429
+    version: '0.5'
+  original:
+    commit: 69f85a4025dfba3a691ac11793c6da9264a7a89d
+    git: https://github.com/ComputationWithBoundedResources/hoca
+- completed:
+    commit: 970fcf905d89c3a769615cd81cc77e1903469dd5
+    git: https://github.com/ComputationWithBoundedResources/ara-inference
+    name: ara
+    pantry-tree:
+      sha256: 34b9d2e3fc75c785e502530bcfb8284c7f41cbfb2f5293da22a7f03d08a46559
+      size: 2102413
+    version: 0.1.1.0
+  original:
+    commit: 970fcf905d89c3a769615cd81cc77e1903469dd5
+    git: https://github.com/ComputationWithBoundedResources/ara-inference
+- completed:
+    commit: 378e82c0eaa265244f3a596f23bddcb0e91a23dd
+    git: https://github.com/ComputationWithBoundedResources/slogic
+    name: slogic
+    pantry-tree:
+      sha256: e93e4a2cb9d53aeadc8b6033e3d92d548ca3db4d7e935509e97ed52c06682340
+      size: 1057
+    version: '0.3'
+  original:
+    commit: 378e82c0eaa265244f3a596f23bddcb0e91a23dd
+    git: https://github.com/ComputationWithBoundedResources/slogic
+- completed:
+    commit: 545d9e51da7601cca644fd6bdf54d634db62de17
+    git: https://github.com/ComputationWithBoundedResources/tct-common
+    name: tct-common
+    pantry-tree:
+      sha256: 9c477ecaeac22510392be7d682262db22c436d1d976c636e8540e4620d8c9f86
+      size: 838
+    version: 3.3.0
+  original:
+    commit: 545d9e51da7601cca644fd6bdf54d634db62de17
+    git: https://github.com/ComputationWithBoundedResources/tct-common
+- completed:
+    commit: e757d81d7d5e2fa8e4a76c04814cf80f22cbd7e2
+    git: https://github.com/ComputationWithBoundedResources/tct-core
+    name: tct-core
+    pantry-tree:
+      sha256: 62d4f910e39e5a8625172e8b0edba9f7217002b603f58f5b13b1ccddacd00bd0
+      size: 2322
+    version: 3.3.0
+  original:
+    commit: e757d81d7d5e2fa8e4a76c04814cf80f22cbd7e2
+    git: https://github.com/ComputationWithBoundedResources/tct-core
 snapshots:
 - completed:
     sha256: 42f77c84b34f68c30c2cd0bf8c349f617a0f428264362426290847a6a2019b64
