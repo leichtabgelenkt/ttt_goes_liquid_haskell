@@ -1,0 +1,13 @@
+resolver: lts-20.19
+
+packages:
+  - .
+
+extra-deps:
+  - union-find-array-0.1.0.3
+  - sbv-10.9
+  - libBF-0.6.7
+  - deepseq-1.4.6.1
+  - clock-0.8.4
+ghc-options:
+  "$locals": -XPatternGuards
