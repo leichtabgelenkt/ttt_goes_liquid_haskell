@@ -1,0 +1,19 @@
+term1:
+ - i(0, s(l(:(x, i(s(x), s(y))))))
+ - result: Terminates
+ - time: 0.3370s
+
+term2:
+ - i(:(i(:(i(0,0),s(l(e))),0),s(x)),e)
+ - result: Terminates
+ - time: 0.0011s
+
+term3:
+ - i(s(0), i(s(0), s(s(s(s(s(0)))))))
+ - result: Terminates
+ - time: 37.8171s
+
+term4:
+ - i(i(i(i(i(i(i(x)))))), i(i(i(i(i(i(y)))))))
+ - result: Terminates
+ - time: 0.0000s
