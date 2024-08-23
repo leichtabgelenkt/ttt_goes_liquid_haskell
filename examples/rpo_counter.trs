@@ -1,0 +1,12 @@
+(VAR  x, y, n, m)
+
+(RULES 
+   l(n, N) -> N
+   l(n, :(m,x)) -> i(<(m,n), n, :(m, x))
+   h(n, N) -> N
+   h(n,:(m,x)) -> j(<(m,n),n,:(m,x))
+   +(N,y) -> y
+   +(:(n,x), y) -> :(n,+(x,y))
+   q(N) -> N
+   q(:(n,x)) -> q(+(l(n,x), :(n, q(h(n,x)))))
+)

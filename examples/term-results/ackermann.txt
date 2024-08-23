@@ -1,0 +1,8 @@
+term1:
+ - ack(s(s(s(x))),s(s(s(y))))
+ - ttt3:
+    > result: Terminates
+    > time: 0.0033s
+ - REST:
+    > result: Killed
+    > time: n/a

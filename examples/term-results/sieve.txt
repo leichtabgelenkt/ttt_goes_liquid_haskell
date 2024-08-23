@@ -15,5 +15,9 @@ term3:
 
 term4:
  - p
- - result: Does not terminate
- - time: 0.5583s
+ - ttt3:
+    > result: Does not terminate
+    > time: 0.5583s
+ - REST:
+    > result: diverges
+    > time: n/a
