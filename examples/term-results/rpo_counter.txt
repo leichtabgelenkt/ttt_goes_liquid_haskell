@@ -1,0 +1,9 @@
+term1:
+ - q(:(n,x))
+ - result: Doe not terminate
+ - time: 0.4609s
+
+term2:
+ - l(n,:(m,x))
+ - result: Terminates
+ - time: 0.1763s

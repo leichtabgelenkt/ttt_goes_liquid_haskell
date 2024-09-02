@@ -361,20 +361,24 @@ intermediateStep dependencyRules projection rules = do
 iterativeMethod :: [Rule Char Char] -> Projection -> [Rule Char Char] -> IO Bool
 iterativeMethod dependencyRules projection rules = do
   result <- getIntermediateResult dependencyRules projection rules
-  resultBool <- checkTest result
+  resultBool <- checkTest2 result
+  putStrLn $ show dependencyRules
+  putStrLn "AAAAAAAAAAAA"
+  putStrLn $ show result
   if resultBool
     then do
-      workingRules <- extractValues (result) []
-      let reducedRules = throwOutRules dependencyRules workingRules 0
+      workingRules <- extractValues2 (result) []
+      let reducedRules = rules \\ (throwOutRules rules workingRules 0)
+      putStrLn $ show reducedRules
       if reducedRules == []
         then do
           return True
         else do
-          if reducedRules == dependencyRules
+          if reducedRules == rules
             then do
               return False
             else do
-              iterativeMethod reducedRules projection rules
+              iterativeMethod dependencyRules projection reducedRules
     else do
       return False
 
@@ -382,8 +386,69 @@ throwOutRules :: [Rule Char Char] -> [Integer] -> Integer -> [Rule Char Char]
 throwOutRules [] _ _ = []
 throwOutRules (x:xs) ys a = if a `Data.List.elem` ys then throwOutRules xs ys (a+1) else x : throwOutRules xs ys (a+1)
 
-getIntermediateResult :: [Rule Char Char] -> Projection -> [Rule Char Char] -> IO SatResult
-getIntermediateResult dependencyRules projection rules = sat $ do
+getIntermediateResult :: [Rule Char Char] -> Projection -> [Rule Char Char] -> IO OptimizeResult
+getIntermediateResult dependencyRules projection rules = optimize Lexicographic $ do
+  a <- sInteger "a"
+  b <- sInteger "b"
+  c <- sInteger "c"
+  d <- sInteger "d"
+  e <- sInteger "e"
+  f <- sInteger "f"
+  g <- sInteger "g"
+  h <- sInteger "h"
+  i <- sInteger "i"
+  aa <- sInteger "aa"
+  bb <- sInteger "bb"
+  cc <- sInteger "cc"
+  dd <- sInteger "dd"
+  ee <- sInteger "ee"
+  ff <- sInteger "ff"
+  gg <- sInteger "gg"
+  hh <- sInteger "hh"
+  ii <- sInteger "ii"
+  let
+    constrainList :: [SInteger]
+    constrainList = [a,b,c,d,e,f,g,h,i]
+  let
+    newProjection :: Projection
+    newProjection = putValuesIntoProjection constrainList projection
+  let ruleConstrainList = [aa,bb,cc,dd,ee,ff,gg,hh,ii]
+  let ruleConstraints = putContraintsWithRules rules ruleConstrainList
+  liftIO $ putStrLn $ show $ Data.List.length rules
+  liftIO $ putStrLn $ show $ Data.List.length dependencyRules
+  liftIO $ putStrLn $ show ruleConstraints
+  constrain $ geqRulesS ruleConstraints newProjection []
+  constrain $ neqRulesS ruleConstraints newProjection []
+  constrain $ (neqRulesSLength ruleConstraints) .> (0 :: SInteger)
+  constrain $ a .== (literal (-1)) .|| (a .> (literal 0) .&& a .<= (getArityOfSymbol '1' dependencyRules))
+  constrain $ b .== (literal (-1)) .|| (b .> (literal 0) .&& b .<= (getArityOfSymbol '2' dependencyRules))
+  constrain $ c .== (literal (-1)) .|| (c .> (literal 0) .&& c .<= (getArityOfSymbol '3' dependencyRules))
+  constrain $ d .== (literal (-1)) .|| (d .> (literal 0) .&& d .<= (getArityOfSymbol '4' dependencyRules))
+  constrain $ e .== (literal (-1)) .|| (e .> (literal 0) .&& e .<= (getArityOfSymbol '5' dependencyRules))
+  constrain $ f .== (literal (-1)) .|| (f .> (literal 0) .&& f .<= (getArityOfSymbol '6' dependencyRules))
+  constrain $ g .== (literal (-1)) .|| (g .> (literal 0) .&& g .<= (getArityOfSymbol '7' dependencyRules))
+  constrain $ h .== (literal (-1)) .|| (h .> (literal 0) .&& h .<= (getArityOfSymbol '8' dependencyRules))
+  constrain $ i .== (literal (-1)) .|| (i .> (literal 0) .&& i .<= (getArityOfSymbol '9' dependencyRules))
+  constrain $ aa .>= (literal 0) .&& aa .<= (literal 1)
+  constrain $ bb .>= (literal 0) .&& bb .<= (literal 1)
+  constrain $ cc .>= (literal 0) .&& cc .<= (literal 1)
+  constrain $ dd .>= (literal 0) .&& dd .<= (literal 1)
+  constrain $ ee .>= (literal 0) .&& ee .<= (literal 1)
+  constrain $ ff .>= (literal 0) .&& ff .<= (literal 1)
+  constrain $ gg .>= (literal 0) .&& gg .<= (literal 1)
+  constrain $ hh .>= (literal 0) .&& hh .<= (literal 1)
+  constrain $ ii .>= (literal 0) .&& ii .<= (literal 1)
+  let sumVars = aa + bb + cc + dd + ee + ff + gg + hh + ii
+  maximize "Sum of aa to ii" sumVars
+
+
+-- atLeastEqual :: [Rule Char Char] -> Projection -> Integer
+-- atLeastEqual [] p = 1
+-- atLeastEqual (r:rs) p 
+
+
+getIntermediateResultSat :: [Rule Char Char] -> Projection -> [Rule Char Char] -> IO SatResult
+getIntermediateResultSat dependencyRules projection rules = sat $ do
   a <- sInteger "a"
   b <- sInteger "b"
   c <- sInteger "c"
@@ -459,6 +524,13 @@ extractValues a _ = do
   let indexesOfRulesToRedo = filterIndexRules doubleCharacterLines 0
   return $ indexesOfRulesToRedo
 
+extractValues2 :: OptimizeResult -> [String] -> IO [Integer]
+extractValues2 a _ = do
+  let singleLines = Data.List.lines $ show a
+  let doubleCharacterLines = Data.List.filter (\ x -> (Data.List.length x > 19) && ((x Data.List.!!) 3 /= ' ')) singleLines
+  let indexesOfRulesToRedo = filterIndexRules doubleCharacterLines 0
+  return $ indexesOfRulesToRedo
+
 
 filterIndexRules :: [String] -> Integer -> [Integer]
 filterIndexRules [] _ = []
@@ -505,6 +577,11 @@ findAllNewTerms [] _ = []
 checkTest :: SatResult -> IO Bool
 checkTest result = do
   r2 <- bits
+  if (show result) == (show r2) then return False else return True
+
+checkTest2 :: OptimizeResult -> IO Bool
+checkTest2 result = do
+  r2 <- bits2
   if (show result) == (show r2) then return False else return True
 
 
@@ -685,6 +762,17 @@ bits = sat $ do
   --constrain $ rtRules mulRules [('1', a), ('2', b), ('m', -1), ('a', -1), ('s', -1), ('0', -1)]
   constrain $ a .== (literal (-1)) .|| (a .> (literal 0) .&& a .< (literal 2))
   constrain $ b .== (literal (-1)) .|| (b .> (literal 0) .&& b .< (literal 2))
+
+bits2 = optimize Lexicographic $ do
+  a <- sInteger "a"
+  b <- sInteger "b"
+  constrain $ geqRules bitsDependencyRules [('1', a), ('2', b), ('s', -1), ('b', -1), ('h', -1), ('s', -1), ('0', -1)]
+  --constrain $ neqRules bitsDependencyRules [('1', a), ('2', b), ('s', -1), ('b', -1), ('h', -1), ('s', -1), ('0', -1)]
+  --constrain $ rtRules mulRules [('1', a), ('2', b), ('m', -1), ('a', -1), ('s', -1), ('0', -1)]
+  constrain $ a .== (literal (-1)) .|| (a .> (literal 0) .&& a .< (literal 2))
+  constrain $ b .== (literal (-1)) .|| (b .> (literal 0) .&& b .< (literal 2))
+  let sumVars = a + b
+  maximize "Sum of aa to ii" sumVars
 {-
 Ergebnis Philipp & Luca: Unsatisfiable
 Ergebnis TTT2: Satisfiable

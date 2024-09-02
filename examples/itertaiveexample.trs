@@ -2,6 +2,6 @@
 
 (RULES 
     f(s(x),y) -> g(x,s(y))
+    g(x,h(y)) -> f(x,y)
     g(x,s(y)) -> f(h(x),y)
-    g(x,s(y)) -> f(x,y)
 )
