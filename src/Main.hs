@@ -362,14 +362,16 @@ iterativeMethod :: [Rule Char Char] -> Projection -> [Rule Char Char] -> IO Bool
 iterativeMethod dependencyRules projection rules = do
   result <- getIntermediateResult dependencyRules projection rules
   resultBool <- checkTest2 result
-  putStrLn $ show dependencyRules
   putStrLn "AAAAAAAAAAAA"
   putStrLn $ show result
+  -- let sccs = getSccFromDependencyPairs rules
+  -- putStrLn $ show sccs
   if resultBool
     then do
       workingRules <- extractValues2 (result) []
       let reducedRules = rules \\ (throwOutRules rules workingRules 0)
-      putStrLn $ show reducedRules
+      -- let remainingSCCs = getSccFromDependencyPairs reducedRules
+      -- putStrLn $ show remainingSCCs
       if reducedRules == []
         then do
           return True
@@ -414,21 +416,27 @@ getIntermediateResult dependencyRules projection rules = optimize Lexicographic 
     newProjection = putValuesIntoProjection constrainList projection
   let ruleConstrainList = [aa,bb,cc,dd,ee,ff,gg,hh,ii]
   let ruleConstraints = putContraintsWithRules rules ruleConstrainList
+  let sumVars = countOnes ruleConstraints newProjection 0
+  constrain $ sumVars .> 0
+  maximize "Sum of aa to ii" sumVars
   liftIO $ putStrLn $ show $ Data.List.length rules
   liftIO $ putStrLn $ show $ Data.List.length dependencyRules
+  liftIO $ putStrLn $ show newProjection 
   liftIO $ putStrLn $ show ruleConstraints
-  constrain $ geqRulesS ruleConstraints newProjection []
+  liftIO $ putStrLn $ show rules
+  constrain $ geqRules rules newProjection
   constrain $ neqRulesS ruleConstraints newProjection []
-  constrain $ (neqRulesSLength ruleConstraints) .> (0 :: SInteger)
-  constrain $ a .== (literal (-1)) .|| (a .> (literal 0) .&& a .<= (getArityOfSymbol '1' dependencyRules))
-  constrain $ b .== (literal (-1)) .|| (b .> (literal 0) .&& b .<= (getArityOfSymbol '2' dependencyRules))
-  constrain $ c .== (literal (-1)) .|| (c .> (literal 0) .&& c .<= (getArityOfSymbol '3' dependencyRules))
-  constrain $ d .== (literal (-1)) .|| (d .> (literal 0) .&& d .<= (getArityOfSymbol '4' dependencyRules))
-  constrain $ e .== (literal (-1)) .|| (e .> (literal 0) .&& e .<= (getArityOfSymbol '5' dependencyRules))
-  constrain $ f .== (literal (-1)) .|| (f .> (literal 0) .&& f .<= (getArityOfSymbol '6' dependencyRules))
-  constrain $ g .== (literal (-1)) .|| (g .> (literal 0) .&& g .<= (getArityOfSymbol '7' dependencyRules))
-  constrain $ h .== (literal (-1)) .|| (h .> (literal 0) .&& h .<= (getArityOfSymbol '8' dependencyRules))
-  constrain $ i .== (literal (-1)) .|| (i .> (literal 0) .&& i .<= (getArityOfSymbol '9' dependencyRules))
+  --constrain $ (neqRulesSLength ruleConstraints) .> (0 :: SInteger)
+  --constrain $ atLeastEqual ruleConstraints newProjection []
+  constrain $ a .== (literal (-1)) .|| (a .> (literal 0) .&& a .<= (getArityOfSymbol (getSymbol newProjection 0) dependencyRules))
+  constrain $ b .== (literal (-1)) .|| (b .> (literal 0) .&& b .<= (getArityOfSymbol (getSymbol newProjection 1) dependencyRules))
+  constrain $ c .== (literal (-1)) .|| (c .> (literal 0) .&& c .<= (getArityOfSymbol (getSymbol newProjection 2) dependencyRules))
+  constrain $ d .== (literal (-1)) .|| (d .> (literal 0) .&& d .<= (getArityOfSymbol (getSymbol newProjection 3) dependencyRules))
+  constrain $ e .== (literal (-1)) .|| (e .> (literal 0) .&& e .<= (getArityOfSymbol (getSymbol newProjection 4) dependencyRules))
+  constrain $ f .== (literal (-1)) .|| (f .> (literal 0) .&& f .<= (getArityOfSymbol (getSymbol newProjection 5) dependencyRules))
+  constrain $ g .== (literal (-1)) .|| (g .> (literal 0) .&& g .<= (getArityOfSymbol (getSymbol newProjection 6) dependencyRules))
+  constrain $ h .== (literal (-1)) .|| (h .> (literal 0) .&& h .<= (getArityOfSymbol (getSymbol newProjection 7) dependencyRules))
+  constrain $ i .== (literal (-1)) .|| (i .> (literal 0) .&& i .<= (getArityOfSymbol (getSymbol newProjection 8) dependencyRules))
   constrain $ aa .>= (literal 0) .&& aa .<= (literal 1)
   constrain $ bb .>= (literal 0) .&& bb .<= (literal 1)
   constrain $ cc .>= (literal 0) .&& cc .<= (literal 1)
@@ -438,13 +446,21 @@ getIntermediateResult dependencyRules projection rules = optimize Lexicographic 
   constrain $ gg .>= (literal 0) .&& gg .<= (literal 1)
   constrain $ hh .>= (literal 0) .&& hh .<= (literal 1)
   constrain $ ii .>= (literal 0) .&& ii .<= (literal 1)
-  let sumVars = aa + bb + cc + dd + ee + ff + gg + hh + ii
-  maximize "Sum of aa to ii" sumVars
+  
+range = ['1','2','3','4','5','6','7','8','9']
 
+getSymbol :: [(Char, SInteger)] -> Integer -> Char
+getSymbol [] _ = '1'
+getSymbol ((c,_):xs) 0 = if c `Data.List.elem` range then c else getSymbol xs 0
+getSymbol ((c,_):xs) y = if c `Data.List.elem` range then getSymbol xs (y-1) else getSymbol xs y
 
--- atLeastEqual :: [Rule Char Char] -> Projection -> Integer
--- atLeastEqual [] p = 1
--- atLeastEqual (r:rs) p 
+neqRulesIterative :: [Rule Char Char] -> Projection -> SBool
+neqRulesIterative [] _ = sTrue
+neqRulesIterative rules p = sAnd [neq (getLHS rule) (getRHS rule) p | rule <- rules]
+
+countOnes :: [(Rule Char Char, SInteger)] -> Projection -> SInteger -> SInteger
+countOnes [] p r = r
+countOnes ((rule, x):xs) p r = ite (x .== 0) (countOnes xs p r) (countOnes xs p (r + 1))
 
 
 getIntermediateResultSat :: [Rule Char Char] -> Projection -> [Rule Char Char] -> IO SatResult
@@ -506,7 +522,7 @@ putContraintsWithRules (x:xs) (y:ys) = (x,y) : putContraintsWithRules xs ys
 -- getNeqList ((rule, y):ys) = ite (y ./= 0) (rule : getNeqList ys) (getNeqList ys)
 
 neqRulesS :: [(Rule Char Char, SInteger)] -> Projection -> [Rule Char Char] -> SBool
-neqRulesS [] p r = neqRules r p 
+neqRulesS [] p r = neqRulesIterative r p 
 neqRulesS ((rule, x):xs) p r = ite (x .== 0) (neqRulesS xs p r) (neqRulesS xs p ([rule] Data.List.++ r))
 
 geqRulesS :: [(Rule Char Char, SInteger)] -> Projection -> [Rule Char Char] -> SBool
@@ -555,15 +571,20 @@ getSatResult dependencyRules projection rules = sat $ do
     newProjection = putValuesIntoProjection constrainList projection
   constrain $ geqRules rules newProjection
   constrain $ neqRules rules newProjection
-  constrain $ a .== (literal (-1)) .|| (a .> (literal 0) .&& a .<= (getArityOfSymbol '1' dependencyRules))
-  constrain $ b .== (literal (-1)) .|| (b .> (literal 0) .&& b .<= (getArityOfSymbol '2' dependencyRules))
-  constrain $ c .== (literal (-1)) .|| (c .> (literal 0) .&& c .<= (getArityOfSymbol '3' dependencyRules))
-  constrain $ d .== (literal (-1)) .|| (d .> (literal 0) .&& d .<= (getArityOfSymbol '4' dependencyRules))
-  constrain $ e .== (literal (-1)) .|| (e .> (literal 0) .&& e .<= (getArityOfSymbol '5' dependencyRules))
-  constrain $ f .== (literal (-1)) .|| (f .> (literal 0) .&& f .<= (getArityOfSymbol '6' dependencyRules))
-  constrain $ g .== (literal (-1)) .|| (g .> (literal 0) .&& g .<= (getArityOfSymbol '7' dependencyRules))
-  constrain $ h .== (literal (-1)) .|| (h .> (literal 0) .&& h .<= (getArityOfSymbol '8' dependencyRules))
-  constrain $ i .== (literal (-1)) .|| (i .> (literal 0) .&& i .<= (getArityOfSymbol '9' dependencyRules))
+  constrain $ a .== (literal (-1)) .|| (a .> (literal 0) .&& a .<= (getArityOfSymbol (getSymbol newProjection 0) dependencyRules))
+  constrain $ b .== (literal (-1)) .|| (b .> (literal 0) .&& b .<= (getArityOfSymbol (getSymbol newProjection 1) dependencyRules))
+  constrain $ c .== (literal (-1)) .|| (c .> (literal 0) .&& c .<= (getArityOfSymbol (getSymbol newProjection 2) dependencyRules))
+  constrain $ d .== (literal (-1)) .|| (d .> (literal 0) .&& d .<= (getArityOfSymbol (getSymbol newProjection 3) dependencyRules))
+  constrain $ e .== (literal (-1)) .|| (e .> (literal 0) .&& e .<= (getArityOfSymbol (getSymbol newProjection 4) dependencyRules))
+  constrain $ f .== (literal (-1)) .|| (f .> (literal 0) .&& f .<= (getArityOfSymbol (getSymbol newProjection 5) dependencyRules))
+  constrain $ g .== (literal (-1)) .|| (g .> (literal 0) .&& g .<= (getArityOfSymbol (getSymbol newProjection 6) dependencyRules))
+  constrain $ h .== (literal (-1)) .|| (h .> (literal 0) .&& h .<= (getArityOfSymbol (getSymbol newProjection 7) dependencyRules))
+  constrain $ i .== (literal (-1)) .|| (i .> (literal 0) .&& i .<= (getArityOfSymbol (getSymbol newProjection 8) dependencyRules))
+
+-- getSymbol :: [(Char, SInteger)] -> Integer -> Char
+-- getSymbol [] _ = '1'
+-- getSymbol ((c,_):xs) 0 = if c `Data.List.elem` range then c else getSymbol xs 0
+-- getSymbol ((c,_):xs) y = if c `Data.List.elem` range then getSymbol xs (y-1) else getSymbol xs y
 
 
 putValuesIntoProjection :: [SInteger] -> Projection -> Projection

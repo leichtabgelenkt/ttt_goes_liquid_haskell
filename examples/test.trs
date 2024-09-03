@@ -1,5 +1,7 @@
 (VAR x y)
 (RULES 
-    f(s(x),y) -> g(x,s(y))
-    g(x,s(s(y))) -> f(s(x),y)
+   g(x,s(y)) -> g(x,s(y))
+   g(s(x),y) -> f(x,y)
+   f(s(x),y) -> h(x,y)
+   h(x,s(x)) -> f(x,y)
 )

@@ -1,7 +1,8 @@
-(VAR  x y)
+(VAR m n x y)
 
 (RULES 
-    f(s(x),y) -> g(x,s(y))
-    g(x,h(y)) -> f(x,y)
-    g(x,s(y)) -> f(h(x),y)
+    f(n,:(m,x)) -> g(<(m,n),n,:(m,x))
+    g(F,n,:(m,x)) -> f(n,x)
+    g(T,n,:(m,x)) -> f(n,x)
+    g(x,y,z) -> h(s(x))
 )
