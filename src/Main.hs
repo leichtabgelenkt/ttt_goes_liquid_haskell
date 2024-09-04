@@ -312,10 +312,18 @@ isUnsatisfiable _     = False
 
 ttt3 :: [Rule Char Char] -> Term Char Char -> IO String
 ttt3 rules term = do
-  result <- ttt3Help rules [] term
-  if and result
-    then return "Success!! The term terminates with the given rules, using the subterm criterion"
-    else return "The term does NOT terminate with the given rules, using the subterm criterion"
+  let dependencyRules = dependencyPairs rules rules
+      projection = buildProjection rules
+  putStrLn $ show dependencyRules
+  wholeTrsResult <- getSatResult dependencyRules projection dependencyRules
+  wholeTrsBoolean <- checkTest wholeTrsResult--iterativeMethod dependencyRules projection dependencyRules
+  if wholeTrsBoolean
+    then return "UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU"
+    else do    
+      result <- ttt3Help rules [] term
+      if and result
+        then return "Success!! The term terminates with the given rules, using the subterm criterion"
+        else return "The term does NOT terminate with the given rules, using the subterm criterion"
 
 ttt3Help :: [Rule Char Char] -> [Term Char Char] -> Term Char Char -> IO [Bool]
 ttt3Help rules@(x:xs) seenTerms term
@@ -330,6 +338,8 @@ ttt3Help rules@(x:xs) seenTerms term
         scc = getSccFromDependencyPairs dependencyRules
         reachableAndInSCCNodes = nub $ reachableAndInSCC reachableNodes reachableNodes scc scc
         importantRules = Data.List.map (findSccNode dependencyRules (sccPrepare dependencyRules 1)) reachableAndInSCCNodes
+    --putStrLn $ show scc
+    --putStrLn $ show dependencyRules
     checkedValues <- mapM (intermediateStep dependencyRules projection) importantRules
     let result = and checkedValues
     if result == False 
@@ -351,15 +361,18 @@ intermediateStep :: [Rule Char Char] -> Projection -> [Rule Char Char] -> IO Boo
 intermediateStep dependencyRules projection rules = do
   satRes <- getSatResult dependencyRules projection rules
   satBoolean <- checkTest satRes
+  putStrLn $ show rules
   if satBoolean
     then do
       return True
     else do
+      putStrLn "AAAAAAAAAAAAAAAAAAAAAAAAAAAA"
       satisfiability <- iterativeMethod dependencyRules projection rules
       return satisfiability
 
 iterativeMethod :: [Rule Char Char] -> Projection -> [Rule Char Char] -> IO Bool
 iterativeMethod dependencyRules projection rules = do
+  putStrLn "EEEEEEEEEEEEEEEE"
   result <- getIntermediateResult dependencyRules projection rules
   resultBool <- checkTest2 result
   putStrLn "AAAAAAAAAAAA"
@@ -371,7 +384,7 @@ iterativeMethod dependencyRules projection rules = do
       workingRules <- extractValues2 (result) []
       let reducedRules = rules \\ (throwOutRules rules workingRules 0)
       -- let remainingSCCs = getSccFromDependencyPairs reducedRules
-      -- putStrLn $ show remainingSCCs
+      putStrLn "HERE"
       if reducedRules == []
         then do
           return True
@@ -408,13 +421,23 @@ getIntermediateResult dependencyRules projection rules = optimize Lexicographic 
   gg <- sInteger "gg"
   hh <- sInteger "hh"
   ii <- sInteger "ii"
+  jj <- sInteger "jj"
+  kk <- sInteger "kk"
+  ll <- sInteger "ll"
+  mm <- sInteger "mm"
+  nn <- sInteger "nn"
+  oo <- sInteger "oo"
+  pp <- sInteger "pp"
+  qq <- sInteger "qq"
+  rr <- sInteger "rr"
   let
     constrainList :: [SInteger]
     constrainList = [a,b,c,d,e,f,g,h,i]
   let
     newProjection :: Projection
     newProjection = putValuesIntoProjection constrainList projection
-  let ruleConstrainList = [aa,bb,cc,dd,ee,ff,gg,hh,ii]
+  let ruleConstrainList = [aa,bb,cc,dd,ee,ff,gg,hh,ii, jj, kk, ll, mm, nn, oo, pp, qq, rr]
+
   let ruleConstraints = putContraintsWithRules rules ruleConstrainList
   let sumVars = countOnes ruleConstraints newProjection 0
   constrain $ sumVars .> 0
@@ -422,7 +445,7 @@ getIntermediateResult dependencyRules projection rules = optimize Lexicographic 
   liftIO $ putStrLn $ show $ Data.List.length rules
   liftIO $ putStrLn $ show $ Data.List.length dependencyRules
   liftIO $ putStrLn $ show newProjection 
-  liftIO $ putStrLn $ show ruleConstraints
+  --liftIO $ putStrLn $ show ruleConstraints
   liftIO $ putStrLn $ show rules
   constrain $ geqRules rules newProjection
   constrain $ neqRulesS ruleConstraints newProjection []

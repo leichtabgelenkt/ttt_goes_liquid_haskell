@@ -1,5 +1,5 @@
 term1:
- - ack(s(s(s(x))),s(s(s(y))))
+ - ack(s(s(s(0))),s(s(s(0))))
  - ttt3:
     > result: Terminates
     > time: 0.0033s
