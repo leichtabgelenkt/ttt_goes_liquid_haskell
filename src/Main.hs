@@ -310,16 +310,17 @@ isUnsatisfiable :: SMTResult -> Bool
 isUnsatisfiable (Unsatisfiable _ _) = True
 isUnsatisfiable _     = False
 
+--test
+
 ttt3 :: [Rule Char Char] -> Term Char Char -> IO String
 ttt3 rules term = do
   let dependencyRules = dependencyPairs rules rules
       projection = buildProjection rules
-  putStrLn $ show dependencyRules
   wholeTrsResult <- getSatResult dependencyRules projection dependencyRules
-  wholeTrsBoolean <- checkTest wholeTrsResult--iterativeMethod dependencyRules projection dependencyRules
+  wholeTrsBoolean <- checkTest wholeTrsResult
   if wholeTrsBoolean
-    then return "UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU"
-    else do    
+    then return "Suck it!! The term terminates with the given rules, using the subterm criterion"
+    else do
       result <- ttt3Help rules [] term
       if and result
         then return "Success!! The term terminates with the given rules, using the subterm criterion"
@@ -338,10 +339,12 @@ ttt3Help rules@(x:xs) seenTerms term
         scc = getSccFromDependencyPairs dependencyRules
         reachableAndInSCCNodes = nub $ reachableAndInSCC reachableNodes reachableNodes scc scc
         importantRules = Data.List.map (findSccNode dependencyRules (sccPrepare dependencyRules 1)) reachableAndInSCCNodes
-    --putStrLn $ show scc
-    --putStrLn $ show dependencyRules
     checkedValues <- mapM (intermediateStep dependencyRules projection) importantRules
     let result = and checkedValues
+    putStrLn $ show term
+    putStrLn $ show reachableNodes
+    putStrLn "IMPORTANT RULES"
+    putStrLn $ show importantRules
     if result == False 
       then do
         return [False] 
@@ -359,32 +362,26 @@ ttt3Help rules@(x:xs) seenTerms term
 
 intermediateStep :: [Rule Char Char] -> Projection -> [Rule Char Char] -> IO Bool
 intermediateStep dependencyRules projection rules = do
+  --putStrLn $ show rules
   satRes <- getSatResult dependencyRules projection rules
   satBoolean <- checkTest satRes
-  putStrLn $ show rules
+  --return satBoolean
   if satBoolean
     then do
       return True
     else do
-      putStrLn "AAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      putStrLn "Not Here, surely"
       satisfiability <- iterativeMethod dependencyRules projection rules
       return satisfiability
 
 iterativeMethod :: [Rule Char Char] -> Projection -> [Rule Char Char] -> IO Bool
 iterativeMethod dependencyRules projection rules = do
-  putStrLn "EEEEEEEEEEEEEEEE"
   result <- getIntermediateResult dependencyRules projection rules
   resultBool <- checkTest2 result
-  putStrLn "AAAAAAAAAAAA"
-  putStrLn $ show result
-  -- let sccs = getSccFromDependencyPairs rules
-  -- putStrLn $ show sccs
   if resultBool
     then do
       workingRules <- extractValues2 (result) []
       let reducedRules = rules \\ (throwOutRules rules workingRules 0)
-      -- let remainingSCCs = getSccFromDependencyPairs reducedRules
-      putStrLn "HERE"
       if reducedRules == []
         then do
           return True
@@ -442,15 +439,8 @@ getIntermediateResult dependencyRules projection rules = optimize Lexicographic 
   let sumVars = countOnes ruleConstraints newProjection 0
   constrain $ sumVars .> 0
   maximize "Sum of aa to ii" sumVars
-  liftIO $ putStrLn $ show $ Data.List.length rules
-  liftIO $ putStrLn $ show $ Data.List.length dependencyRules
-  liftIO $ putStrLn $ show newProjection 
-  --liftIO $ putStrLn $ show ruleConstraints
-  liftIO $ putStrLn $ show rules
   constrain $ geqRules rules newProjection
   constrain $ neqRulesS ruleConstraints newProjection []
-  --constrain $ (neqRulesSLength ruleConstraints) .> (0 :: SInteger)
-  --constrain $ atLeastEqual ruleConstraints newProjection []
   constrain $ a .== (literal (-1)) .|| (a .> (literal 0) .&& a .<= (getArityOfSymbol (getSymbol newProjection 0) dependencyRules))
   constrain $ b .== (literal (-1)) .|| (b .> (literal 0) .&& b .<= (getArityOfSymbol (getSymbol newProjection 1) dependencyRules))
   constrain $ c .== (literal (-1)) .|| (c .> (literal 0) .&& c .<= (getArityOfSymbol (getSymbol newProjection 2) dependencyRules))
@@ -540,10 +530,6 @@ putContraintsWithRules :: [Rule Char Char] -> [SInteger] -> [(Rule Char Char, SI
 putContraintsWithRules [] _ = []
 putContraintsWithRules (x:xs) (y:ys) = (x,y) : putContraintsWithRules xs ys
 
--- getNeqList :: [(Rule Char Char, SInteger)] -> [Rule Char Char]
--- getNeqList [] = []
--- getNeqList ((rule, y):ys) = ite (y ./= 0) (rule : getNeqList ys) (getNeqList ys)
-
 neqRulesS :: [(Rule Char Char, SInteger)] -> Projection -> [Rule Char Char] -> SBool
 neqRulesS [] p r = neqRulesIterative r p 
 neqRulesS ((rule, x):xs) p r = ite (x .== 0) (neqRulesS xs p r) (neqRulesS xs p ([rule] Data.List.++ r))
@@ -603,11 +589,6 @@ getSatResult dependencyRules projection rules = sat $ do
   constrain $ g .== (literal (-1)) .|| (g .> (literal 0) .&& g .<= (getArityOfSymbol (getSymbol newProjection 6) dependencyRules))
   constrain $ h .== (literal (-1)) .|| (h .> (literal 0) .&& h .<= (getArityOfSymbol (getSymbol newProjection 7) dependencyRules))
   constrain $ i .== (literal (-1)) .|| (i .> (literal 0) .&& i .<= (getArityOfSymbol (getSymbol newProjection 8) dependencyRules))
-
--- getSymbol :: [(Char, SInteger)] -> Integer -> Char
--- getSymbol [] _ = '1'
--- getSymbol ((c,_):xs) 0 = if c `Data.List.elem` range then c else getSymbol xs 0
--- getSymbol ((c,_):xs) y = if c `Data.List.elem` range then getSymbol xs (y-1) else getSymbol xs y
 
 
 putValuesIntoProjection :: [SInteger] -> Projection -> Projection
@@ -1001,53 +982,6 @@ preparation = sccPrepare sccNavigationDependencyRules 1
 sccEdges = getEdges preparation preparation
 testSCCReachable = reachableNodesFromTerm sccNavigationRules (Fun 'i' [Fun 'k' [Var 'x']])
 
-
-
-
-
-
--- data InteractiveGHCi = GHCiScript (Maybe (FilePath -> String)) [String] | GHCiCommand String
-
-
-
-
--- data TctConfig i = TctConfig
---   { parseProblem    :: FilePath -> IO (Either String i)
-
---   , runtimeOptions  :: [(String, [String])]
---   , interactiveGHCi :: InteractiveGHCi
---   , version         :: String
---   }
-
-
-
--- data StartTerms f
---   = AllTerms
---     { alls         :: Symbols f }
---   | BasicTerms
---     { defineds     :: Symbols f
---     , constructors :: Symbols f }
---   deriving (Show, Eq)
-
--- type Symbols f = S.Set f
-
--- type Trs = Problem
--- type TrsConfig = TctConfig Trs
-
--- class Declared i o where
---   decls :: [StrategyDeclaration i o]
-
--- data StrategyDeclaration i o where
---   SD :: (ParsableArgs args, ArgsInfo args) => Declaration (args :-> Data.Rewriting.Rules.Rewrite.Strategy i o) -> StrategyDeclaration i o
-
--- -- | Default Tct configuration for Trs.
--- -- Sets the @xml@ / @wst@ parser. Sets a list of default strategies.
--- trsConfig :: Declared Trs Trs => TrsConfig
--- trsConfig = defaultTctConfig parserIO
---   `withDefaultStrategy` competition
---   `appendGHCiScript`
---     [ ":module +Tct.Trs.Processors"
---     , ":module +Tct.Trs.Interactive"]
 
 
 getStrictRules :: Problem f v -> [Rule f v]
