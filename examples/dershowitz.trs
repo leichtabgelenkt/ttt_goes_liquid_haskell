@@ -1,0 +1,10 @@
+(VAR x y z)
+
+(RULES 
+    n(n(x)) -> x
+    n(u(x, y)) -> i(n(x), n(y))
+    n(i(x, y)) -> u(n(x), n(y))
+    i(x, u(y, z)) -> u(i(x, y), i(x, z))
+    i(u(y, z), x) -> u(i(x, y), i(x, z))
+    u(u(x, y), z) -> u(x, u(y, z))
+)

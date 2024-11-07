@@ -1,0 +1,23 @@
+term1:
+ - f(x)
+ - result: Does not terminate
+ - time: 0.0967s
+
+term2:
+ - r(s(x), :(y, z), w)
+ - result: Terminates
+ - time: 0.1988s
+
+term3:
+ - v(s(h(:(x, y))), t(:(x, y)))
+ - result: Terminates
+ - time: 0.0424s
+
+term4:
+ - p
+ - ttt3:
+    > result: Does not terminate
+    > time: 0.1459s
+ - REST:
+    > result: diverges
+    > time: n/a

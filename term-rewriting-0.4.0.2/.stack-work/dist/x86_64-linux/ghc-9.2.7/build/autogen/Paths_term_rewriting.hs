@@ -42,12 +42,12 @@ getBinDir, getLibDir, getDynLibDir, getDataDir, getLibexecDir, getSysconfDir :: 
 
 
 bindir, libdir, dynlibdir, datadir, libexecdir, sysconfdir :: FilePath
-bindir     = "/home/pdabl/bachelorarbeit/ttt_goes_liquid_haskell/term-rewriting-0.4.0.2/.stack-work/install/x86_64-linux/074ab2d262a44ef43ed8bc72add590592019362b677361cf219e9bd1d8e59ee1/9.2.7/bin"
-libdir     = "/home/pdabl/bachelorarbeit/ttt_goes_liquid_haskell/term-rewriting-0.4.0.2/.stack-work/install/x86_64-linux/074ab2d262a44ef43ed8bc72add590592019362b677361cf219e9bd1d8e59ee1/9.2.7/lib/x86_64-linux-ghc-9.2.7/term-rewriting-0.4.0.2-3vOp25qbhQ17K5tDXBh7Vg"
-dynlibdir  = "/home/pdabl/bachelorarbeit/ttt_goes_liquid_haskell/term-rewriting-0.4.0.2/.stack-work/install/x86_64-linux/074ab2d262a44ef43ed8bc72add590592019362b677361cf219e9bd1d8e59ee1/9.2.7/lib/x86_64-linux-ghc-9.2.7"
-datadir    = "/home/pdabl/bachelorarbeit/ttt_goes_liquid_haskell/term-rewriting-0.4.0.2/.stack-work/install/x86_64-linux/074ab2d262a44ef43ed8bc72add590592019362b677361cf219e9bd1d8e59ee1/9.2.7/share/x86_64-linux-ghc-9.2.7/term-rewriting-0.4.0.2"
-libexecdir = "/home/pdabl/bachelorarbeit/ttt_goes_liquid_haskell/term-rewriting-0.4.0.2/.stack-work/install/x86_64-linux/074ab2d262a44ef43ed8bc72add590592019362b677361cf219e9bd1d8e59ee1/9.2.7/libexec/x86_64-linux-ghc-9.2.7/term-rewriting-0.4.0.2"
-sysconfdir = "/home/pdabl/bachelorarbeit/ttt_goes_liquid_haskell/term-rewriting-0.4.0.2/.stack-work/install/x86_64-linux/074ab2d262a44ef43ed8bc72add590592019362b677361cf219e9bd1d8e59ee1/9.2.7/etc"
+bindir     = "/home/pdabl/bachelorarbeit/ttt_goes_liquid_haskell/term-rewriting-0.4.0.2/.stack-work/install/x86_64-linux/9955119430bb6628e253058ad64b6a0c725c1e43c848dce7a94e65ba0738dd75/9.2.7/bin"
+libdir     = "/home/pdabl/bachelorarbeit/ttt_goes_liquid_haskell/term-rewriting-0.4.0.2/.stack-work/install/x86_64-linux/9955119430bb6628e253058ad64b6a0c725c1e43c848dce7a94e65ba0738dd75/9.2.7/lib/x86_64-linux-ghc-9.2.7/term-rewriting-0.4.0.2-2ZlFu07EBE66SD88cXIIGm"
+dynlibdir  = "/home/pdabl/bachelorarbeit/ttt_goes_liquid_haskell/term-rewriting-0.4.0.2/.stack-work/install/x86_64-linux/9955119430bb6628e253058ad64b6a0c725c1e43c848dce7a94e65ba0738dd75/9.2.7/lib/x86_64-linux-ghc-9.2.7"
+datadir    = "/home/pdabl/bachelorarbeit/ttt_goes_liquid_haskell/term-rewriting-0.4.0.2/.stack-work/install/x86_64-linux/9955119430bb6628e253058ad64b6a0c725c1e43c848dce7a94e65ba0738dd75/9.2.7/share/x86_64-linux-ghc-9.2.7/term-rewriting-0.4.0.2"
+libexecdir = "/home/pdabl/bachelorarbeit/ttt_goes_liquid_haskell/term-rewriting-0.4.0.2/.stack-work/install/x86_64-linux/9955119430bb6628e253058ad64b6a0c725c1e43c848dce7a94e65ba0738dd75/9.2.7/libexec/x86_64-linux-ghc-9.2.7/term-rewriting-0.4.0.2"
+sysconfdir = "/home/pdabl/bachelorarbeit/ttt_goes_liquid_haskell/term-rewriting-0.4.0.2/.stack-work/install/x86_64-linux/9955119430bb6628e253058ad64b6a0c725c1e43c848dce7a94e65ba0738dd75/9.2.7/etc"
 
 getBinDir     = catchIO (getEnv "term_rewriting_bindir")     (\_ -> return bindir)
 getLibDir     = catchIO (getEnv "term_rewriting_libdir")     (\_ -> return libdir)

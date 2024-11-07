@@ -3,13 +3,11 @@
 Tyrolean-Termitation-Tool goes liquid haskell
 
 ## Start the program
-
+To run the program on a Linux system:
 ```
-$> stack build
-$> stack ghci --ghci-options "-ghci-script=
-./package_set.ghci"
+$> stack run subterm-criterion "./path/to/example.trs" "starting-term"
 ```
-
+Some example TRSs are already created and one can find them in the examples folder.
 ## For using the SMT-Solver
 
 [Z3](https://github.com/Z3Prover/z3/blob/master/README.md) needs to be installed.

@@ -1,0 +1,8 @@
+(VAR m n x y)
+
+(RULES 
+    f(n,:(m,x)) -> g(<(m,n),n,:(m,x))
+    g(F,n,:(m,x)) -> f(n,x)
+    g(T,n,:(m,x)) -> f(n,x)
+    g(x,y,z) -> h(s(x))
+)

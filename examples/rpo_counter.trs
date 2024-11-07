@@ -1,0 +1,19 @@
+(VAR  x y n m)
+
+(RULES 
+   l(n, N) -> N
+   l(n, :(m,x)) -> i(<(m,n), n, :(m, x))
+   h(n, N) -> N
+   h(n,:(m,x)) -> j(<(m,n),n,:(m,x))
+   +(N,y) -> y
+   +(:(n,x), y) -> :(n,+(x,y))
+   q(N) -> N
+   q(:(n,x)) -> q(+(l(n,x), :(n, q(h(n,x)))))
+   i(F,n,:(m,x)) -> l(n,x)
+   i(T,n,:(m,x)) -> :(m,l(n,x))
+   j(F,n,:(m,x)) -> :(m,h(n,x))
+   j(T,n,:(m,x)) -> h(n,x)
+   <(0,y) -> T
+   <(s(x),0) -> F
+   <(s(x),s(y)) -> <(x,y)
+)

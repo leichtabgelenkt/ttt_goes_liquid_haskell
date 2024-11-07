@@ -1,0 +1,12 @@
+(VAR  w x y z)
+
+(RULES 
+   p -> v(f(s(s(0))))
+   f(x) -> :(x, f(s(x)))
+   h(:(x, y)) -> x
+   t(:(x, y)) -> y
+   v(:(0, y)) -> v(y)
+   v(:(s(x), y)) -> :(s(x), v(r(x, y, x)))
+   r(0, :(y, z), w) -> :(0, r(w, z, w))
+   r(s(x), :(y, z), w) -> :(y, r(x, z, w))
+)

@@ -1,0 +1,11 @@
+(VAR  x y z)
+
+(RULES 
+   u(x,x) -> x
+   n(x,x) -> x
+   u(x,e) -> x
+   n(x,e) -> e
+   u(n(x,z), n(y,z)) -> n(u(x,y), z)
+   u(n(x,y),y) -> n(u(x,y),y)
+   u(x,n(y,x)) -> n(u(x,y),x)
+)

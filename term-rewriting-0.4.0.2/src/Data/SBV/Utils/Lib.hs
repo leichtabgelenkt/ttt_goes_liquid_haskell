@@ -11,6 +11,7 @@
 
 {-# LANGUAGE RankNTypes          #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE PatternGuards #-}
 
 {-# OPTIONS_GHC -Wall -Werror #-}
 
