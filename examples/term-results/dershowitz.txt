@@ -5,10 +5,10 @@ term1:
 
 term2
  - i(u(y, z), x)
- - result: Terminates
- - time: 0.0009s
+ - result: Does not terminate
+ - time: 0.3209s
 
 term3
- - n(n(i(u(i(x, n(u(i(u(x, y)), z)))), i(x, y))))
- - result: Terminates
- - time: 0.0009s
+ - n(n(i(u(i(x,n(u(i(u(x, y)),z)))), i(x, y))))
+ - result: Does not terminate
+ - time: 0.4708s

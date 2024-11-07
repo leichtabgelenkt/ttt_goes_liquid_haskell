@@ -1,6 +1,6 @@
 term1:
  - q(:(n,x))
- - result: Doe not terminate
+ - result: Does not terminate
  - time: 0.4609s
 
 term2:

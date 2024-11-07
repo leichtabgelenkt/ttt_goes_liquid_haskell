@@ -2,7 +2,7 @@ term1:
  - ack(s(s(s(0))),s(s(s(0))))
  - ttt3:
     > result: Terminates
-    > time: 0.0033s
+    > time: 0.0373s
  - REST:
     > result: Killed
     > time: n/a

@@ -67,14 +67,30 @@ module MySCCGraph where
     createNewTerm a (Fun b c) = Fun a c
 
     findStartingNodes :: [Rule Char Char] -> [Int] -> [(Int, String, String)] -> Term Char Char -> [Int]
-    findStartingNodes rules (y:ys) preparation term = if fullRewrite (findSccNode rules preparation [y]) term /= fullRewrite [] term then y : findStartingNodes rules ys preparation term else findStartingNodes rules ys preparation term
+    findStartingNodes rules (y:ys) preparation term = if (fullRewrite (findSccNode rules preparation [y]) term) /= [] then y : findStartingNodes (delete (Data.List.head $ findSccNode rules preparation [y]) rules) ys preparation term else findStartingNodes (delete (Data.List.head $ findSccNode rules preparation [y]) rules) ys preparation term
     findStartingNodes _ [] _ _ = []
         
     -- Arguments: The normal rewrite rules, the term of which you want to now the reach in the dependency graph  
     reachableNodesFromTerm :: [Rule Char Char] -> Term Char Char -> [Int]
     reachableNodesFromTerm s m@(Fun t o) = nub (reachableHelpSearch startingNodes startingNodes edges edges)
      where
-        numbers = definedSymbols s
+        numbers = definedSymbols s --Gets defined symbols
+        k = findNumber t numbers
+        findNumber e ((r, p):ts) = if r == e then p else findNumber e ts
+        findNumber e [] = '0'
+        newTerm = createNewTerm k m
+        dependencyRules = dependencyPairs s s
+        preparation = sccPrepare dependencyRules 1
+        edges = getEdges preparation preparation
+        startingNodes = findStartingNodes dependencyRules [1..Data.List.length dependencyRules] preparation newTerm
+
+    --[Rule {lhs = Fun '2' [Var 'x',Fun 'u' [Var 'y',Var 'z']], rhs = Fun '2' [Var 'x',Var 'y']}]
+    -- [Fun '2' [Fun 'u' [Fun 'a' [],Fun 'a' []],Fun 'a' []]]
+
+    reachableNodesFromTerm2 :: [Rule Char Char] -> Term Char Char -> [(Int, String, String)]
+    reachableNodesFromTerm2 s m@(Fun t o) = preparation--(findSccNode dependencyRules preparation [8])
+     where
+        numbers = definedSymbols s --Gets defined symbols
         k = findNumber t numbers
         findNumber e ((r, p):ts) = if r == e then p else findNumber e ts
         findNumber e [] = '0'
