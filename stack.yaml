@@ -11,5 +11,3 @@ extra-deps:
   - clock-0.8.4
 ghc-options:
   "$locals": -XPatternGuards 
-
-notify-if-nix-on-path: false
