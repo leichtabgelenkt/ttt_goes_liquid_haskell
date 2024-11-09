@@ -55,50 +55,6 @@ instance (Show f, Show v, Show v') => Show (Reduct f v v') where
     Data.List.++ " }"
 
 
-
-
-
--- testterme
--- term1 = Fun 'f' [Var 'x', Var 'y']
--- term12 = Fun 'f' [Var 'x', Var 'z']
--- term2 = Fun 'g' [Fun 'h' [Var 'x'], Fun 'f' [Var 'x', Var 'y']]
--- term3 = Fun 'h' [Fun 'f' [Var 'z', Var 'x']]
-
--- projection :: Projection
--- projection = [('f',1),('g',-1),('h',1)]
-
-
--- examplerules :: [Rule Char Char]
--- examplerules = [r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12, r13, r14, r15]
--- drules :: [Rule Char Char]
--- drules = dependencyPairs examplerules examplerules
--- resultExample :: [SCC Vertex]
--- resultExample = getSccFromDependencyPairs drules
--- see :: [(Int, String, String)]
--- see = sccPrepare drules 1
--- index = [drules Data.List.!! 7, drules Data.List.!! 9]
--- sccTest = getSccFromDependencyPairs (dependencyPairs rulesTest rulesTest)
--- findScc :: [Rule Char Char]
--- findScc = findSccNode drules (sccPrepare drules 1) [7,9]
-
-
--- printExampleRules = Data.List.map PrintRule examplerules
--- printDrules = Data.List.map PrintRule drules
--- printScc = Data.List.map PrintRule findScc
-
-
--- rulesTest = [rule7, rule8, rule9, rule10]
-
-
-
-
-
-
-
-
-
-
-
 getStrictRules :: Problem f v -> [Rule f v]
 getStrictRules problem = strictRules (rules problem)
 
