@@ -1,0 +1,7 @@
+(VAR y)
+
+(RULES
+    d -> d
+    c(d) -> d
+    c(d) -> d
+)

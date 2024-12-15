@@ -1,0 +1,12 @@
+(VAR x)
+
+(RULES
+    a(e(c(x))) -> e(x)
+    d(e(c(c(x)))) -> e(x)
+    f(a(a(x))) -> d(f(x))
+    f(a(e(x))) -> d(e(c(x)))
+    f(e(x)) -> e(x)
+    g(a(a(x))) -> d(g(x))
+    g(a(e(x))) -> d(e(c(x)))
+    g(e(x)) -> e(x)
+)

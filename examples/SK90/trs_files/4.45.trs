@@ -1,0 +1,6 @@
+(VAR x y)
+
+(RULES
+    b -> b
+    b -> b
+)

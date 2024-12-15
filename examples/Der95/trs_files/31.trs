@@ -1,0 +1,7 @@
+(VAR x y z)
+
+(RULES
+    e -> e
+    e -> b(e,x)
+    e -> e
+)

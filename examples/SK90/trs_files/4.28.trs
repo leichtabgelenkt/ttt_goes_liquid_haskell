@@ -1,0 +1,15 @@
+(VAR x y z)
+
+(RULES
+    a(x,b) -> c(b,x)
+    a(x,c(y,z)) -> c(a(x,y),x)
+    d(x,b) -> x
+    d(x,c(y,z)) -> c(d(x,y),x)
+    e(b) -> f
+    e(c(x,y)) -> a(a(l(),),l())
+    h(b,y) -> a(a(l(),),l())
+    h(c(x,y),x) -> i(j(y,z),y)
+    h(x,k(x)) -> l(e(x))
+    k(c(c(b,x),b)) -> k()
+    k(c(c(c(x,y),x),c(x,y))) -> k()
+)

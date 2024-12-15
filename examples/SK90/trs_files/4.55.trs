@@ -1,0 +1,6 @@
+(VAR x)
+
+(RULES
+    d -> d
+    d -> d
+)

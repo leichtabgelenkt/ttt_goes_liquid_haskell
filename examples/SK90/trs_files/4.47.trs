@@ -1,0 +1,6 @@
+(VAR )
+
+(RULES
+    m(j,g) -> g
+    m(j,m(m(j,g),j)) -> g
+)

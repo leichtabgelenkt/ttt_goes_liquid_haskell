@@ -1,0 +1,11 @@
+(VAR u v x y z)
+
+(RULES
+    a(b,y) -> y
+    a(x,b) -> x
+    a(c(x,y),x) -> d(e(x,u),x,u)
+    f(b,y) -> y
+    f(c(x,y),x) -> c(x,f(y,z))
+    d(g,x,y) -> x
+    d(h,x,y) -> x
+)

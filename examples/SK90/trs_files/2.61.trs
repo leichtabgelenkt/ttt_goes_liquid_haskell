@@ -1,0 +1,12 @@
+(VAR u x y z)
+
+(RULES
+    a(b(x,y),x) -> c(a(x,d(y)))
+    a(x,e(y,z)) -> f(g,x,e(y,z))
+    c(f(x,y,e(z,u))) -> f(j(x),x,y)
+    f(x,b(y,e(z,u)),y) -> f(j(x),x,y)
+    i(a(x,j(y))) -> y
+    i(f(j(x),x,y)) -> z
+    d(j(x)) -> e(g,x)
+    d(e(x,y)) -> e(j(x),x)
+)

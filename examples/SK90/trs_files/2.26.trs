@@ -1,0 +1,16 @@
+(VAR x y)
+
+(RULES
+    a(b) -> b
+    a(c(b)) -> c(b)
+    a(c(c(x))) -> d(e(f(x)))
+    f(b) -> d(a(i()))
+    f(c(x)) -> e(f(x))
+    e(x) -> d(a(i()))
+    d(d(a(i()))) -> x
+    i(d(a(i()))) -> y
+    h(x,b) -> x
+    h(x,c(y)) -> c(h(x,y))
+    a(c(c(x))) -> h(d(f(x)),f(x))
+    f(c(x)) -> d(a(i()))
+)
