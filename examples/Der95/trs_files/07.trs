@@ -2,6 +2,6 @@
 
 (RULES
     a(c(x)) -> c(a(x))
-    c(c(x)) -> c(c(x))
-    c(a(x)) -> a(c(x))
+    d(c(x)) -> c(d(x))
+    d(a(x)) -> a(d(x))
 )

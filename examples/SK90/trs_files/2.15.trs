@@ -3,6 +3,6 @@
 (RULES
     a(b) -> c
     a(d(x)) -> e(a(x))
-    e(x) -> f(x,d(x))
-    a(d(x)) -> f(a(x),x)
+    e(x) -> h(x,d(x))
+    a(d(x)) -> h(a(x),x)
 )

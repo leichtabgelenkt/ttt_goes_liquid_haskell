@@ -4,8 +4,8 @@
     a(b) -> c
     a(d(x)) -> e(x,d(x))
     e(b,y) -> y
-    e(d(x),x) -> e(x,f(y,d(x)))
-    f(x,b) -> x
-    f(x,d(y)) -> d(f(x,y))
-    e(d(x),x) -> e(x,d(f(y,x)))
+    e(d(x),x) -> e(x,h(y,d(x)))
+    h(x,b) -> x
+    h(x,d(y)) -> d(h(x,y))
+    e(d(x),x) -> e(x,d(h(y,x)))
 )

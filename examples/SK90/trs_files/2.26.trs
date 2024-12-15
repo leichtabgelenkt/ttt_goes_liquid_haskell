@@ -1,16 +1,16 @@
 (VAR x y)
 
 (RULES
-    a(b) -> b
-    a(c(b)) -> c(b)
-    a(c(c(x))) -> d(e(f(x)))
-    f(b) -> d(a(i()))
-    f(c(x)) -> e(f(x))
-    e(x) -> d(a(i()))
-    d(d(a(i()))) -> x
-    i(d(a(i()))) -> y
-    h(x,b) -> x
-    h(x,c(y)) -> c(h(x,y))
-    a(c(c(x))) -> h(d(f(x)),f(x))
-    f(c(x)) -> d(a(i()))
+    b(c) -> c
+    b(d(c)) -> d(c)
+    b(d(d(x))) -> e(i(j(x)))
+    j(c) -> a(d(c),c)
+    j(d(x)) -> i(j(x))
+    i(x) -> a(k(e(x),x),e(x))
+    e(a(x,y)) -> x
+    l(a(x,y)) -> y
+    k(x,c) -> x
+    k(x,d(y)) -> d(k(x,y))
+    b(d(d(x))) -> k(e(j(x)),j(x))
+    j(d(x)) -> a(k(e(j(x)),j(x)),e(j(x)))
 )

@@ -1,6 +1,6 @@
 (VAR x y)
 
 (RULES
-    b -> x
-    b -> b
+    b(x,c) -> x
+    b(x,d(y)) -> b(d(x),x)
 )

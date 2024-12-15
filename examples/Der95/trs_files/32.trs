@@ -1,11 +1,11 @@
 (VAR v w x y z)
 
 (RULES
-    a(b) -> b
-    a(c(x,y)) -> d(x,a(y))
-    d(x,b) -> c(x,b)
-    d(x,c(v,w)) -> e(x,c(v,w),v,w)
-    e(x,c(v,w),v,w) -> c(x,c(v,w))
-    e(x,c(v,w),v,w) -> c(v,d(x,w))
-    e(x,c(v,w),v,w) -> e(x,c(v,w),v,w)
+    c(e) -> e
+    c(d(x,y)) -> a(x,c(y))
+    a(x,e) -> d(x,e)
+    a(x,d(v,w)) -> b(x,d(v,w),v,w)
+    b(x,d(v,w),v,w) -> d(x,d(v,w))
+    b(x,d(v,w),v,w) -> d(v,a(x,w))
+    b(x,d(v,w),v,w) -> b(x,d(v,w),v,w)
 )

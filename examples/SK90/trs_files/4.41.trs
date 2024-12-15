@@ -1,7 +1,7 @@
 (VAR y)
 
 (RULES
-    d -> d
-    c(d) -> d
-    c(d) -> d
+    c(d,y) -> c(y,e(y))
+    e(d) -> h
+    e(h) -> h
 )

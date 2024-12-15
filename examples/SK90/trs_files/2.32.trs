@@ -1,14 +1,14 @@
 (VAR x y)
 
 (RULES
-    a(x) -> b(x,c,d)
-    e(x,y) -> b(x,y,c)
-    f(x,y) -> b(x,d,y)
-    g(x,y) -> b(x,y,d)
-    h(x,x) -> d
-    h(x,y) -> b(x,y,a(y))
-    b(d,x,y) -> x
-    b(c,x,y) -> y
-    b(x,x,b(x,c,d)) -> d
-    h(x,y) -> b(x,y,b(y,c,d))
+    d(x) -> f(x,b,c)
+    e(x,y) -> f(x,y,b)
+    g(x,y) -> f(x,c,y)
+    a(x,y) -> f(x,y,c)
+    h(x,x) -> c
+    h(x,y) -> f(x,y,d(y))
+    f(c,x,y) -> x
+    f(b,x,y) -> y
+    f(x,x,f(x,b,c)) -> c
+    h(x,y) -> f(x,y,f(y,b,c))
 )

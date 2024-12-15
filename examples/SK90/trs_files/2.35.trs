@@ -1,10 +1,10 @@
 (VAR x y)
 
 (RULES
-    a(x,b) -> b
-    a(x,c(b)) -> x
-    c(c(x)) -> x
-    d(b,y) -> c(b)
-    d(x,b) -> c(x)
-    d(c(x),x) -> d(y,a(x,y))
+    c(x,b) -> b
+    c(x,d(b)) -> x
+    d(d(x)) -> x
+    a(b,y) -> d(b)
+    a(x,b) -> d(x)
+    a(d(x),x) -> a(y,c(x,y))
 )

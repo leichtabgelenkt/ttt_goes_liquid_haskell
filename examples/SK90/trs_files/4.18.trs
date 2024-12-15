@@ -1,7 +1,7 @@
 (VAR x y)
 
 (RULES
-    a(x,b) -> x
-    a(b,y) -> y
-    a(c(x),x) -> d(e(x,y),x,y)
+    a(x,c) -> x
+    a(c,y) -> y
+    a(d(x),x) -> b(e(x,y),x,y)
 )

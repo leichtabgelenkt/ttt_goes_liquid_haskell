@@ -1,11 +1,11 @@
 (VAR x y)
 
 (RULES
-    a(b) -> c
-    a(d(b)) -> c
-    a(d(d(x))) -> a()
-    a() -> c
-    a() -> f
-    a() -> g(h(i(d(d(y)),d(y))),i(d(d(y)),d(y)))
-    i(x,y) -> j(k(x,y),x)
+    b(i) -> c
+    b(j(i)) -> c
+    b(j(j(x))) -> a(j(j(x)),j(x))
+    a(x,i) -> c
+    a(x,j(i)) -> d
+    a(x,j(j(y))) -> f(g(e(j(j(y)),j(y))),e(j(j(y)),j(y)))
+    e(x,y) -> k(h(x,y),x)
 )

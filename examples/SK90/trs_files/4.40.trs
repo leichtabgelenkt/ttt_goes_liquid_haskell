@@ -1,7 +1,7 @@
 (VAR x y z)
 
 (RULES
-    d -> d
-    d -> x
-    d -> y
+    d(d(d(e,x),e),d(e,x)) -> d(d(x,z),x)
+    d(d(g,x),g) -> x
+    d(h,y) -> y
 )

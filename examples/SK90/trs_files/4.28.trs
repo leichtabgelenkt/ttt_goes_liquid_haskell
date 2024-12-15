@@ -1,15 +1,15 @@
 (VAR x y z)
 
 (RULES
-    a(x,b) -> c(b,x)
-    a(x,c(y,z)) -> c(a(x,y),x)
-    d(x,b) -> x
-    d(x,c(y,z)) -> c(d(x,y),x)
-    e(b) -> f
-    e(c(x,y)) -> a(a(l(),),l())
-    h(b,y) -> a(a(l(),),l())
-    h(c(x,y),x) -> i(j(y,z),y)
-    h(x,k(x)) -> l(e(x))
-    k(c(c(b,x),b)) -> k()
-    k(c(c(c(x,y),x),c(x,y))) -> k()
+    m(x,e) -> n(e,x)
+    m(x,n(y,z)) -> n(m(x,y),x)
+    k(x,e) -> x
+    k(x,n(y,z)) -> n(k(x,y),x)
+    b(e) -> c
+    b(n(x,y)) -> a
+    h(e,y) -> a
+    h(n(x,y),x) -> l(o(y,z),y)
+    h(x,i(x)) -> j(b(x))
+    i(n(n(e,x),e)) -> d(x,y)
+    i(n(n(n(x,y),x),n(x,y))) -> d(i(n(n(x,y),x)),n(n(x,y),x))
 )

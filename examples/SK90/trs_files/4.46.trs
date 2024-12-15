@@ -1,6 +1,6 @@
 (VAR )
 
 (RULES
-    c -> c
-    d(c) -> d(c)
+    c(d) -> c(e)
+    h(e) -> h(d)
 )

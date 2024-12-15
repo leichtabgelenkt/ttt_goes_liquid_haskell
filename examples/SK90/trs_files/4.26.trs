@@ -1,12 +1,12 @@
 (VAR x y z)
 
 (RULES
-    a(b) -> b
-    a(a(x)) -> x
-    a(c(x,y)) -> c(a(y),y)
-    c(b,y) -> y
-    c(x,b) -> x
-    c(d(x,y),x) -> d(x,c(y,z))
-    c(x,c(y,z)) -> c(c(x,y),x)
-    e(x) -> d(x,b)
+    b(c) -> c
+    b(b(x)) -> x
+    b(d(x,y)) -> d(b(y),y)
+    d(c,y) -> y
+    d(x,c) -> x
+    d(e(x,y),x) -> e(x,d(y,z))
+    d(x,d(y,z)) -> d(d(x,y),x)
+    a(x) -> e(x,c)
 )

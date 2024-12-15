@@ -1,10 +1,10 @@
 (VAR x y z)
 
 (RULES
-    c -> c
-    c -> c
-    c -> c
-    d(c,y) -> c
-    d(c,y) -> c
-    d(c,x) -> c
+    c(d,e) -> c(e,d)
+    c(d,c(e,z)) -> c(e,c(d,z))
+    c(c(x,y),x) -> c(x,c(y,z))
+    g(d,y) -> d
+    g(e,y) -> e
+    g(c(x,y),x) -> c(g(x,z),x)
 )

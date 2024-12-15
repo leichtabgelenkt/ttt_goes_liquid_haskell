@@ -1,11 +1,11 @@
 (VAR x y z)
 
 (RULES
-    a(b(x,b(y,z))) -> c(d(x,y),x,y,x)
-    c(e,x,y,z) -> a(b(y,z))
-    c(c(a(),,,e),a(),,) -> b(x,a(b(y,z)))
-    d(g,g) -> e
-    d(b(x,y),x) -> c(a(),,,e)
-    d(g,b(y,z)) -> c(a(),,,e)
-    d(b(x,y),x) -> j(d(x,h),x)
+    c(g(x,g(y,z))) -> h(i(x,y),x,y,x)
+    h(b,x,y,z) -> c(g(y,z))
+    h(a,x,y,z) -> g(x,c(g(y,z)))
+    i(d,d) -> b
+    i(g(x,y),x) -> a
+    i(d,g(y,z)) -> a
+    i(g(x,y),x) -> e(i(x,j),x)
 )

@@ -1,6 +1,6 @@
 (VAR )
 
 (RULES
-    e -> e
-    e -> e
+    e(g,h) -> e(g,i)
+    e(i,j) -> e(h,j)
 )

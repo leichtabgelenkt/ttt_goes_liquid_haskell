@@ -2,9 +2,9 @@
 
 (RULES
     a(b) -> b
-    a(c(x,y)) -> c(d(x,y),x)
-    d(x,b) -> x
-    d(x,c(y,z)) -> f(g(x,y),x,y)
-    e(x,b) -> b
-    e(x,c(y,z)) -> f(h(x,y),x,y)
+    a(g(x,y)) -> g(c(x,y),x)
+    c(x,b) -> x
+    c(x,g(y,z)) -> e(f(x,y),x,y)
+    d(x,b) -> b
+    d(x,g(y,z)) -> e(h(x,y),x,y)
 )

@@ -1,10 +1,10 @@
 (VAR x y)
 
 (RULES
-    a(b) -> c
-    a(c) -> b
-    d(e) -> c
-    d(f(x)) -> a(d(x))
+    c(b) -> a
+    c(a) -> b
+    d(e) -> a
+    d(f(x)) -> c(d(x))
     g(x,e) -> x
     g(x,f(y)) -> f(g(x,y))
     g(f(x),x) -> f(g(x,y))

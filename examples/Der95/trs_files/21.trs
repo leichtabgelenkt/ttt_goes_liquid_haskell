@@ -1,11 +1,11 @@
 (VAR x y)
 
 (RULES
-    a(b(x)) -> x
-    c(d) -> b(d)
-    c(b(x)) -> e(b(x),x)
+    b(c(x)) -> x
+    a(d) -> c(d)
+    a(c(x)) -> e(c(x),x)
     e(d,y) -> d
-    e(b(x),x) -> f(e(x,y),x)
+    e(c(x),x) -> f(e(x,y),x)
     f(x,d) -> x
-    f(x,b(y)) -> b(f(x,y))
+    f(x,c(y)) -> c(f(x,y))
 )

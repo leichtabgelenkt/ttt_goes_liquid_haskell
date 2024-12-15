@@ -1,8 +1,8 @@
 (VAR x)
 
 (RULES
-    a(b) -> b
-    a(c(x)) -> d(c(),)
-    c() -> f(x,x)
-    a(c(x)) -> d(f(c(x),x),c(x))
+    a(c) -> c
+    a(d(x)) -> e(b(d(x)),d(x))
+    b(x) -> f(x,x)
+    a(d(x)) -> e(f(d(x),x),d(x))
 )

@@ -1,5 +1,5 @@
 (VAR x y z)
 
 (RULES
-    a(b(b(x)),b(x),x) -> a(y,b(a(x,z,x)),a(x,z,x))
+    b(c(c(x)),c(x),x) -> b(y,a(x,z),x)
 )

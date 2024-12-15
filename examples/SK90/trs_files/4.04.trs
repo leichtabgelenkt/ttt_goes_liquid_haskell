@@ -1,6 +1,6 @@
 (VAR x y z)
 
 (RULES
-    c -> b(c,x)
-    b(b(x,y),x) -> b(x,b(y,z))
+    b(c(x,y),x) -> c(b(x,d),x)
+    c(c(x,y),x) -> c(x,c(y,z))
 )

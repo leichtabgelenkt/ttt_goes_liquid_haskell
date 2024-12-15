@@ -1,9 +1,9 @@
 (VAR x y)
 
 (RULES
-    a(b,y) -> b
-    a(x,b) -> x
-    a(x,c(y)) -> d(e(x,c(y)),x,c(y))
-    f(b) -> b
-    f(c(x)) -> x
+    c(d,y) -> d
+    c(x,d) -> x
+    c(x,e(y)) -> b(a(x,e(y)),x,e(y))
+    f(d) -> d
+    f(e(x)) -> x
 )

@@ -1,7 +1,7 @@
 (VAR x)
 
 (RULES
-    d -> c(d,x)
-    c(d,x) -> d
-    d -> d
+    c(d,x) -> e(d,x)
+    e(d,x) -> c(h,x)
+    c(d,x) -> c(h,x)
 )

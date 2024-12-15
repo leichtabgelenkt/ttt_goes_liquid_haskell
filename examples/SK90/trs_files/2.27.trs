@@ -1,15 +1,15 @@
 (VAR x y)
 
 (RULES
-    a(b) -> b
-    a(c(b)) -> c(b)
-    a(c(c(b))) -> c(b)
-    a(c(c(x))) -> c()
-    e(b) -> f(c(b),b)
-    e(c(b)) -> f(c(b),b)
-    e(c(x)) -> g(e(x))
-    c() -> h(x,y)
-    g(f(x,y)) -> f(h(x,y),x)
-    h(x,b) -> x
-    h(x,c(y)) -> c(h(x,y))
+    b(e) -> e
+    b(f(e)) -> f(e)
+    b(f(f(e))) -> f(e)
+    b(f(f(x))) -> c(h(x))
+    h(e) -> a(f(e),e)
+    h(f(e)) -> a(f(e),e)
+    h(f(x)) -> d(h(x))
+    c(a(x,y)) -> i(x,y)
+    d(a(x,y)) -> a(i(x,y),x)
+    i(x,e) -> x
+    i(x,f(y)) -> f(i(x,y))
 )

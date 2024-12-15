@@ -1,8 +1,8 @@
 (VAR x y)
 
 (RULES
-    c -> c
-    c -> c
-    c -> d(c,y)
-    c -> c
+    c(e) -> e
+    c(f) -> f
+    c(d(x,y)) -> d(c(y),y)
+    c(d(x,x)) -> c(x)
 )

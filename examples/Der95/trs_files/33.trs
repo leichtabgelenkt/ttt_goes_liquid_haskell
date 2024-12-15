@@ -1,9 +1,9 @@
 (VAR x y z)
 
 (RULES
-    a(z,b(x)) -> a(c(z),z)
-    d(z,e(f,f)) -> b(f)
-    d(z,e(x,y)) -> e(b(x),x)
-    d(c(z),z) -> e(d(c(z),z),c(z))
-    e(b(x),x) -> b(e(x,y))
+    a(z,b(x)) -> a(f(z),z)
+    i(z,j(k,k)) -> b(k)
+    i(z,j(x,y)) -> j(b(x),x)
+    i(f(z),z) -> j(i(f(z),z),f(z))
+    j(b(x),x) -> b(j(x,y))
 )

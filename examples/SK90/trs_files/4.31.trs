@@ -1,8 +1,8 @@
 (VAR x y z)
 
 (RULES
-    a(b) -> b
-    a(c(x,y)) -> c(x,a(d(x,y)))
-    d(x,b) -> b
-    d(x,c(y,z)) -> e(f(x,y),x,y)
+    b(c) -> c
+    b(e(x,y)) -> e(x,b(a(x,y)))
+    a(x,c) -> c
+    a(x,e(y,z)) -> d(f(x,y),x,y)
 )

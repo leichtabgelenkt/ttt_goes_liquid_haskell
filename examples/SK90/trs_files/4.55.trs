@@ -1,6 +1,6 @@
 (VAR x)
 
 (RULES
-    d -> d
-    d -> d
+    d(x,x) -> d(e,g)
+    g -> h
 )

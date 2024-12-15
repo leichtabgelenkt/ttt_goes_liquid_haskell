@@ -1,6 +1,6 @@
 (VAR x)
 
 (RULES
-    a(a(x)) -> b(b(x))
-    b(b(a(x))) -> a(b(b(x)))
+    c(c(x)) -> d(d(x))
+    d(d(c(x))) -> c(d(d(x)))
 )

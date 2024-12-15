@@ -7,5 +7,5 @@
     a(a(x,y),x) -> a(x,a(y,z))
     a(d(x,y),x) -> d(a(x,z),x)
     a(e,d(x,y)) -> x
-    a(f,d(x,y)) -> y
+    a(h,d(x,y)) -> y
 )

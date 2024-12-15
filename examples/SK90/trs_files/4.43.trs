@@ -6,7 +6,7 @@
     a(b,y) -> y
     a(c(x),x) -> c(a(x,y))
     a(x,a(y,z)) -> a(a(x,y),x)
-    d(e(d(x))) -> d(f(c(b),b))
-    d(e(f(x,y))) -> d(f(c(x),x))
-    d(f(x,f(y,z))) -> d(f(a(x,y),x))
+    d(e(d(x))) -> d(i(c(b),b))
+    d(e(i(x,y))) -> d(i(c(x),x))
+    d(i(x,i(y,z))) -> d(i(a(x,y),x))
 )

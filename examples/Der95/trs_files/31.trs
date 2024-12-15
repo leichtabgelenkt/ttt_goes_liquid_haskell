@@ -1,7 +1,7 @@
 (VAR x y z)
 
 (RULES
-    e -> e
-    e -> b(e,x)
-    e -> e
+    b(b(x,y),x) -> b(x,b(y,z))
+    b(c(x,y),x) -> c(b(x,z),x)
+    b(z,c(x,d(y))) -> b(e(z,y),z)
 )

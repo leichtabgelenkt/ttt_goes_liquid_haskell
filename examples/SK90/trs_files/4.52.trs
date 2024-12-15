@@ -1,12 +1,12 @@
 (VAR u v x y)
 
 (RULES
-    b -> b
-    b -> x
-    b -> c(b,y)
-    b -> d(b,x)
-    c(x,b) -> x
-    c(b,y) -> y
-    c(d(x,y),x) -> d(c(x,u),x)
-    d(b,b) -> b
+    b(c) -> c
+    b(b(x)) -> x
+    b(d(x,y)) -> d(b(y),y)
+    b(e(x,y)) -> e(b(x),x)
+    d(x,c) -> x
+    d(c,y) -> y
+    d(e(x,y),x) -> e(d(x,u),x)
+    e(c,c) -> c
 )

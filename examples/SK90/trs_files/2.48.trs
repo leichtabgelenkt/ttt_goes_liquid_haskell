@@ -1,9 +1,9 @@
 (VAR x)
 
 (RULES
-    g(x) -> e(d(x))
-    g(d(x)) -> d(x)
-    d(d(x)) -> e(x)
-    f(e(x)) -> x
-    e(d(x)) -> g(e(x))
+    f(x) -> g(h(x))
+    f(h(x)) -> i(x)
+    i(h(x)) -> j(x)
+    k(g(x)) -> x
+    j(h(x)) -> l(g(x))
 )

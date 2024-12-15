@@ -1,5 +1,5 @@
 (VAR x)
 
 (RULES
-    a(a(x)) -> a(b(a(x)))
+    c(c(x)) -> c(d(c(x)))
 )

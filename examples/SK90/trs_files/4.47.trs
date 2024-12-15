@@ -1,6 +1,6 @@
 (VAR )
 
 (RULES
-    m(j,g) -> g
-    m(j,m(m(j,g),j)) -> g
+    m(n(o(p,q,j),p),o(p,q,j)) -> k(t,m(u(q,r),q),u(q,r))
+    m(n(v(p,q),p),v(p,q)) -> k(t,m(u(q,n(v(p,q),p)),q),u(q,n(v(p,q),p)))
 )

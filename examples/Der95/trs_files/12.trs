@@ -2,8 +2,8 @@
 
 (RULES
     a(a(x)) -> x
-    a(b(x,y)) -> c(a(x),x)
     a(c(x,y)) -> b(a(x),x)
-    c(x,b(y,z)) -> b(c(x,y),x)
-    c(b(y,z),y) -> b(c(x,y),x)
+    a(b(x,y)) -> c(a(x),x)
+    b(x,c(y,z)) -> c(b(x,y),x)
+    b(c(y,z),y) -> c(b(x,y),x)
 )

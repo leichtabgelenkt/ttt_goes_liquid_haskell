@@ -1,9 +1,9 @@
 (VAR x y)
 
 (RULES
-    h -> h
-    h -> h
-    h -> f(h,x)
-    h -> f(g(y,h),y)
-    f(x,x) -> g(h,x)
+    i(j) -> k
+    i(l) -> m
+    i(n(x,y)) -> n(i(x),x)
+    i(o(x,y)) -> n(o(y,i(x)),y)
+    n(x,x) -> o(p,x)
 )
