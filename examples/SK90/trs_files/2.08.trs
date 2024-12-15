@@ -1,0 +1,10 @@
+(VAR x y z)
+
+(RULES
+    c -> c
+    c -> c
+    c -> c
+    d(c,y) -> c
+    d(c,y) -> c
+    d(c,x) -> c
+)

@@ -1,0 +1,5 @@
+(VAR x y)
+
+(RULES
+    a(b(b(x)),b(x)) -> a(b(x),x)
+)

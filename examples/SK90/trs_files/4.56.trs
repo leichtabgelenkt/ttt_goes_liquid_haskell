@@ -1,0 +1,6 @@
+(VAR )
+
+(RULES
+    e -> e
+    e -> e
+)

@@ -1,0 +1,11 @@
+(VAR x y)
+
+(RULES
+    a(b(x)) -> x
+    c(d) -> b(d)
+    c(b(x)) -> e(b(x),x)
+    e(d,y) -> d
+    e(b(x),x) -> f(e(x,y),x)
+    f(x,d) -> x
+    f(x,b(y)) -> b(f(x,y))
+)

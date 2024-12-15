@@ -1,0 +1,7 @@
+(VAR u v x y z)
+
+(RULES
+    a(x,b) -> b
+    a(x,c(u,c(v,c(d,z)))) -> e(f(g(x,u,v),x),g(x,u,v))
+    e(i,y) -> y
+)

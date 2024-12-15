@@ -1,0 +1,10 @@
+(VAR x y z)
+
+(RULES
+    a(b) -> b
+    a(c(x,y)) -> c(a(),)
+    a() -> x
+    a() -> a()
+    a() -> b
+    a() -> a(c(x,a(a())))
+)

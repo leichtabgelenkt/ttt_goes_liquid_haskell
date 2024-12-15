@@ -1,0 +1,9 @@
+(VAR x)
+
+(RULES
+    g(x) -> e(d(x))
+    g(d(x)) -> d(x)
+    d(d(x)) -> e(x)
+    f(e(x)) -> x
+    e(d(x)) -> g(e(x))
+)

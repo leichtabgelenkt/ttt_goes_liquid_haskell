@@ -1,0 +1,7 @@
+(VAR x)
+
+(RULES
+    d -> c(d,x)
+    c(d,x) -> d
+    d -> d
+)

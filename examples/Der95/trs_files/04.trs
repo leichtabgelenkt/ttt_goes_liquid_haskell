@@ -1,0 +1,6 @@
+(VAR x)
+
+(RULES
+    a(a(x)) -> b(a(x))
+    b(b(x)) -> a(x)
+)
