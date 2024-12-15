@@ -10,4 +10,4 @@ extra-deps:
   - deepseq-1.4.6.1
   - clock-0.8.4
 ghc-options:
-  "$locals": -XPatternGuards
+  "$locals": -XPatternGuards 

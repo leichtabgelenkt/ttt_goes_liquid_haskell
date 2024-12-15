@@ -11,9 +11,6 @@ description:
 build-type:    Simple
 cabal-version: >= 1.8
 
-extra-source-files:
-    Changelog
-
 source-repository head
     type: git
     location: https://github.com/leichtabgelenkt/ttt_goes_liquid_haskell.git
@@ -170,5 +167,4 @@ executable subterm-criterion
         clock >= 0.8.4
     ghc-options: 
         -Wall
-    default-language: 
-        Haskell2010
+
