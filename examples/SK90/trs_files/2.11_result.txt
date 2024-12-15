@@ -1,0 +1,20 @@
+Success!! The term "Fun 'b' [Fun 'b' [Fun 'B' []]]" terminates with the given rules, using the subterm criterion
+Execution time: 0.0469 seconds
+
+========================================
+Success!! The term "Fun 'B' []" terminates with the given rules, using the subterm criterion
+Execution time: 0.0456 seconds
+
+========================================
+Success!! The term "Fun 'b' [Fun 'B' []]" terminates with the given rules, using the subterm criterion
+Execution time: 0.0453 seconds
+
+========================================
+Success!! The term "Fun 'a' [Fun 'B' [],Fun 'B' []]" terminates with the given rules, using the subterm criterion
+Execution time: 0.0442 seconds
+
+========================================
+Success!! The term "Fun 'a' [Fun 'c' [Fun 'B' []],Fun 'B' []]" terminates with the given rules, using the subterm criterion
+Execution time: 0.0431 seconds
+
+========================================

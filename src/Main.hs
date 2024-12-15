@@ -68,6 +68,10 @@ getCharTerm (Var x) = Var (Data.List.head x)
 getCharRule :: Rule String String -> Rule Char Char
 getCharRule (Rule lhs rhs) = Rule (getCharTerm lhs) (getCharTerm rhs)
 
+containsVariable :: Term Char Char -> Bool
+containsVariable (Fun _ b) = or (False : [containsVariable subterm | subterm <- b])
+containsVariable _ = True
+
 main :: IO ()
 main = do
     args <- getArgs
@@ -83,14 +87,17 @@ runMain filePath term = do
         Right trs -> do 
           let variables = getVariables trs
           stringTerm <- ParseTerm.parseIO variables term
-          let term = getCharTerm $  stringTerm
-          start <- getTime Monotonic
-          result <- ttt3 (Data.List.map getCharRule $ getStrictRules trs) term
-          end <- getTime Monotonic
-          putStrLn result
-          let diff = diffTimeSpec end start
-          let seconds = toSeconds diff
-          putStrLn $ "Execution time: " Data.List.++ printf "%.4f" seconds Data.List.++ " seconds"
+          let term = getCharTerm $ stringTerm
+          if containsVariable term 
+            then putStrLn $ "Please enter a ground term!"
+            else do
+              start <- getTime Monotonic
+              result <- ttt3 (Data.List.map getCharRule $ getStrictRules trs) term
+              end <- getTime Monotonic
+              putStrLn result
+              let diff = diffTimeSpec end start
+              let seconds = toSeconds diff
+              putStrLn $ "Execution time: " Data.List.++ printf "%.4f" seconds Data.List.++ " seconds"
 
 toSeconds :: System.Clock.TimeSpec -> Double
 toSeconds (System.Clock.TimeSpec s ns) = fromIntegral s + fromIntegral ns / 1000000000

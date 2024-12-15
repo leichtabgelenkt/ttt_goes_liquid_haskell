@@ -98,12 +98,12 @@ ttt3 rules term = do
   wholeTrsResult <- getSatResult dependencyRules projection dependencyRules
   wholeTrsBoolean <- checkTest wholeTrsResult
   if wholeTrsBoolean
-    then return "Success!! The term terminates with the given rules, using the subterm criterion"
+    then return ("Success!! The term \"" Data.List.++ (show term) Data.List.++ "\" terminates with the given rules, using the subterm criterion")
     else do
       result <- ttt3Help rules [] term
       if and result
-        then return "Success!! The term terminates with the given rules, using the subterm criterion"
-        else return "The term does NOT terminate with the given rules, using the subterm criterion"
+        then return ("Success!! The term \"" Data.List.++ (show term) Data.List.++ "\" terminates with the given rules, using the subterm criterion")
+        else return ("The term \"" Data.List.++ (show term) Data.List.++ "\" does NOT terminate with the given rules, using the subterm criterion")
 
 ttt3Help :: [Rule Char Char] -> [Term Char Char] -> Term Char Char -> IO [Bool]
 ttt3Help rules@(x:xs) seenTerms term
