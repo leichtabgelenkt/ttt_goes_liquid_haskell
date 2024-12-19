@@ -1,15 +1,16 @@
-(VAR x y z)
-
-(RULES
-    c(x,d(y,z)) -> d(c(x,y),x)
-    c(x,c(y,y)) -> c(x,y)
-    d(d(x,y),x) -> d(x,y)
-    d(x,c(x,y)) -> x
-    d(b,y) -> b
-    d(x,a) -> x
-    d(x,x) -> x
-    d(x,d(y,y)) -> d(x,y)
-    c(x,b) -> x
-    c(a,y) -> a
-    c(x,x) -> x
+(VAR x y z )
+(RULES 
+        and(x,or(y,z)) -> or(and(x,y),and(x,z))
+        and(x,and(y,y)) -> and(x,y)
+        or(or(x,y),and(y,z)) -> or(x,y)
+        or(x,and(x,y)) -> x
+        or(true,y) -> true
+        or(x,false) -> x
+        or(x,x) -> x
+        or(x,or(y,y)) -> or(x,y)
+        and(x,true) -> x
+        and(false,y) -> false
+        and(x,x) -> x
+        
 )
+    

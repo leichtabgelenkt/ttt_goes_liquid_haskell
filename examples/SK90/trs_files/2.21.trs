@@ -1,7 +1,8 @@
-(VAR x y)
-
-(RULES
-    a(x,b) -> c(b)
-    a(b,c(y)) -> b
-    a(c(x),x) -> d(a(x,c(y)),x)
+(VAR x y )
+(RULES 
+        bin(x,0) -> s(0)
+        bin(0,s(y)) -> 0
+        bin(s(x),s(y)) -> +(bin(x,s(y)),bin(x,y))
+        
 )
+    

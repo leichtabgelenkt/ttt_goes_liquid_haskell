@@ -1,9 +1,10 @@
-(VAR x y)
-
-(RULES
-    i(j) -> k
-    i(l) -> m
-    i(n(x,y)) -> n(i(x),x)
-    i(o(x,y)) -> n(o(y,i(x)),y)
-    n(x,x) -> o(p,x)
+(VAR x y )
+(RULES 
+        f(a) -> b
+        f(c) -> d
+        f(g(x,y)) -> g(f(x),f(y))
+        f(h(x,y)) -> g(h(y,f(x)),h(x,f(y)))
+        g(x,x) -> h(e,x)
+        
 )
+    

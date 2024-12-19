@@ -1,19 +1,20 @@
-(VAR x y z)
-
-(RULES
-    a(x,b) -> x
-    a(b,y) -> y
-    a(c(x),x) -> b
-    a(x,c(x)) -> b
-    a(x,a(y,z)) -> a(a(x,y),x)
-    c(b) -> b
-    a(a(x,y),x) -> x
-    a(a(x,c(y)),x) -> x
-    c(c(x)) -> x
-    c(a(x,y)) -> a(c(y),y)
-    d(x,b) -> b
-    d(x,x) -> b
-    a(d(x,y),x) -> b
-    a(a(c(x),x),c(x)) -> d(a(a(c(x),x),c(x)),a(c(x),x))
-    d(a(x,c(y)),x) -> b
+(VAR x y z )
+(RULES 
+        *(x,1) -> x
+        *(1,y) -> y
+        *(i(x),x) -> 1
+        *(x,i(x)) -> 1
+        *(x,*(y,z)) -> *(*(x,y),z)
+        i(1) -> 1
+        *(*(x,y),i(y)) -> x
+        *(*(x,i(y)),y) -> x
+        i(i(x)) -> x
+        i(*(x,y)) -> *(i(y),i(x))
+        k(x,1) -> 1
+        k(x,x) -> 1
+        *(k(x,y),k(y,x)) -> 1
+        *(*(i(x),k(y,z)),x) -> k(*(*(i(x),y),x),*(*(i(x),z),x))
+        k(*(x,i(y)),*(y,i(x))) -> 1
+        
 )
+    

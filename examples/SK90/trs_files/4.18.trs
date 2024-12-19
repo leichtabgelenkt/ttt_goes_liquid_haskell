@@ -1,7 +1,8 @@
-(VAR x y)
-
-(RULES
-    a(x,c) -> x
-    a(c,y) -> y
-    a(d(x),x) -> b(e(x,y),x,y)
+(VAR x y )
+(RULES 
+        gcd(x,0) -> x
+        gcd(0,y) -> y
+        gcd(s(x),s(y)) -> if(<(x,y),gcd(s(x),-(y,x)),gcd(-(x,y),s(y)))
+        
 )
+    

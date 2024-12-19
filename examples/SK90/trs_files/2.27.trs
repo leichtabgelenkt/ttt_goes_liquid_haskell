@@ -1,15 +1,16 @@
-(VAR x y)
-
-(RULES
-    b(e) -> e
-    b(f(e)) -> f(e)
-    b(f(f(e))) -> f(e)
-    b(f(f(x))) -> c(h(x))
-    h(e) -> a(f(e),e)
-    h(f(e)) -> a(f(e),e)
-    h(f(x)) -> d(h(x))
-    c(a(x,y)) -> i(x,y)
-    d(a(x,y)) -> a(i(x,y),x)
-    i(x,e) -> x
-    i(x,f(y)) -> f(i(x,y))
+(VAR x y )
+(RULES 
+        fib(0) -> 0
+        fib(s(0)) -> s(0)
+        fib(s(s(0))) -> s(0)
+        fib(s(s(x))) -> sp(g(x))
+        g(0) -> pair(s(0),0)
+        g(s(0)) -> pair(s(0),s(0))
+        g(s(x)) -> np(g(x))
+        sp(pair(x,y)) -> +(x,y)
+        np(pair(x,y)) -> pair(+(x,y),x)
+        +(x,0) -> x
+        +(x,s(y)) -> s(+(x,y))
+        
 )
+    

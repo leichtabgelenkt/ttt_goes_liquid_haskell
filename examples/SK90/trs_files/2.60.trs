@@ -1,5 +1,6 @@
-(VAR )
-
-(RULES
-    b(c(b(d),d)) -> b(e(c(b(d),d),b(d)))
+(VAR  )
+(RULES 
+        f(g(f(a),h(a,f(a)))) -> f(h(g(f(a),a),g(f(a),f(a))))
+        
 )
+    

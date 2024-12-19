@@ -1,9 +1,10 @@
-(VAR x y)
-
-(RULES
-    b(c) -> d
-    b(a) -> e
-    b(f(x,y)) -> f(b(x),x)
-    b(g(x,y)) -> f(g(y,b(x)),y)
-    b(h(x,y)) -> h(b(x),x)
+(VAR x y )
+(RULES 
+        D(t) -> 1
+        D(constant) -> 0
+        D(+(x,y)) -> +(D(x),D(y))
+        D(*(x,y)) -> +(*(y,D(x)),*(x,D(y)))
+        D(-(x,y)) -> -(D(x),D(y))
+        
 )
+    

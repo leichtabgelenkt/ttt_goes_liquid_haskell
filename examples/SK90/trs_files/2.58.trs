@@ -1,8 +1,9 @@
-(VAR x y)
-
-(RULES
-    c(x,y) -> x
-    d(e) -> j(e,k,e)
-    l(x) -> c(x,x)
-    j(x,x,y) -> d(x)
+(VAR x y )
+(RULES 
+        f(x,y) -> x
+        g(a) -> h(a,b,a)
+        i(x) -> f(x,x)
+        h(x,x,y) -> g(x)
+        
 )
+    

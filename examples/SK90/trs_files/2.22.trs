@@ -1,11 +1,12 @@
-(VAR x y)
-
-(RULES
-    a(x,b) -> c(b)
-    a(x,c(y)) -> d(x,a(x,y))
-    d(b,y) -> b
-    d(c(x),x) -> e(y,d(x,y))
-    f(b,y) -> b
-    f(x,b) -> x
-    f(c(x),x) -> f(x,y)
+(VAR x y )
+(RULES 
+        exp(x,0) -> s(0)
+        exp(x,s(y)) -> *(x,exp(x,y))
+        *(0,y) -> 0
+        *(s(x),y) -> +(y,*(x,y))
+        -(0,y) -> 0
+        -(x,0) -> x
+        -(s(x),s(y)) -> -(x,y)
+        
 )
+    

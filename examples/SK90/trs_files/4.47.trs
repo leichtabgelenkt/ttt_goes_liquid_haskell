@@ -1,6 +1,7 @@
-(VAR )
-
-(RULES
-    m(n(o(p,q,j),p),o(p,q,j)) -> k(t,m(u(q,r),q),u(q,r))
-    m(n(v(p,q),p),v(p,q)) -> k(t,m(u(q,n(v(p,q),p)),q),u(q,n(v(p,q),p)))
+(VAR  )
+(RULES 
+        f(g(i(a,b,b'),c),d) -> if(e,f(.(b,c),d'),f(.(b',c),d'))
+        f(g(h(a,b),c),d) -> if(e,f(.(b,g(h(a,b),c)),d),f(c,d'))
+        
 )
+    

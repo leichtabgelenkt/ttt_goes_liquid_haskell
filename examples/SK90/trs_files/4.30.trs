@@ -1,10 +1,11 @@
-(VAR x y z)
-
-(RULES
-    b(a) -> a
-    b(c(a,y)) -> c(a,b(y))
-    b(c(c(x,y),x)) -> b(c(x,c(y,z)))
-    d(a) -> a
-    d(c(x,a)) -> c(d(x),x)
-    d(c(x,c(y,z))) -> d(c(c(x,y),x))
+(VAR x y z )
+(RULES 
+        f(nil) -> nil
+        f(.(nil,y)) -> .(nil,f(y))
+        f(.(.(x,y),z)) -> f(.(x,.(y,z)))
+        g(nil) -> nil
+        g(.(x,nil)) -> .(g(x),nil)
+        g(.(x,.(y,z))) -> g(.(.(x,y),z))
+        
 )
+    

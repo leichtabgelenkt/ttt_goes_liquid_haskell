@@ -1,6 +1,7 @@
-(VAR )
-
-(RULES
-    e(g,h) -> e(g,i)
-    e(i,j) -> e(h,j)
+(VAR  )
+(RULES 
+        f(a,b) -> f(a,c)
+        f(c,d) -> f(b,d)
+        
 )
+    

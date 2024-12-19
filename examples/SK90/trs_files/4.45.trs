@@ -1,6 +1,7 @@
-(VAR x y)
-
-(RULES
-    b(x,x) -> c
-    b(d(x),x) -> b(x,y)
+(VAR x y )
+(RULES 
+        f(x,x) -> a
+        f(g(x),y) -> f(x,y)
+        
 )
+    

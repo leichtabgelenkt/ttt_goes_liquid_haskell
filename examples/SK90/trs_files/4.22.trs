@@ -1,7 +1,8 @@
-(VAR x y z)
-
-(RULES
-    a(b(x,y)) -> c(a(x),x)
-    a(c(x,y)) -> b(a(x),x)
-    b(x,c(y,z)) -> c(b(x,y),x)
+(VAR x y z )
+(RULES 
+        not(and(x,y)) -> or(not(x),not(y))
+        not(or(x,y)) -> and(not(x),not(y))
+        and(x,or(y,z)) -> or(and(x,y),and(x,z))
+        
 )
+    

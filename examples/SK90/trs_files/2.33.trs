@@ -1,9 +1,10 @@
-(VAR x y)
-
-(RULES
-    c(x,x) -> x
-    a(x,x) -> x
-    b(b(x)) -> x
-    b(a(x,y)) -> c(b(x),x)
-    b(c(x,y)) -> a(b(x),x)
+(VAR x y )
+(RULES 
+        or(x,x) -> x
+        and(x,x) -> x
+        not(not(x)) -> x
+        not(and(x,y)) -> or(not(x),not(y))
+        not(or(x,y)) -> and(not(x),not(y))
+        
 )
+    

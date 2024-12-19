@@ -1,15 +1,16 @@
-(VAR x y z)
-
-(RULES
-    a(x,b,b) -> c(x)
-    a(b,y,b) -> c(y)
-    a(b,b,z) -> c(z)
-    a(c(b),b,y) -> a(b,c(y),y)
-    a(c(x),x,c(y)) -> a(x,y,c(b))
-    a(c(x),x,b) -> a(x,c(b),b)
-    a(b,c(b),b) -> c(c(b))
-    a(c(x),x,c(y)) -> a(x,y,a(c(x),x,c(y)))
-    a(b,c(c(y)),c(y)) -> a(b,y,c(b))
-    a(b,c(b),b) -> a(b,c(b),b)
-    a(b,c(c(y)),c(y)) -> a(b,y,a(b,c(c(y)),c(y)))
+(VAR x y z )
+(RULES 
+        f(x,0,0) -> s(x)
+        f(0,y,0) -> s(y)
+        f(0,0,z) -> s(z)
+        f(s(0),y,z) -> f(0,s(y),s(z))
+        f(s(x),s(y),0) -> f(x,y,s(0))
+        f(s(x),0,s(z)) -> f(x,s(0),z)
+        f(0,s(0),s(0)) -> s(s(0))
+        f(s(x),s(y),s(z)) -> f(x,y,f(s(x),s(y),z))
+        f(0,s(s(y)),s(0)) -> f(0,y,s(0))
+        f(0,s(0),s(s(z))) -> f(0,s(0),z)
+        f(0,s(s(y)),s(s(z))) -> f(0,y,f(0,s(s(y)),s(z)))
+        
 )
+    

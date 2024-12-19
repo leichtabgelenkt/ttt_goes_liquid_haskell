@@ -1,10 +1,11 @@
-(VAR x y z)
-
-(RULES
-    c(d) -> d
-    c(h(x,y)) -> e(c(b(x,y)),b(x,y))
-    b(x,d) -> d
-    b(x,h(y,z)) -> f(g(y,x),y,x)
-    a(x,d) -> d
-    a(x,h(y,z)) -> f(g(y,x),y,x)
+(VAR x y z )
+(RULES 
+        qsort(nil) -> nil
+        qsort(.(x,y)) -> ++(qsort(lowers(x,y)),.(x,qsort(greaters(x,y))))
+        lowers(x,nil) -> nil
+        lowers(x,.(y,z)) -> if(<=(y,x),.(y,lowers(x,z)),lowers(x,z))
+        greaters(x,nil) -> nil
+        greaters(x,.(y,z)) -> if(<=(y,x),greaters(x,z),.(y,greaters(x,z)))
+        
 )
+    

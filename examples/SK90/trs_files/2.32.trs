@@ -1,14 +1,15 @@
-(VAR x y)
-
-(RULES
-    d(x) -> f(x,b,c)
-    e(x,y) -> f(x,y,b)
-    g(x,y) -> f(x,c,y)
-    a(x,y) -> f(x,y,c)
-    h(x,x) -> c
-    h(x,y) -> f(x,y,d(y))
-    f(c,x,y) -> x
-    f(b,x,y) -> y
-    f(x,x,f(x,b,c)) -> c
-    h(x,y) -> f(x,y,f(y,b,c))
+(VAR x y )
+(RULES 
+        not(x) -> if(x,false,true)
+        and(x,y) -> if(x,y,false)
+        or(x,y) -> if(x,true,y)
+        implies(x,y) -> if(x,y,true)
+        =(x,x) -> true
+        =(x,y) -> if(x,y,not(y))
+        if(true,x,y) -> x
+        if(false,x,y) -> y
+        if(x,x,if(x,false,true)) -> true
+        =(x,y) -> if(x,y,if(y,false,true))
+        
 )
+    

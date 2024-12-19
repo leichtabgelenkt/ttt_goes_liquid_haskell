@@ -1,10 +1,11 @@
-(VAR u v x y z)
-
-(RULES
-    c(b,x,y) -> x
-    c(a,x,y) -> y
-    c(x,y,y) -> y
-    c(c(x,y,z),x,y) -> c(x,c(y,u,v),y)
-    c(x,c(x,y,z),x) -> c(x,y,z)
-    c(x,y,c(x,y,z)) -> c(x,y,z)
+(VAR u v x y z )
+(RULES 
+        if(true,x,y) -> x
+        if(false,x,y) -> y
+        if(x,y,y) -> y
+        if(if(x,y,z),u,v) -> if(x,if(y,u,v),if(z,u,v))
+        if(x,if(x,y,z),z) -> if(x,y,z)
+        if(x,y,if(x,y,z)) -> if(x,y,z)
+        
 )
+    

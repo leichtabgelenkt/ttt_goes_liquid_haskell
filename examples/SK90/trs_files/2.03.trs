@@ -1,7 +1,8 @@
-(VAR x y)
-
-(RULES
-    a(a(x)) -> x
-    a(b(x)) -> b(a(x))
-    a(c(x,y)) -> c(a(y),y)
+(VAR x y )
+(RULES 
+        minus(minus(x)) -> x
+        minus(h(x)) -> h(minus(x))
+        minus(f(x,y)) -> f(minus(y),minus(x))
+        
 )
+    

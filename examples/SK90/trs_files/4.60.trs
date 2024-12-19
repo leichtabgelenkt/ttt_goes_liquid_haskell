@@ -1,10 +1,11 @@
-(VAR x y z)
-
-(RULES
-    a(b) -> b
-    a(g(x,y)) -> g(c(x,y),x)
-    c(x,b) -> x
-    c(x,g(y,z)) -> e(f(x,y),x,y)
-    d(x,b) -> b
-    d(x,g(y,z)) -> e(h(x,y),x,y)
+(VAR x y z )
+(RULES 
+        msort(nil) -> nil
+        msort(.(x,y)) -> .(min(x,y),msort(del(min(x,y),.(x,y))))
+        min(x,nil) -> x
+        min(x,.(y,z)) -> if(<=(x,y),min(x,z),min(y,z))
+        del(x,nil) -> nil
+        del(x,.(y,z)) -> if(=(x,y),z,.(y,del(x,z)))
+        
 )
+    

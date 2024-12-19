@@ -1,8 +1,9 @@
-(VAR x y)
-
-(RULES
-    a(x,b) -> x
-    a(x,c(y)) -> c(a(x,y))
-    a(b,c(y)) -> c(y)
-    c(a(b,y)) -> c(y)
+(VAR x y )
+(RULES 
+        +(x,0) -> x
+        +(x,s(y)) -> s(+(x,y))
+        +(0,s(y)) -> s(y)
+        s(+(0,y)) -> s(y)
+        
 )
+    

@@ -1,5 +1,6 @@
-(VAR x y)
-
-(RULES
-    b(x,b(a(y),y)) -> b(a(b(y,y)),b(y,y))
+(VAR x y )
+(RULES 
+        *(x,*(minus(y),y)) -> *(minus(*(y,y)),x)
+        
 )
+    

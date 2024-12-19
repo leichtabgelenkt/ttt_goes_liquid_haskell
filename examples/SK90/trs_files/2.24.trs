@@ -1,7 +1,8 @@
-(VAR x)
-
-(RULES
-    a(b) -> b
-    a(c(b)) -> c(b)
-    a(c(c(x))) -> d(a(c(x)),c(x))
+(VAR x )
+(RULES 
+        fib(0) -> 0
+        fib(s(0)) -> s(0)
+        fib(s(s(x))) -> +(fib(s(x)),fib(x))
+        
 )
+    

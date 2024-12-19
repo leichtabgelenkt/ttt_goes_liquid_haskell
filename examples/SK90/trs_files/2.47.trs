@@ -1,6 +1,7 @@
-(VAR x)
-
-(RULES
-    d(e(x)) -> e(d(x))
-    d(f(x)) -> x
+(VAR x )
+(RULES 
+        a(b(x)) -> b(a(x))
+        a(c(x)) -> x
+        
 )
+    

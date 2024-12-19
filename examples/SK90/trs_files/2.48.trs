@@ -1,9 +1,10 @@
-(VAR x)
-
-(RULES
-    f(x) -> g(h(x))
-    f(h(x)) -> i(x)
-    i(h(x)) -> j(x)
-    k(g(x)) -> x
-    j(h(x)) -> l(g(x))
+(VAR x )
+(RULES 
+        d(x) -> e(u(x))
+        d(u(x)) -> c(x)
+        c(u(x)) -> b(x)
+        v(e(x)) -> x
+        b(u(x)) -> a(e(x))
+        
 )
+    

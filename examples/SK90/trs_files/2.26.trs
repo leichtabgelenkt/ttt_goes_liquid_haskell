@@ -1,16 +1,17 @@
-(VAR x y)
-
-(RULES
-    b(c) -> c
-    b(d(c)) -> d(c)
-    b(d(d(x))) -> e(i(j(x)))
-    j(c) -> a(d(c),c)
-    j(d(x)) -> i(j(x))
-    i(x) -> a(k(e(x),x),e(x))
-    e(a(x,y)) -> x
-    l(a(x,y)) -> y
-    k(x,c) -> x
-    k(x,d(y)) -> d(k(x,y))
-    b(d(d(x))) -> k(e(j(x)),j(x))
-    j(d(x)) -> a(k(e(j(x)),j(x)),e(j(x)))
+(VAR x y )
+(RULES 
+        f(0) -> 0
+        f(s(0)) -> s(0)
+        f(s(s(x))) -> p(h(g(x)))
+        g(0) -> pair(s(0),s(0))
+        g(s(x)) -> h(g(x))
+        h(x) -> pair(+(p(x),q(x)),p(x))
+        p(pair(x,y)) -> x
+        q(pair(x,y)) -> y
+        +(x,0) -> x
+        +(x,s(y)) -> s(+(x,y))
+        f(s(s(x))) -> +(p(g(x)),q(g(x)))
+        g(s(x)) -> pair(+(p(g(x)),q(g(x))),p(g(x)))
+        
 )
+    

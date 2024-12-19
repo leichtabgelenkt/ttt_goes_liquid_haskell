@@ -1,8 +1,9 @@
-(VAR x y z)
-
-(RULES
-    b(a,y) -> y
-    b(x,a) -> x
-    b(c(x,y),x) -> c(x,b(y,z))
-    b(b(x,y),x) -> b(x,b(y,z))
+(VAR x y z )
+(RULES 
+        ++(nil,y) -> y
+        ++(x,nil) -> x
+        ++(.(x,y),z) -> .(x,++(y,z))
+        ++(++(x,y),z) -> ++(x,++(y,z))
+        
 )
+    

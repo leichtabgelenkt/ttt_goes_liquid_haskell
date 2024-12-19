@@ -1,6 +1,7 @@
-(VAR x y z)
-
-(RULES
-    a(b(x,y),x) -> b(a(x,z),x)
-    b(a(x,y),x) -> x
+(VAR x y z )
+(RULES 
+        +(-(x,y),z) -> -(+(x,z),y)
+        -(+(x,y),y) -> x
+        
 )
+    

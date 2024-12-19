@@ -1,8 +1,9 @@
-(VAR x y)
-
-(RULES
-    c(e) -> e
-    c(f) -> f
-    c(d(x,y)) -> d(c(y),y)
-    c(d(x,x)) -> c(x)
+(VAR x y )
+(RULES 
+        rev(a) -> a
+        rev(b) -> b
+        rev(++(x,y)) -> ++(rev(y),rev(x))
+        rev(++(x,x)) -> rev(x)
+        
 )
+    

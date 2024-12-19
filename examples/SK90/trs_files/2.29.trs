@@ -1,11 +1,12 @@
-(VAR x y)
-
-(RULES
-    b(i) -> c
-    b(j(i)) -> c
-    b(j(j(x))) -> a(j(j(x)),j(x))
-    a(x,i) -> c
-    a(x,j(i)) -> d
-    a(x,j(j(y))) -> f(g(e(j(j(y)),j(y))),e(j(j(y)),j(y)))
-    e(x,y) -> k(h(x,y),x)
+(VAR x y )
+(RULES 
+        prime(0) -> false
+        prime(s(0)) -> false
+        prime(s(s(x))) -> prime1(s(s(x)),s(x))
+        prime1(x,0) -> false
+        prime1(x,s(0)) -> true
+        prime1(x,s(s(y))) -> and(not(divp(s(s(y)),x)),prime1(x,s(y)))
+        divp(x,y) -> =(rem(x,y),0)
+        
 )
+    

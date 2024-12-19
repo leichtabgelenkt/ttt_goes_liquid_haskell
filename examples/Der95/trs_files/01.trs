@@ -1,16 +1,17 @@
-(VAR x y)
-
-(RULES
-    a(x,x) -> b
-    c(x,x) -> b
-    d(b,x) -> x
-    d(x,b) -> x
-    a(b,x) -> x
-    c(x,b) -> x
-    d(x,a(x,y)) -> y
-    d(c(y,x),y) -> y
-    a(x,d(x,y)) -> y
-    c(d(y,x),y) -> y
-    c(x,a(y,x)) -> y
-    a(c(x,y),x) -> y
+(VAR x y )
+(RULES 
+        \(x,x) -> e
+        /(x,x) -> e
+        .(e,x) -> x
+        .(x,e) -> x
+        \(e,x) -> x
+        /(x,e) -> x
+        .(x,\(x,y)) -> y
+        .(/(y,x),x) -> y
+        \(x,.(x,y)) -> y
+        /(.(y,x),x) -> y
+        /(x,\(y,x)) -> y
+        \(/(x,y),x) -> y
+        
 )
+    

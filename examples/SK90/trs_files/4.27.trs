@@ -1,10 +1,11 @@
-(VAR x y)
-
-(RULES
-    b(d,d) -> e(d,c)
-    b(d,f(y)) -> e(d,b(f(d),d))
-    b(f(x),x) -> c
-    b(f(x),x) -> a(b(x,y))
-    a(c) -> c
-    a(e(x,y)) -> e(f(x),x)
+(VAR x y )
+(RULES 
+        int(0,0) -> .(0,nil)
+        int(0,s(y)) -> .(0,int(s(0),s(y)))
+        int(s(x),0) -> nil
+        int(s(x),s(y)) -> int_list(int(x,y))
+        int_list(nil) -> nil
+        int_list(.(x,y)) -> .(s(x),int_list(y))
+        
 )
+    

@@ -1,8 +1,9 @@
-(VAR x y z)
-
-(RULES
-    b(c) -> c
-    b(e(x,y)) -> e(x,b(a(x,y)))
-    a(x,c) -> c
-    a(x,e(y,z)) -> d(f(x,y),x,y)
+(VAR x y z )
+(RULES 
+        purge(nil) -> nil
+        purge(.(x,y)) -> .(x,purge(remove(x,y)))
+        remove(x,nil) -> nil
+        remove(x,.(y,z)) -> if(=(x,y),remove(x,z),.(y,remove(x,z)))
+        
 )
+    

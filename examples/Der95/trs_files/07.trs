@@ -1,7 +1,8 @@
-(VAR x)
-
-(RULES
-    a(c(x)) -> c(a(x))
-    d(c(x)) -> c(d(x))
-    d(a(x)) -> a(d(x))
+(VAR x )
+(RULES 
+        w(r(x)) -> r(w(x))
+        b(r(x)) -> r(b(x))
+        b(w(x)) -> w(b(x))
+        
 )
+    

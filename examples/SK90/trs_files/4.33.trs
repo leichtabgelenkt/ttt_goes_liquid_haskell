@@ -1,5 +1,6 @@
-(VAR x)
-
-(RULES
-    c(d(c(x))) -> d(c(d(x)))
+(VAR x )
+(RULES 
+        a(b(a(x))) -> b(a(b(x)))
+        
 )
+    

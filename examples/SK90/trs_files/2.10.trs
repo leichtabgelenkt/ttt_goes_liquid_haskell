@@ -1,12 +1,13 @@
-(VAR x y z)
-
-(RULES
-    a(b) -> b
-    c(x,b) -> x
-    c(b,y) -> y
-    c(a(d),d) -> b
-    a(a(x)) -> x
-    c(x,a(y)) -> a(c(a(x),x))
-    c(x,c(y,z)) -> c(c(x,y),x)
-    c(a(c(x,d)),c(x,d)) -> a(x)
+(VAR x y z )
+(RULES 
+        minus(0) -> 0
+        +(x,0) -> x
+        +(0,y) -> y
+        +(minus(1),1) -> 0
+        minus(minus(x)) -> x
+        +(x,minus(y)) -> minus(+(minus(x),y))
+        +(x,+(y,z)) -> +(+(x,y),z)
+        +(minus(+(x,1)),1) -> minus(x)
+        
 )
+    

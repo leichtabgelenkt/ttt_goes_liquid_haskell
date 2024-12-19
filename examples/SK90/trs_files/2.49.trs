@@ -1,12 +1,13 @@
-(VAR x)
-
-(RULES
-    e(f(g(x))) -> f(x)
-    h(i(g(g(x)))) -> i(x)
-    j(e(e(x))) -> h(j(x))
-    j(e(f(x))) -> h(i(g(x)))
-    j(f(x)) -> i(x)
-    k(e(e(x))) -> h(k(x))
-    k(e(f(x))) -> h(i(g(x)))
-    k(f(x)) -> i(x)
+(VAR x )
+(RULES 
+        a(c(d(x))) -> c(x)
+        u(b(d(d(x)))) -> b(x)
+        v(a(a(x))) -> u(v(x))
+        v(a(c(x))) -> u(b(d(x)))
+        v(c(x)) -> b(x)
+        w(a(a(x))) -> u(w(x))
+        w(a(c(x))) -> u(b(d(x)))
+        w(c(x)) -> b(x)
+        
 )
+    

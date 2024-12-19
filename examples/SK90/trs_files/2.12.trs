@@ -1,13 +1,14 @@
-(VAR x y)
-
-(RULES
-    b(c,y) -> y
-    b(d(x),x) -> d(b(x,y))
-    b(e(x),x) -> e(b(x,y))
-    a(c) -> c
-    a(d(x)) -> e(a(x))
-    a(e(x)) -> d(a(x))
-    f(c,y) -> c
-    f(d(x),x) -> b(f(x,y),x)
-    f(e(x),x) -> b(f(x,y),x)
+(VAR x y )
+(RULES 
+        +(0,y) -> y
+        +(s(x),y) -> s(+(x,y))
+        +(p(x),y) -> p(+(x,y))
+        minus(0) -> 0
+        minus(s(x)) -> p(minus(x))
+        minus(p(x)) -> s(minus(x))
+        *(0,y) -> 0
+        *(s(x),y) -> +(*(x,y),y)
+        *(p(x),y) -> +(*(x,y),minus(y))
+        
 )
+    

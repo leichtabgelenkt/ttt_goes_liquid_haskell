@@ -1,5 +1,6 @@
-(VAR x)
-
-(RULES
-    a(a(x)) -> b(a(x))
+(VAR x )
+(RULES 
+        f(f(x)) -> g(f(x))
+        
 )
+    

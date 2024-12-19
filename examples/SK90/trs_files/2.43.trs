@@ -1,11 +1,12 @@
-(VAR u v x y z)
-
-(RULES
-    a(d,y) -> y
-    a(x,d) -> x
-    a(g(x,y),x) -> e(h(x,u),x,u)
-    f(d,y) -> y
-    f(g(x,y),x) -> g(x,f(y,z))
-    e(c,x,y) -> x
-    e(b,x,y) -> x
+(VAR u v x y z )
+(RULES 
+        merge(nil,y) -> y
+        merge(x,nil) -> x
+        merge(.(x,y),.(u,v)) -> if(<(x,u),.(x,merge(y,.(u,v))),.(u,merge(.(x,y),v)))
+        ++(nil,y) -> y
+        ++(.(x,y),z) -> .(x,++(y,z))
+        if(true,x,y) -> x
+        if(false,x,y) -> x
+        
 )
+    

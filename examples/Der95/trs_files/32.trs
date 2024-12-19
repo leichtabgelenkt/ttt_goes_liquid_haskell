@@ -1,11 +1,12 @@
-(VAR v w x y z)
-
-(RULES
-    c(e) -> e
-    c(d(x,y)) -> a(x,c(y))
-    a(x,e) -> d(x,e)
-    a(x,d(v,w)) -> b(x,d(v,w),v,w)
-    b(x,d(v,w),v,w) -> d(x,d(v,w))
-    b(x,d(v,w),v,w) -> d(v,a(x,w))
-    b(x,d(v,w),v,w) -> b(x,d(v,w),v,w)
+(VAR v w x y z )
+(RULES 
+        sort(nil) -> nil
+        sort(cons(x,y)) -> insert(x,sort(y))
+        insert(x,nil) -> cons(x,nil)
+        insert(x,cons(v,w)) -> choose(x,cons(v,w),x,v)
+        choose(x,cons(v,w),y,0) -> cons(x,cons(v,w))
+        choose(x,cons(v,w),0,s(z)) -> cons(v,insert(x,w))
+        choose(x,cons(v,w),s(y),s(z)) -> choose(x,cons(v,w),y,z)
+        
 )
+    

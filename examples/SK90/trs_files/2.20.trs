@@ -1,8 +1,9 @@
-(VAR x)
-
-(RULES
-    a(c) -> c
-    a(d(x)) -> e(b(d(x)),d(x))
-    b(x) -> f(x,x)
-    a(d(x)) -> e(f(d(x),x),d(x))
+(VAR x )
+(RULES 
+        sum(0) -> 0
+        sum(s(x)) -> +(sqr(s(x)),sum(x))
+        sqr(x) -> *(x,x)
+        sum(s(x)) -> +(*(s(x),s(x)),sum(x))
+        
 )
+    

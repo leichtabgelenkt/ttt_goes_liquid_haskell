@@ -1,10 +1,11 @@
-(VAR x y z)
-
-(RULES
-    c(d,e) -> c(e,d)
-    c(d,c(e,z)) -> c(e,c(d,z))
-    c(c(x,y),x) -> c(x,c(y,z))
-    g(d,y) -> d
-    g(e,y) -> e
-    g(c(x,y),x) -> c(g(x,z),x)
+(VAR x y z )
+(RULES 
+        +(a,b) -> +(b,a)
+        +(a,+(b,z)) -> +(b,+(a,z))
+        +(+(x,y),z) -> +(x,+(y,z))
+        f(a,y) -> a
+        f(b,y) -> b
+        f(+(x,y),z) -> +(f(x,z),f(y,z))
+        
 )
+    

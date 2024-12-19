@@ -1,7 +1,8 @@
-(VAR u v x y z)
-
-(RULES
-    a(x,e) -> e
-    a(x,g(u,g(v,g(h,z)))) -> c(i(f(x,u,v),x),f(x,u,v))
-    c(d,y) -> y
+(VAR u v x y z )
+(RULES 
+        admit(x,nil) -> nil
+        admit(x,.(u,.(v,.(w,z)))) -> cond(=(sum(x,u,v),w),.(u,.(v,.(w,admit(carry(x,u,v),z)))))
+        cond(true,y) -> y
+        
 )
+    

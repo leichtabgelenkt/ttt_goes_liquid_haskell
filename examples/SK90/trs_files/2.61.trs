@@ -1,12 +1,13 @@
-(VAR u x y z)
-
-(RULES
-    c(d(x,y),x) -> e(c(x,l(y)))
-    c(x,a(y,z)) -> b(m,x,a(y,z))
-    e(b(x,y,a(z,u))) -> b(n(x),x,y)
-    b(x,d(y,a(z,u)),y) -> b(n(x),x,y)
-    o(c(x,p(y))) -> y
-    o(b(n(x),x,y)) -> z
-    l(p(x)) -> a(m,x)
-    l(a(x,y)) -> a(n(x),x)
+(VAR u x y z )
+(RULES 
+        f(j(x,y),y) -> g(f(x,k(y)))
+        f(x,h1(y,z)) -> h2(0,x,h1(y,z))
+        g(h2(x,y,h1(z,u))) -> h2(s(x),y,h1(z,u))
+        h2(x,j(y,h1(z,u)),h1(z,u)) -> h2(s(x),y,h1(s(z),u))
+        i(f(x,h(y))) -> y
+        i(h2(s(x),y,h1(x,z))) -> z
+        k(h(x)) -> h1(0,x)
+        k(h1(x,y)) -> h1(s(x),y)
+        
 )
+    

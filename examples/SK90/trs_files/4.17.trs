@@ -1,7 +1,8 @@
-(VAR x)
-
-(RULES
-    a(b(x)) -> c(a(d(b(x))),d(b(x)))
-    d(b(e)) -> e
-    d(b(b(x))) -> b(d(b(x)))
+(VAR x )
+(RULES 
+        fac(s(x)) -> *(fac(p(s(x))),s(x))
+        p(s(0)) -> 0
+        p(s(s(x))) -> s(p(s(x)))
+        
 )
+    

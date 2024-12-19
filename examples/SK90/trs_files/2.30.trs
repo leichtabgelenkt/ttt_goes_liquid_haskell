@@ -1,8 +1,9 @@
-(VAR x y)
-
-(RULES
-    c(x) -> d(x,b)
-    a(x,y) -> d(e(x,y),x)
-    f(x,y) -> d(e(x,y),x)
-    g(x,y) -> d(x,d(y,b))
+(VAR x y )
+(RULES 
+        not(x) -> xor(x,true)
+        implies(x,y) -> xor(and(x,y),xor(x,true))
+        or(x,y) -> xor(and(x,y),xor(x,y))
+        =(x,y) -> xor(x,xor(y,true))
+        
 )
+    

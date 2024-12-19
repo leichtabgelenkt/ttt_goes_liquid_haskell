@@ -1,5 +1,6 @@
-(VAR x y z)
-
-(RULES
-    b(c(c(x)),c(x),x) -> b(y,a(x,z),x)
+(VAR x y z )
+(RULES 
+        and(not(not(x)),y,not(z)) -> and(y,band(x,z),x)
+        
 )
+    

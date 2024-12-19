@@ -1,15 +1,16 @@
-(VAR x y z)
-
-(RULES
-    m(x,e) -> n(e,x)
-    m(x,n(y,z)) -> n(m(x,y),x)
-    k(x,e) -> x
-    k(x,n(y,z)) -> n(k(x,y),x)
-    b(e) -> c
-    b(n(x,y)) -> a
-    h(e,y) -> a
-    h(n(x,y),x) -> l(o(y,z),y)
-    h(x,i(x)) -> j(b(x))
-    i(n(n(e,x),e)) -> d(x,y)
-    i(n(n(n(x,y),x),n(x,y))) -> d(i(n(n(x,y),x)),n(n(x,y),x))
+(VAR x y z )
+(RULES 
+        f(x,nil) -> g(nil,x)
+        f(x,g(y,z)) -> g(f(x,y),z)
+        ++(x,nil) -> x
+        ++(x,g(y,z)) -> g(++(x,y),z)
+        null(nil) -> true
+        null(g(x,y)) -> false
+        mem(nil,y) -> false
+        mem(g(x,y),z) -> or(=(y,z),mem(x,z))
+        mem(x,max(x)) -> not(null(x))
+        max(g(g(nil,x),y)) -> max'(x,y)
+        max(g(g(g(x,y),z),u)) -> max'(max(g(g(x,y),z)),u)
+        
 )
+    
