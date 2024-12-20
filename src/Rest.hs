@@ -24,6 +24,9 @@ module Rest where
     import Data.Char
 
     newtype RewriteSequence = RewriteSequence [(Term Char Char, Term Char Char)]
+    instance Show RewriteSequence where
+        show (RewriteSequence lst) = "RewriteSequence [" Data.List.++ show lst Data.List.++ "]"
+
 
     -- Splits a String
     splitString :: String -> [String]
@@ -76,7 +79,9 @@ module Rest where
 
     -- Adds the Data.List.head element to the result and then hands the work down
     p :: ([Term Char Char], [[String]]) -> [Rule Char Char] -> RewriteSequence
+    p ([], _) _ = RewriteSequence []  -- Handle the case of an empty list
     p (terms, families) rules = RewriteSequence (help2 (Data.List.head terms) families rules rules)
+
 
     -- Checks if a rules is applicable on a certain term. If so, then it returns the reduct, otherwise it returns an empty list
     getNewReduct :: Term Char Char -> Rule Char Char -> [Term Char Char]

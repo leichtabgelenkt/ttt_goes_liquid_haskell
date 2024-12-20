@@ -309,8 +309,17 @@ example1RuleSet = [distribUnion, idemInter, disjointnessAss, emptyUnion]
 example1StartTerm :: Term Char Char
 example1StartTerm = Fun 'n' [Fun 'u' [Fun 's' [], Fun 't' []], Fun 's' []]
 
+uuuuu :: Rule Char Char
+uuuuu = Rule
+    { lhs = Fun 'f' [Var 'x']
+    , rhs = Fun 'f' [Var 'x'] 
+    }
+
+uuStart :: Term Char Char
+uuStart = Fun 'f' [Fun 'a' []]
+
 example1ResultTerms :: RewriteSequence
-example1ResultTerms = rest example1RuleSet example1StartTerm
+example1ResultTerms = rest [uuuuu] uuStart
 -- =  [Fun 'n' [Fun 'u' [Var 's',Var 't'],Var 's'],Fun 'u' [Fun 'n' [Var 's',Var 's'],Fun 'n' [Var 't',Var 's']]]
 
 

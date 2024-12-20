@@ -10,7 +10,7 @@ def trs_to_string(file_path):
 
 def weighted_random_key(my_dict):
     # Assign weights: larger weight for value 0
-    weights = [13 if value == 0 else 1 for value in my_dict.values()]
+    weights = [constant_probability if value == 0 else 1 for value in my_dict.values()]
 
     # Select a random key based on the weights
     selected_key = random.choices(list(my_dict.keys()), weights=weights, k=1)[0]
@@ -63,8 +63,6 @@ def get_component_from_key():
     
     return subterm
 
-    
-
 def create_random_start_terms(n):
     start_terms = set()
     while(len(start_terms) < n):
@@ -75,8 +73,6 @@ def create_random_start_terms(n):
         start_terms.add(start)
 
     return(start_terms)
-
-
 
 def get_term_components(arities):
     components = []
@@ -92,8 +88,14 @@ def get_term_components(arities):
 
     return components
 
+
 total = 0
 success = 0
+timeout_time = 30
+timeouts_subterm_criterion = 0
+timeouts_rest = 0
+n_start_terms = 25
+constant_probability = 8
 folders = ['./examples/Der95/trs_files/', './examples/SK90/trs_files/']
 
 for folder in folders:
@@ -106,32 +108,57 @@ for folder in folders:
 
             parts = trs_string.split("\n")
             variables = parts[0].removeprefix("(VAR ").removesuffix(")").split(" ")
-            sides = get_terms(parts[3:-2])
+            sides = get_terms(parts[2:-3])
             arities = get_arities(sides)
             if all(value != 0 for value in arities.values()):
                 print("There are no constants in the siganture, so we can't build ground terms. Added constant B")
                 arities['B'] = 0
             term_components = get_term_components(arities)
-            start_terms = create_random_start_terms(5)
+            start_terms = create_random_start_terms(n_start_terms)
+            total += n_start_terms
 
             # Base command and initial arguments
-            base_command = ["stack", "run", "subterm-criterion"]
+            base_commands = [["stack", "run", "subterm-criterion"], ["stack", "run", "rest"]] ##["stack", "run", "subterm-criterion"], 
+            i = 0
 
-            output_file_path = file_path.replace(".trs", "_result.txt")
+            for base_command in base_commands:
+                output_file = ""
+                if("subterm-criterion" in base_command):
+                    output_file_path = file_path.replace(".trs", "_result_subterm-criterion.txt")
+                else:
+                    output_file_path = file_path.replace(".trs", "_result_rest.txt")
 
-            # Open the file in write mode
-            with open(output_file_path, "w") as output_file:
-                for term in start_terms:
-                    total += 1
-                    # Combine the base command with the dynamically added arguments
-                    full_command = base_command + [file_path, term]
+                # Open the file in write mode
+                with open(output_file_path, "w") as output_file:
+                    for term in start_terms:
+                        # Combine the base command with the dynamically added arguments
+                        full_command = base_command + [file_path, term]
 
-                    # Execute the command
-                    result = subprocess.run(full_command, capture_output=True, text=True)
-                    if("Success!!" in result.stdout):
-                        success += 1
-                    output_file.write(f"{result.stdout}\n")
-                    output_file.write("=" * 40 + "\n")  # Add a separator for readabilit
+                        try:
+                            # Running the subprocess with a timeout of 30 seconds
+                            result = subprocess.run(full_command, capture_output=True, text=True, timeout=timeout_time)
+                            
+                            if( "Success!!" in result.stdout):
+                                success += 1
 
-print(f"From {total} startterms {success} were proven to terminate for their TRS. This makes a {(success / total)*100}% sucess rate!")
+                            
+                            output_file.write(f"{result.stdout}\n")
+                            output_file.write("=" * 40 + "\n")  # Add a separator for readability
+                        
+                        except subprocess.TimeoutExpired:
+                            if(i == 0):
+                                timeouts_subterm_criterion += 1
+                            else:
+                                timeouts_rest += 1
+                            output_file.write(f"The subterm criterion timed out after {timeout_time} seconds, for the start term {term}.\n")
+                            output_file.write("=" * 40 + "\n")  # Add a separator for readability
+                
+                i += 1
+
+print("Subterm-criterion:")
+print(f"From {total} startterms {success} were proven to terminate for their TRS, whereas {timeouts_subterm_criterion} terms timed out (Could have been successes). This makes a {(success / total)*100}% sucess rate!")
+
+print("\n\n\n#####################################\n\n\n")
+print("rest:")
+print(f"From {total} startterms rest timed-out {timeouts_rest} times. This makes a {(timeouts_rest/ total)*100}% time out rate!")
                     

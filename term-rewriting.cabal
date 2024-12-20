@@ -168,3 +168,39 @@ executable subterm-criterion
     ghc-options: 
         -Wall
 
+
+executable rest
+    hs-source-dirs:
+        src
+    main-is: 
+        MainREST.hs
+    build-depends:
+        base >= 4.16 && < 5,
+        term-rewriting,
+        containers >= 0.3 && < 0.7,
+        multiset >= 0.2 && < 0.4,
+        parsec >= 3.1.6 && < 3.2,
+        union-find-array >= 0.1 && < 0.2,
+        array >= 0.3 && < 0.6,
+        ansi-wl-pprint >= 0.6 && < 0.7,
+        mtl >= 1.1 && < 2.3,
+        deepseq >= 1.4.6.1,
+        random >= 1.2.1.1,
+        QuickCheck >= 2.14.2,
+        syb >= 0.7.2.3,
+        transformers >= 0.5.6.2,
+        libBF >= 0.6.7,
+        time >= 1.11.1.1,
+        text >= 1.2.5.0,
+        uniplate >= 1.6.13,
+        process >= 1.6.16.0,
+        directory >= 1.3.6.2,
+        async >= 2.2.4,
+        template-haskell >= 2.18.0.0,
+        pretty >= 1.1.3.6,
+        filepath >= 1.4.2.2,
+        bytestring, 
+        clock >= 0.8.4
+    ghc-options: 
+        -Wall
+
