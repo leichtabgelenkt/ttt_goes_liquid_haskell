@@ -25,6 +25,8 @@ import DependencyPairs
 import Data.SBV
 import Data.SBV.List
 import Data.SBV.Internals
+import Data.Graph
+import Data.Graph.SCC
 import Data.SBV.Trans (getModelValue)
 
 
@@ -95,15 +97,18 @@ ttt3 :: [Rule Char Char] -> Term Char Char -> IO String
 ttt3 rules term = do
   let dependencyRules = dependencyPairs rules rules
       projection = buildProjection rules
-  wholeTrsResult <- getSatResult dependencyRules projection dependencyRules
-  wholeTrsBoolean <- checkTest wholeTrsResult
-  if wholeTrsBoolean
+      scc = getSccFromDependencyPairs dependencyRules
+      allSccRules = Data.List.map (findSccNode dependencyRules (sccPrepare dependencyRules 1)) (sccsToRules scc)
+  wholeResultSMT <- mapM (getSatResult dependencyRules projection) allSccRules
+  wholeResult <- mapM checkTest wholeResultSMT
+  let wholeResultBolean = Data.List.all id wholeResult
+  if wholeResultBolean
     then return ("Success!! The term \"" Data.List.++ (show term) Data.List.++ "\" terminates with the given rules, using the subterm criterion")
     else do
       result <- ttt3Help rules [] term
       if and result
         then return ("Success!! The term \"" Data.List.++ (show term) Data.List.++ "\" terminates with the given rules, using the subterm criterion")
-        else return ("The term \"" Data.List.++ (show term) Data.List.++ "\" does NOT terminate with the given rules, using the subterm criterion")
+        else return ("The term \"" Data.List.++ (show term) Data.List.++ "\" could NOT be proven to terminate with the given rules, using the subterm criterion")
 
 ttt3Help :: [Rule Char Char] -> [Term Char Char] -> Term Char Char -> IO [Bool]
 ttt3Help rules@(x:xs) seenTerms term

@@ -80,6 +80,29 @@ main = do
         [filePath, term] -> runMain filePath term
         _ -> putStrLn "Usage: subterm-criterion <path to your .trs file> \"<start-term>\""
 
+-- runMain :: FilePath -> String -> IO ()
+-- runMain filePath term = do
+--     result <- fromFile filePath
+--     case result of
+--         Left err -> putStrLn $ "Error: " Data.List.++ show(err)
+--         Right trs -> do 
+--           let variables = getVariables trs
+--           stringTerm <- ParseTerm.parseIO variables term
+--           let term = getCharTerm $ stringTerm
+--           if containsVariable term 
+--             then putStrLn $ "Please enter a ground term!"
+--             else do
+--               start <- getTime Monotonic
+--               let test = rest (Data.List.map getCharRule $ getStrictRules trs) (term)
+--               end <- getTime Monotonic
+--               let test2 = Data.List.map getCharRule $ getStrictRules trs
+--               putStrLn $ "rest function terminated for term " Data.List.++ (show term)
+--               putStrLn $ "Output: " Data.List.++ (show test)
+--               let diff = diffTimeSpec end start
+--               let seconds = toSeconds diff
+--               putStrLn $ "Execution time: " Data.List.++ printf "%.4f" seconds Data.List.++ " seconds"
+
+
 runMain :: FilePath -> String -> IO ()
 runMain filePath term = do
     result <- fromFile filePath
@@ -93,14 +116,16 @@ runMain filePath term = do
             then putStrLn $ "Please enter a ground term!"
             else do
               start <- getTime Monotonic
-              let test = rest (Data.List.map getCharRule $ getStrictRules trs) (term)
+              let test = restTermination (Data.List.map getCharRule $ getStrictRules trs) (term)
               end <- getTime Monotonic
-              let test2 = Data.List.map getCharRule $ getStrictRules trs
-              putStrLn $ "rest function terminated for term " Data.List.++ (show term)
+              if test
+                then putStrLn $ "rest function terminated for term " Data.List.++ (show term)
+                else putStrLn $ "rest function DID NOT terminate for term " Data.List.++ (show term)
               putStrLn $ "Output: " Data.List.++ (show test)
               let diff = diffTimeSpec end start
               let seconds = toSeconds diff
               putStrLn $ "Execution time: " Data.List.++ printf "%.4f" seconds Data.List.++ " seconds"
+
 
 toSeconds :: System.Clock.TimeSpec -> Double
 toSeconds (System.Clock.TimeSpec s ns) = fromIntegral s + fromIntegral ns / 1000000000

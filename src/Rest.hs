@@ -51,22 +51,51 @@ module Rest where
     compareOutermostSymbols :: Term Char Char -> Term Char Char -> [String]
     compareOutermostSymbols term1 term2 = splitString (outermostSymbol term1 Data.List.++ outermostSymbol term2)
 
+    isBefore :: Eq a => [a] -> a -> a -> Bool
+    isBefore ordering a b = 
+        case (a `elemIndex` ordering, b `elemIndex` ordering) of
+            (Just indexA, Just indexB) -> indexA < indexB
+            _ -> False
+
     -- Removes all orderings of a family where the ordering is not the same as in the first argument, which is a sub family
     findOrderings :: [String] -> [[String]] -> [[String]]
     findOrderings _ [] = []
     findOrderings [x, y] allOrderings = 
         Data.List.filter (\ordering -> isBefore ordering x y) allOrderings
-        where
-            isBefore :: Eq a => [a] -> a -> a -> Bool
-            isBefore ordering a b = 
-                case (a `elemIndex` ordering, b `elemIndex` ordering) of
-                    (Just indexA, Just indexB) -> indexA < indexB
-                    _ -> False
+            
 
     -- Makes a sub function order out of two terms and then refines the family of orderings 
     refine :: [[String]] -> Term Char Char -> [Term Char Char] -> [[String]]
     refine rules t1 [] = []
     refine rules t1 t2 = findOrderings (compareOutermostSymbols t1 (Data.List.head t2)) rules
+
+    lpoAlternativeOne :: Term Char Char -> Term Char Char -> Int -> Int -> [String] -> Bool
+    lpoAlternativeOne f@(Fun x a) g@(Fun y b) step index family
+     | step /= 3 && index == (Data.List.length b) = False
+     | step == 3 && index == (Data.List.length b) = True
+     | step == 1 && index == 0 = if (a Data.List.!! 0) == (b Data.List.!! 0) then (lpoAlternativeOne f g 1 1 family) else False
+     | step == 1 = if (a Data.List.!! index) == (b Data.List.!! index) then (lpoAlternativeOne f g 1 (index+1) family) else (lpoAlternativeOne f g 2 index family)
+     | step == 2 = if lpoFamily (a Data.List.!! index) (b Data.List.!! index) family then (lpoAlternativeOne f g 3 (index+1) family) else False
+     | step == 3 = if lpoFamily f (b Data.List.!! index) family then (lpoAlternativeOne f g 3 (index+1) family) else False
+     | otherwise = False
+
+    lpoAlternativeTwo :: Term Char Char -> Term Char Char -> [String] -> Bool
+    lpoAlternativeTwo f@(Fun x a) g@(Fun y b) family
+     | x /= y = False
+     | otherwise = and (Data.List.map (\u -> lpoFamily f u family) b)
+
+    
+    lpoAlternativeThree :: Term Char Char -> Term Char Char -> [String] -> Bool
+    lpoAlternativeThree f@(Fun x a) g@(Fun y b) family = or (Data.List.map (\u -> (u == g) || (lpoFamily u g family)) a)
+
+    lpoFamily :: Term Char Char -> Term Char Char -> [String] -> Bool
+    lpoFamily f@(Fun x a) g@(Fun y b) family
+     | x == y = lpoAlternativeOne f g 1 0 family
+     | x /= y && ((findOrderings (compareOutermostSymbols f g) [family]) /= []) && (b == []) = True
+     | x /= y && ((findOrderings (compareOutermostSymbols f g) [family]) /= []) = lpoAlternativeTwo f g family
+     -- | (a /= []) = lpoAlternativeThree f g family
+     | otherwise = False
+    --lpoFamily _ _ _ = False
 
     -- Just checks if a list is empty or not
     mySat :: [[a]] -> Bool
@@ -103,10 +132,33 @@ module Rest where
      where lhs = getLHS (Data.List.head rSet)
            rhs = getRHS (Data.List.head rSet)
            newReduct = getNewReduct term (Data.List.head rSet)
-           newFamilies = refine families lhs [rhs]
+           newFamilies = Data.List.filter (\x -> lpoFamily lhs rhs x) families
 
     getLHS :: Rule Char Char -> Term Char Char
     getLHS (Rule lhs _) = lhs
 
     getRHS :: Rule Char Char -> Term Char Char
     getRHS (Rule _ rhs) = rhs
+
+
+
+
+    -- Start of the REST algorithm
+    restTermination :: [Rule Char Char] -> Term Char Char -> Bool
+    restTermination rules term = pTermination ([term], (getAllFamilies rules)) rules
+
+    -- Adds the Data.List.head element to the result and then hands the work down
+    pTermination :: ([Term Char Char], [[String]]) -> [Rule Char Char] -> Bool
+    pTermination ([], _) _ = True  -- Handle the case of an empty list
+    pTermination (terms, families) rules = and (help2Termination (Data.List.head terms) families rules rules)
+
+    help2Termination :: Term Char Char -> [[String]] -> [Rule Char Char] ->  [Rule Char Char] -> [Bool]
+    help2Termination term families rules rSet
+     | rSet == [] = []
+     | Data.List.null newReduct = help2Termination term families rules (Data.List.tail rSet)
+     | not (mySat newFamilies) = [False] --help2 term families rules (Data.List.tail rSet)
+     | otherwise = (help2Termination term newFamilies rules (Data.List.tail rSet)) Data.List.++ (help2Termination (Data.List.head newReduct) newFamilies rules rules)
+     where lhs = getLHS (Data.List.head rSet)
+           rhs = getRHS (Data.List.head rSet)
+           newReduct = getNewReduct term (Data.List.head rSet)
+           newFamilies = Data.List.filter (\x -> lpoFamily lhs rhs x) families --refine families lhs [rhs]
