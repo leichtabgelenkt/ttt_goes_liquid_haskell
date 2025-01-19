@@ -11,7 +11,7 @@
 <funapp>
 <name>a</name>
 <arg>
-<var>x0</var>
+<var>a</var>
 </arg>
 </funapp>
 </arg>
@@ -32,7 +32,7 @@
 </funapp>
 </arg>
 <arg>
-<var>x2</var>
+<var>c</var>
 </arg>
 </funapp>
 </arg>
@@ -66,7 +66,7 @@
 </funapp>
 </arg>
 <arg>
-<var>x2</var>
+<var>c</var>
 </arg>
 </funapp>
 </arg>
@@ -84,7 +84,7 @@
 <funapp>
 <name>a</name>
 <arg>
-<var>x0</var>
+<var>a</var>
 </arg>
 </funapp>
 </arg>
@@ -102,7 +102,7 @@
 <funapp>
 <name>b</name>
 <arg>
-<var>x0</var>
+<var>a</var>
 </arg>
 </funapp>
 </arg>
